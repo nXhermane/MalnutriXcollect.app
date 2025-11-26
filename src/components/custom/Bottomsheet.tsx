@@ -2,25 +2,25 @@ import {
   BottomSheetModalProps as GHBottomSheetModalProps,
   BottomSheetModal as GHBottomSheetModal,
   BottomSheetBackdrop,
-} from "@gorhom/bottom-sheet";
-import React from "react";
-import { isDark$ } from "@/store";
-import { router } from "expo-router";
-import { BackHandler } from "react-native";
-import colors from "tailwindcss/colors";
-import { BottomSheetDragIndicator } from "@/components/ui/bottomsheet";
-import { VStack } from "../ui/vstack";
-import { useValue } from "@legendapp/state/react";
+} from '@gorhom/bottom-sheet';
+import React from 'react';
+import { isDark$ } from '@/store';
+import { router } from 'expo-router';
+import { BackHandler } from 'react-native';
+import colors from 'tailwindcss/colors';
+import { BottomSheetDragIndicator } from '@/components/ui/bottomsheet';
+import { VStack } from '../ui/vstack';
+import { useValue } from '@legendapp/state/react';
 
 interface BottomSheetModalProps
   extends Omit<
     GHBottomSheetModalProps,
-    | "children"
-    | "handleIndicatorStyle"
-    | "ref"
-    | "handleComponent"
-    | "backgroundComponent"
-    | "backdropComponent"
+    | 'children'
+    | 'handleIndicatorStyle'
+    | 'ref'
+    | 'handleComponent'
+    | 'backgroundComponent'
+    | 'backdropComponent'
   > {
   isVisible: boolean;
   onClose: () => void;
@@ -40,7 +40,7 @@ export function BottomSheetModal({
   ...props
 }: BottomSheetModalProps) {
   const ref = React.useRef<GHBottomSheetModal>(null);
-  const isDark = useValue(isDark$)
+  const isDark = useValue(isDark$);
   React.useEffect(() => {
     if (isVisible) {
       ref.current?.present();
@@ -60,10 +60,7 @@ export function BottomSheetModal({
       return true;
     };
 
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    );
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
   }, [isVisible]);
@@ -73,36 +70,24 @@ export function BottomSheetModal({
       <GHBottomSheetModal
         onDismiss={() => onClose && onClose()}
         ref={ref}
-        snapPoints={snapPoints ?? ["50%"]}
+        snapPoints={snapPoints ?? ['50%']}
         handleIndicatorStyle={{
-          backgroundColor:
-            isDark ? colors.gray["500"] : colors.gray["300"],
+          backgroundColor: isDark ? colors.gray['500'] : colors.gray['300'],
         }}
-        handleComponent={(props) => (
-          <BottomSheetDragIndicator {...props} className="py-2" />
-        )}
+        handleComponent={(props) => <BottomSheetDragIndicator {...props} className="py-2" />}
         backgroundComponent={(props) => {
           return (
-            <VStack
-              {...props}
-              className={`rounded-2xl bg-background-primary ${bgClassName}`}
-            />
+            <VStack {...props} className={`rounded-2xl bg-background-primary ${bgClassName}`} />
           );
         }}
         backdropComponent={(props) => (
-          <BottomSheetBackdrop
-            {...props}
-            opacity={0.5}
-            appearsOnIndex={0}
-            disappearsOnIndex={-1}
-          />
+          <BottomSheetBackdrop {...props} opacity={0.5} appearsOnIndex={0} disappearsOnIndex={-1} />
         )}
         enableDynamicSizing={enableDynamicSizing}
         enableContentPanningGesture={enableContentPanningGesture}
         detached={detached}
         bottomInset={bottomInset}
-        {...props}
-      >
+        {...props}>
         {children}
       </GHBottomSheetModal>
     </React.Fragment>

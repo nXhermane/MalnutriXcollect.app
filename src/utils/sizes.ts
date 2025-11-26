@@ -1,11 +1,5 @@
 import { Platform } from 'react-native';
-import {
-  moderateScale,
-  scale,
-  mvs,
-  verticalScale,
-  ImageStyle,
-} from 'react-native-size-matters';
+import { scale, verticalScale } from 'react-native-size-matters';
 
 export const isMobile = Platform.OS === 'android' || Platform.OS === 'ios';
 

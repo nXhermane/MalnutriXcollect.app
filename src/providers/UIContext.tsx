@@ -1,11 +1,11 @@
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import React, { createContext, ReactNode, useContext, useMemo } from "react";
-import { StatusBar } from "expo-status-bar";
-import { View } from "react-native";
-import { vars } from "nativewind";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import variables from "@/utils/sizes";
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import React, { createContext, ReactNode, useContext, useMemo } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { View } from 'react-native';
+import { vars } from 'nativewind';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import variables from '@/utils/sizes';
 import {
   Lato_700Bold,
   Lato_400Regular,
@@ -15,9 +15,9 @@ import {
   Lato_900Black,
   Lato_900Black_Italic,
   useFonts,
-} from "@expo-google-fonts/lato";
-import { theme$ } from "@/store";
-import { useValue } from "@legendapp/state/react";
+} from '@expo-google-fonts/lato';
+import { theme$ } from '@/store';
+import { useValue } from '@legendapp/state/react';
 
 export interface UIContextType {
   loaded: boolean;
@@ -48,16 +48,14 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
     Black: Lato_900Black,
     BlackItalic: Lato_900Black_Italic,
   });
-  const generatedVars = useMemo(() => vars(variables), [variables]);
-  const theme = useValue(theme$)
+  const generatedVars = useMemo(() => vars(variables), []);
+  const theme = useValue(theme$);
 
   return (
     <React.Fragment>
       <StatusBar style="auto" />
       <UIContext.Provider value={{ loaded, error }}>
-        <View
-          style={[{ flex: 1, height: "100%", width: "100%" }, generatedVars]}
-        >
+        <View style={[{ flex: 1, height: '100%', width: '100%' }, generatedVars]}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <GluestackUIProvider mode={theme}>
               <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
@@ -72,7 +70,7 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
 export function useUI() {
   const context = useContext(UIContext);
   if (!context) {
-    throw new Error("useUI must be used within UIProvider");
+    throw new Error('useUI must be used within UIProvider');
   }
   return context;
 }
