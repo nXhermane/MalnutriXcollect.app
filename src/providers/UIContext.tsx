@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { View } from "react-native";
 import { vars } from "nativewind";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import variables from "@/utils/sizes";
 import {
   Lato_700Bold,
@@ -15,6 +16,8 @@ import {
   Lato_900Black_Italic,
   useFonts,
 } from "@expo-google-fonts/lato";
+import { theme$ } from "@/store";
+import { useValue } from "@legendapp/state/react";
 
 export interface UIContextType {
   loaded: boolean;
@@ -45,8 +48,8 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
     Black: Lato_900Black,
     BlackItalic: Lato_900Black_Italic,
   });
-
   const generatedVars = useMemo(() => vars(variables), [variables]);
+  const theme = useValue(theme$)
 
   return (
     <React.Fragment>
@@ -56,8 +59,8 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
           style={[{ flex: 1, height: "100%", width: "100%" }, generatedVars]}
         >
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <GluestackUIProvider mode={"system"}>
-              {children}
+            <GluestackUIProvider mode={theme}>
+              <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
             </GluestackUIProvider>
           </GestureHandlerRootView>
         </View>
