@@ -1,5 +1,5 @@
 import { SplashScreen, Stack } from "expo-router";
-import "@/global.css";
+import "@/../global.css";
 import { UIProvider, useUI } from "@/providers";
 
 export default function RootLayout() {

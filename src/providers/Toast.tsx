@@ -13,7 +13,7 @@ import { Icon } from "@/components/ui/icon";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
 
-type ToastType = "Success" | "Error" | "Info" 
+type ToastType = "Success" | "Error" | "Info";
 export interface ToastContextType {
   show: (
     type: ToastType,
@@ -50,7 +50,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
       toast.show({
         id: newId,
         placement: placement,
-        duration: 5000, 
+        duration: 5000,
         containerStyle: {
           width: Dimensions.get("screen").width,
           zIndex: 9999,
@@ -133,25 +133,20 @@ const CustomToast: React.FC<ToastProps> = ({
       <HStack className="gap-3">
         <Icon
           as={InfoIcon}
-          className={
-            "h-6 w-6 items-center justify-center rounded-full" +
-            variant[type].icon
-          }
+          className={`h-6 w-6 items-center justify-center rounded-full ${variant[type].icon}`}
         />
 
         <VStack className="w-[90%]">
           {title && (
             <ToastTitle
-              className={"text-base font-semibold " + variant[type].title}
+              className={`text-base font-semibold ${variant[type].title}`}
             >
               {title}
             </ToastTitle>
           )}
           {description && (
             <ToastDescription
-              className={
-                "mt-1 text-sm text-typography-primary_light dark:text-gray-300"
-              }
+              className={`mt-1 text-sm text-typography-primary_light dark:text-gray-300`}
             >
               {description}
             </ToastDescription>
