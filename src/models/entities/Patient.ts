@@ -5,6 +5,7 @@ import {
   ParentDTO,
   ContactDTO,
   Sex,
+  AddressDTO,
 } from '../schemas';
 import { nanoid } from 'nanoid/non-secure';
 
@@ -37,6 +38,14 @@ export namespace PatientHelpers {
     }
 
     return age;
+  }
+
+  export function getAgeInDay(patient: PatientDTO): number {
+    const now = new Date();
+    const birthDate = new Date(patient.birthdate);
+    const diffInMs = now.getTime() - birthDate.getTime();
+
+    return Math.floor(diffInMs / (1000 * 60 * 60 * 24));
   }
 
   export function getInitials(patient: PatientDTO): string {
@@ -94,9 +103,32 @@ export namespace PatientHelpers {
   }
 
   export function updateContact(patient: PatientDTO, contact: Partial<ContactDTO>): PatientDTO {
+    if (!canBeModified(patient)) {
+      throw new Error('Ce patient ne peut pas être modifié');
+    }
     return {
       ...patient,
       contact: { ...patient.contact, ...contact },
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  export function updateBirthdate(patient: PatientDTO, birthdate: Date): PatientDTO {
+    if (!canBeModified(patient)) {
+      throw new Error('Ce patient ne peut pas être modifié');
+    }
+    return {
+      ...patient,
+      birthdate: birthdate.toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  export function updateAddress(patient: PatientDTO, address: Partial<AddressDTO>): PatientDTO {
+    if (!canBeModified(patient)) {
+      throw new Error('Ce patient ne peut pas être modifié');
+    }
+    return {
+      ...patient,
+      address: { ...patient.address, ...address },
       updatedAt: new Date().toISOString(),
     };
   }
@@ -125,15 +157,10 @@ export namespace PatientHelpers {
     };
   }
 
-  export function addParent(patient: PatientDTO, parent: ParentDTO): PatientDTO {
-    const existingParent = patient.parents.find((p) => p.relation === parent.relation);
-    if (existingParent) {
-      throw new Error(`Un ${parent.relation} existe déjà`);
-    }
-
+  export function updateParent(patient: PatientDTO, parents: ParentDTO[]): PatientDTO {
     return {
       ...patient,
-      parents: [...patient.parents, parent],
+      parents: parents,
       updatedAt: new Date().toISOString(),
     };
   }

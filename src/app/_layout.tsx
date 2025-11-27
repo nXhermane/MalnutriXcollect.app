@@ -1,3 +1,4 @@
+import 'react-native-get-random-values';
 import { SplashScreen, Stack } from 'expo-router';
 import '@/../global.css';
 import { UIProvider, useUI } from '@/providers';

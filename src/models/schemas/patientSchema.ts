@@ -41,7 +41,20 @@ export const patientSchema = v.object({
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
   isLocked: v.boolean(),
   contact: contactSchema,
-  parents: v.array(parentSchema),
+  parents: v.pipe(
+    v.array(parentSchema),
+    v.check((parents) => {
+      const obj: { [key in ParentRelation]: boolean } = {} as any;
+      for (const parent of parents) {
+        if (obj[parent.relation]) {
+          return false;
+        }
+        obj[parent.relation] = true;
+      }
+      return true;
+    }, 'Plusieurs parents du même type sont présents'),
+    v.nonEmpty('Au moins un parent est requis'),
+  ),
   address: addressSchema,
   createdAt: v.pipe(v.string(), v.isoTimestamp()),
   updatedAt: v.pipe(v.string(), v.isoTimestamp()),
@@ -59,18 +72,43 @@ export const createPatientSchema = v.object({
   ),
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
   contact: contactSchema,
-  parents: v.array(parentSchema, 'Au moins un parent est requis'),
+  parents: v.pipe(
+    v.array(parentSchema),
+    v.check((parents) => {
+      const obj: { [key in ParentRelation]: boolean } = {} as any;
+      for (const parent of parents) {
+        if (obj[parent.relation]) {
+          return false;
+        }
+        obj[parent.relation] = true;
+      }
+      return true;
+    }, 'Plusieurs parents du même type sont présents'),
+    v.nonEmpty('Au moins un parent est requis'),
+  ),
   address: addressSchema,
 });
 
 export const updatePatientSchema = v.object({
-  id: v.pipe(v.string(), v.nanoid('ID invalide')),
   name: v.optional(v.pipe(v.string(), v.nonEmpty('Le nom ne peut pas être vide'), v.minLength(3))),
   birthdate: v.optional(v.pipe(v.date(), v.maxValue(new Date()))),
   sex: v.optional(v.enum(Sex)),
   isLocked: v.optional(v.boolean()),
   contact: v.optional(contactSchema),
-  parents: v.optional(v.array(parentSchema)),
+  parents: v.optional(v.pipe(
+    v.array(parentSchema),
+    v.check((parents) => {
+      const obj: { [key in ParentRelation]: boolean } = {} as any;
+      for (const parent of parents) {
+        if (obj[parent.relation]) {
+          return false;
+        }
+        obj[parent.relation] = true;
+      }
+      return true;
+    }, 'Plusieurs parents du même type sont présents'),
+    v.nonEmpty('Au moins un parent est requis'),
+  ),),
   address: v.optional(addressSchema),
 });
 

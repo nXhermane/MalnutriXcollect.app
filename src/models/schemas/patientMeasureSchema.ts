@@ -12,18 +12,96 @@ export const dataFieldValueSchema = v.object({
   code: v.string(),
 });
 export const createPatientMeasureSchema = v.object({
-  measures: v.array(anthropometricSchema),
-  fields: v.array(dataFieldValueSchema),
+  measures: v.pipe(
+    v.array(anthropometricSchema),
+    v.check((measures) => {
+      const obj: Record<string, boolean> = {};
+      for (const measure of measures) {
+        if (obj[measure.code]) {
+          return false;
+        }
+        obj[measure.code] = true;
+      }
+      return true;
+    }, 'Les mesures anthropométriques ne peuvent pas être dupliquées'),
+  ),
+  fields: v.pipe(
+    v.array(dataFieldValueSchema),
+    v.check((fields) => {
+      const obj: Record<string, boolean> = {};
+      for (const field of fields) {
+        if (obj[field.code]) {
+          return false;
+        }
+        obj[field.code] = true;
+      }
+      return true;
+    }, 'Les champs de données ne peuvent pas être dupliqués'),
+  ),
+});
+export const updatePatientMeasureSchema = v.object({
+  measures: v.pipe(
+    v.array(anthropometricSchema),
+    v.check((measures) => {
+      const obj: Record<string, boolean> = {};
+      for (const measure of measures) {
+        if (obj[measure.code]) {
+          return false;
+        }
+        obj[measure.code] = true;
+      }
+      return true;
+    }, 'Les mesures anthropométriques ne peuvent pas être dupliquées'),
+  ),
+  fields: v.pipe(
+    v.array(dataFieldValueSchema),
+    v.check((fields) => {
+      const obj: Record<string, boolean> = {};
+      for (const field of fields) {
+        if (obj[field.code]) {
+          return false;
+        }
+        obj[field.code] = true;
+      }
+      return true;
+    }, 'Les champs de données ne peuvent pas être dupliqués'),
+  ),
 });
 
 export const patientMeasureSchema = v.object({
   id: v.pipe(v.string(), v.nanoid('ID invalide')),
-  measures: v.array(anthropometricSchema),
-  fields: v.array(dataFieldValueSchema),
+  patientId: v.string(),
+  measures: v.pipe(
+    v.array(anthropometricSchema),
+    v.check((measures) => {
+      const obj: Record<string, boolean> = {};
+      for (const measure of measures) {
+        if (obj[measure.code]) {
+          return false;
+        }
+        obj[measure.code] = true;
+      }
+      return true;
+    }, 'Les mesures anthropométriques ne peuvent pas être dupliquées'),
+  ),
+  fields: v.pipe(
+    v.array(dataFieldValueSchema),
+    v.check((fields) => {
+      const obj: Record<string, boolean> = {};
+      for (const field of fields) {
+        if (obj[field.code]) {
+          return false;
+        }
+        obj[field.code] = true;
+      }
+      return true;
+    }, 'Les champs de données ne peuvent pas être dupliqués'),
+  ),
   isExported: v.boolean(),
   createdAt: v.pipe(v.string(), v.isoTimestamp()),
   updatedAt: v.pipe(v.string(), v.isoTimestamp()),
 });
+
 
 export type PatientMeasureDTO = v.InferOutput<typeof patientMeasureSchema>;
 export type CreatePatientMeasureDTO = v.InferOutput<typeof createPatientMeasureSchema>;
