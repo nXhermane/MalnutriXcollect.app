@@ -1,2 +1,2 @@
-export * from "./patientMeasureSchema"
-export * from "./patientSchema"
+export * from './patientMeasureSchema';
+export * from './patientSchema';
