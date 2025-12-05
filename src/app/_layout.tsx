@@ -32,5 +32,13 @@ function Main() {
     return null;
   }
 
-  return showTempOverlay ? <TemporalyOverlay /> : <Stack />;
+  return showTempOverlay ? (
+    <TemporalyOverlay />
+  ) : (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  );
 }

@@ -1,7 +1,7 @@
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import React, { createContext, ReactNode, useContext, useMemo } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { Appearance, View } from 'react-native';
 import { vars } from 'nativewind';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
@@ -50,7 +50,11 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
   });
   const generatedVars = useMemo(() => vars(variables), []);
   const theme = useValue(theme$);
-
+  useEffect(() => {
+    Appearance.addChangeListener(({ colorScheme }) => {
+      if (colorScheme) theme$.set(colorScheme);
+    });
+  }, []);
   return (
     <React.Fragment>
       <StatusBar style="auto" />
