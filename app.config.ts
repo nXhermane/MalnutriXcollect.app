@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'Malnutrix_collect',
   version: '1.0.0',
   orientation: 'portrait',
-  icon: './assets/images/icon.png',
+  "icon": "./assets/images/malnutrix.ic.launcher.dark.png",
   scheme: 'malnutrixcollect',
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,
@@ -15,10 +15,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
-      foregroundImage: './assets/images/android-icon-foreground.png',
-      backgroundImage: './assets/images/android-icon-background.png',
-      monochromeImage: './assets/images/android-icon-monochrome.png',
+      backgroundImage: './assets/images/malnutrix.ic.launcher.dark.png',
+      monochromeImage: './assets/images/malnutrix.ic.launcher.dark.png',
+      foregroundImage: './assets/images/malnutrix.ic.launcher.dark.png',
+      backgroundColor: '#000000',
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
@@ -63,5 +63,4 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   owner: 'nxhermano',
-  
 });
