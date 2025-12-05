@@ -14,7 +14,7 @@ export class CrossViewModel {
     try {
       return JSON.stringify(this.exportUnExportedPatient());
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
   import(raw: string) {
