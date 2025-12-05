@@ -8,7 +8,7 @@ import {
   InputIcon,
   InputSlot,
 } from '../ui/input';
-import { Search, X, XCircle } from 'lucide-react-native';
+import { Search, XCircle } from 'lucide-react-native';
 import React from 'react';
 export interface SearchBarProps extends IInputProps {
   fieldProps?: IInputFieldProps;
@@ -27,7 +27,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ fieldProps, className, ...
           placeholderClassName={'text-typography-600/60 font-body text-base  font-normal'}
           {...fieldProps}
         />
-        {fieldProps?.value?.trim() != '' && (
+        {fieldProps?.value?.trim() !== '' && (
           <InputSlot
             className="pr-3"
             onPress={() => {

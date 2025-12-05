@@ -23,7 +23,7 @@ interface BottomSheetModalProps
     | 'backdropComponent'
   > {
   isVisible: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   bgClassName?: string;
   children?: React.ReactNode | React.ReactNode[];
 }
@@ -76,9 +76,7 @@ export function BottomSheetModal({
         }}
         handleComponent={(props) => <BottomSheetDragIndicator {...props} className="py-2" />}
         backgroundComponent={(props) => {
-          return (
-            <VStack {...props} className={`rounded-2xl bg-background-primary ${bgClassName}`} />
-          );
+          return <VStack {...props} className={`rounded-2xl bg-background-0 ${bgClassName}`} />;
         }}
         backdropComponent={(props) => (
           <BottomSheetBackdrop {...props} opacity={0.5} appearsOnIndex={0} disappearsOnIndex={-1} />

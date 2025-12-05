@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { Box } from '@/components/ui/box';
 import { Pressable } from '../ui/pressable';
 import { Icon } from '../ui/icon';
-import { Camera, ScanQrCode, Search, SearchX } from 'lucide-react-native';
+import { ScanQrCode, Search, SearchX, Sun, Moon } from 'lucide-react-native';
+import { ImportPatientModal } from './ImportPatientModal';
+import { theme$ } from '@/store';
+import { useValue } from '@legendapp/state/react';
 
 export const Header = ({
   searchBarIsVisible = false,
@@ -13,11 +16,13 @@ export const Header = ({
   toggleSearchBar?: () => void;
   searchBarIsVisible?: boolean;
 }) => {
+  const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(false);
+  const theme = useValue(theme$);
   return (
     <React.Fragment>
       <HStack
         className={
-          'p-safe dark:elevation-md h-v-18 w-full items-center justify-between bg-background-0'
+          'p-safe dark:elevation-md h-v-18 w-full items-center justify-between bg-background-50'
         }>
         <HStack className={'items-center w-full justify-between px-4 pb-2'}>
           <Box>
@@ -29,19 +34,34 @@ export const Header = ({
             </HStack>
           </Box>
           <HStack className="gap-4">
-            <Pressable onPress={() => alert('Show the camera bottom sheet')}>
-              <Icon as={ScanQrCode} size="md" className="text-typography-600" />
+            <Pressable onPress={() => setShowImportPatientModal(true)}>
+              <Icon as={ScanQrCode} size="lg" className="text-typography-600" />
             </Pressable>
             <Pressable onPress={toggleSearchBar}>
               <Icon
                 as={searchBarIsVisible ? SearchX : Search}
-                size="md"
+                size="lg"
                 className="text-typography-600"
               />
+            </Pressable>
+            <Pressable
+              onPress={() =>
+                theme$.set((prev) => {
+                  if (prev === 'dark') return 'light';
+                  else return 'dark';
+                })
+              }>
+              <Icon as={theme === 'dark' ? Sun : Moon} size="lg" className="text-typography-600" />
             </Pressable>
           </HStack>
         </HStack>
       </HStack>
+      {showImportPatientModal && (
+        <ImportPatientModal
+          isVisible={showImportPatientModal}
+          onClose={() => setShowImportPatientModal(false)}
+        />
+      )}
     </React.Fragment>
   );
 };

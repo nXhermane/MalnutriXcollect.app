@@ -1,6 +1,7 @@
 import { isDark$ } from '@/store';
 import React, { useMemo } from 'react';
 import { Image, ImageProps } from '../ui/image';
+import { useValue } from '@legendapp/state/react';
 
 interface UIImageProps extends Omit<ImageProps, 'source'> {
   sourceDark: ImageProps['source'];
@@ -14,12 +15,13 @@ const UIImage: React.FC<UIImageProps> = React.memo(function ({
   mode,
   ...props
 }) {
+  const isDark = useValue(isDark$);
   const source = useMemo(() => {
     if (mode) {
       return mode === 'dark' ? sourceDark : sourceLight;
     }
-    return isDark$.get() ? sourceDark : sourceLight;
-  }, [mode, sourceDark, sourceLight]);
+    return isDark ? sourceDark : sourceLight;
+  }, [mode, sourceDark, sourceLight, isDark]);
 
   return <Image source={source} {...props} />;
 });

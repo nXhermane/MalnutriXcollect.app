@@ -33,8 +33,8 @@ export const Chips = <T,>({
           title={item.label}
           state={JSON.stringify(item.value) === JSON.stringify(value)}
           onChange={(state) => state && onChange && onChange(item.value)}
-          isFirst={index == 0 && !leftComponent}
-          isLast={index == data.length - 1 && !rightComponent}
+          isFirst={index === 0 && !leftComponent}
+          isLast={index === data.length - 1 && !rightComponent}
         />
       ))}
       {rightComponent && rightComponent()}

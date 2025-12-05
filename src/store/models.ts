@@ -1,6 +1,6 @@
 import { Patient, PatientMeasure } from '@/models/schemas';
 import { staticPatientMeasures, staticPatients } from '@/utils/staticData';
-import { computed, observable } from '@legendapp/state';
+import { observable, observe } from '@legendapp/state';
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv';
 import { synced } from '@legendapp/state/sync';
 
@@ -27,11 +27,17 @@ export const modeles$ = observable({
   }),
   search_text: '',
 });
-export const filtered_patients$ = computed(() => {
-  const patients: Patient[] = Object.values(modeles$.patients?.get());
-  const search = modeles$.search_text?.get().trim().toLowerCase();
 
-  if (!search) return patients;
-
-  return patients.filter((patient) => patient.name.toLowerCase().includes(search));
+export const filtered_patients$ = observable<Patient[]>([]);
+observe(() => {
+  const patientsObj = modeles$.patients.get() || {};
+  const patients: Patient[] = Object.values(patientsObj);
+  const search = modeles$.search_text.get()?.trim().toLowerCase() || '';
+  if (!search) {
+    filtered_patients$.set(patients);
+  } else {
+    filtered_patients$.set(
+      patients.filter((patient) => patient.name.toLowerCase().includes(search)),
+    );
+  }
 });
