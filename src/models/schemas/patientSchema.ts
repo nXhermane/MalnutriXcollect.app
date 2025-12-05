@@ -27,7 +27,7 @@ export const parentSchema = v.object({
 });
 
 export const addressSchema = v.object({
-  fullAddress: v.pipe(v.string(), v.nonEmpty("L'adresse complète est requise")),
+  fullAddress: v.optional(v.pipe(v.string(), v.nonEmpty("L'adresse complète est requise"))),
   city: v.optional(v.string()),
 });
 export const patientSchema = v.object({
@@ -37,10 +37,17 @@ export const patientSchema = v.object({
     v.nonEmpty('Veuillez entrer le nom du patient'),
     v.minLength(3, 'Le nom doit contenir au moins 3 caractères'),
   ),
-  birthdate: v.pipe(v.string(), v.isoTimestamp('Date de naissance invalide')),
+  birthdate: v.pipe(
+    v.string(),
+    v.isoDate(),
+    v.check(
+      (date) => new Date(date) <= new Date(),
+      'La date de naissance ne peut pas être dans le futur',
+    ),
+  ),
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
-  isLocked: v.boolean(),
-  contact: contactSchema,
+  isLocked: v.optional(v.boolean(),false),
+  contact: v.optional(contactSchema),
   parents: v.pipe(
     v.array(parentSchema),
     v.check((parents) => {
@@ -53,7 +60,7 @@ export const patientSchema = v.object({
       }
       return true;
     }, 'Plusieurs parents du même type sont présents'),
-    v.nonEmpty('Au moins un parent est requis'),
+    // v.nonEmpty('Au moins un parent est requis'),
   ),
   address: addressSchema,
   createdAt: v.pipe(v.string(), v.isoTimestamp()),
@@ -67,11 +74,15 @@ export const createPatientSchema = v.object({
     v.minLength(3, 'Le nom doit contenir au moins 3 caractères'),
   ),
   birthdate: v.pipe(
-    v.date('La date de naissance doit être une date valide'),
-    v.maxValue(new Date(), 'La date de naissance ne peut pas être dans le futur'),
+    v.string(),
+    v.isoDate(),
+    v.check(
+      (date) => new Date(date) <= new Date(),
+      'La date de naissance ne peut pas être dans le futur',
+    ),
   ),
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
-  contact: contactSchema,
+  contact: v.optional(contactSchema),
   parents: v.pipe(
     v.array(parentSchema),
     v.check((parents) => {
@@ -84,35 +95,46 @@ export const createPatientSchema = v.object({
       }
       return true;
     }, 'Plusieurs parents du même type sont présents'),
-    v.nonEmpty('Au moins un parent est requis'),
+    // v.nonEmpty('Au moins un parent est requis'),
   ),
   address: addressSchema,
 });
 
 export const updatePatientSchema = v.object({
   name: v.optional(v.pipe(v.string(), v.nonEmpty('Le nom ne peut pas être vide'), v.minLength(3))),
-  birthdate: v.optional(v.pipe(v.date(), v.maxValue(new Date()))),
+  birthdate: v.optional(
+    v.pipe(
+      v.string(),
+      v.isoDate(),
+      v.check(
+        (date) => new Date(date) <= new Date(),
+        'La date de naissance ne peut pas être dans le futur',
+      ),
+    ),
+  ),
   sex: v.optional(v.enum(Sex)),
   isLocked: v.optional(v.boolean()),
   contact: v.optional(contactSchema),
-  parents: v.optional(v.pipe(
-    v.array(parentSchema),
-    v.check((parents) => {
-      const obj: { [key in ParentRelation]: boolean } = {} as any;
-      for (const parent of parents) {
-        if (obj[parent.relation]) {
-          return false;
+  parents: v.optional(
+    v.pipe(
+      v.array(parentSchema),
+      v.check((parents) => {
+        const obj: { [key in ParentRelation]: boolean } = {} as any;
+        for (const parent of parents) {
+          if (obj[parent.relation]) {
+            return false;
+          }
+          obj[parent.relation] = true;
         }
-        obj[parent.relation] = true;
-      }
-      return true;
-    }, 'Plusieurs parents du même type sont présents'),
-    v.nonEmpty('Au moins un parent est requis'),
-  ),),
+        return true;
+      }, 'Plusieurs parents du même type sont présents'),
+      // v.nonEmpty('Au moins un parent est requis'),
+    ),
+  ),
   address: v.optional(addressSchema),
 });
 
-export type PatientDTO = v.InferOutput<typeof patientSchema>;
+export type Patient = v.InferOutput<typeof patientSchema>;
 export type CreatePatientDTO = v.InferOutput<typeof createPatientSchema>;
 export type UpdatePatientDTO = v.InferOutput<typeof updatePatientSchema>;
 export type ContactDTO = v.InferOutput<typeof contactSchema>;

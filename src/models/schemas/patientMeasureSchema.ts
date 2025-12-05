@@ -102,8 +102,8 @@ export const patientMeasureSchema = v.object({
   updatedAt: v.pipe(v.string(), v.isoTimestamp()),
 });
 
-
-export type PatientMeasureDTO = v.InferOutput<typeof patientMeasureSchema>;
+export type PatientMeasure = v.InferOutput<typeof patientMeasureSchema>;
 export type CreatePatientMeasureDTO = v.InferOutput<typeof createPatientMeasureSchema>;
+export type UpdatePatientMeasureDTO = v.InferOutput<typeof updatePatientMeasureSchema>;
 export type AnthropometricDTO = v.InferOutput<typeof anthropometricSchema>;
 export type DataFieldDTO = v.InferOutput<typeof dataFieldValueSchema>;

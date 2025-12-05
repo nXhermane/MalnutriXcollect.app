@@ -1,10 +1,9 @@
-import { PatientMeasureHelpers } from '@/models/entities';
+import { PatientMeasureHelpers } from '@/models/helpers';
 import {
   CreatePatientMeasureDTO,
-  createPatientMeasureSchema,
-  updatePatientMeasureSchema,
+  UpdatePatientMeasureDTO,
 } from '@/models/schemas';
-import { patientMeasureStore$, patientStore$ } from '@/store';
+import { modeles$ } from '@/store';
 import { observable } from '@legendapp/state';
 import * as v from 'valibot';
 export class PatientMeasuresViewModel {
@@ -13,12 +12,15 @@ export class PatientMeasuresViewModel {
   createMeasure(patientId: string, input: CreatePatientMeasureDTO) {
     try {
       this.isLoading$.set(true);
-      if (patientStore$.patients.findIndex((p) => p.id.get() === patientId) === -1) {
+      if (!modeles$.patients[patientId].peek()) {
         throw new Error('Patient not found');
       }
-      const validatedData = v.parse(createPatientMeasureSchema, input);
-      const measure = PatientMeasureHelpers.create(patientId, validatedData);
-      patientMeasureStore$.patientMeasures.push(measure);
+      const measure = PatientMeasureHelpers.create(patientId, input);
+       if(!modeles$.patient_measures[patientId].peek()) {
+        modeles$.patient_measures[patientId].set([measure])
+       }else {
+        modeles$.patient_measures[patientId].push(measure)
+       }
       return { success: true, measure: measure };
     } catch (e) {
       if (e instanceof v.ValiError) {
@@ -32,24 +34,23 @@ export class PatientMeasuresViewModel {
       this.isLoading$.set(false);
     }
   }
-  
-  updateMeasure(patientId: string, measureId: string, input: Partial<CreatePatientMeasureDTO>) {
+
+  updateMeasure(patientId: string, measureId: string, input: UpdatePatientMeasureDTO) {
     try {
       this.isLoading$.set(true);
-      if (patientStore$.patients.findIndex((p) => p.id.get() === patientId) === -1) {
+  
+      if (!modeles$.patients[patientId].peek()) {
         throw new Error('Patient not found');
       }
-      const measure = patientMeasureStore$.patientMeasures.find((m) => m.id.get() === measureId);
-      if (!measure) {
+      const measureIndex = modeles$.patient_measures[patientId].findIndex((m) => m.id.get() === measureId)
+      if (measureIndex === -1) {
         throw new Error('Measure not found');
       }
-      if(!PatientMeasureHelpers.canBeModified(measure.peek())) {
-        throw new Error('Measure cannot be modified');
+      if (!PatientMeasureHelpers.canBeModified(modeles$.patient_measures[patientId][measureIndex].peek())) {
+        throw new Error('Cette measure ne peut plus etre modifier');
       }
-      const validatedData = v.parse(updatePatientMeasureSchema, input);
-      const updatedMeasure = { ...measure.peek(), ...validatedData };
-      measure.assign(updatedMeasure);
-      return { success: true, measure: updatedMeasure };
+      modeles$.patient_measures[patientId][measureIndex].assign({ ...input, updatedAt: new Date().toISOString() })
+      return { success: true };
     } catch (e) {
       if (e instanceof v.ValiError) {
         return {
@@ -65,15 +66,15 @@ export class PatientMeasuresViewModel {
   deleteMeasure(patientId: string, measureId: string) {
     try {
       this.isLoading$.set(true);
-      if (patientStore$.patients.findIndex((p) => p.id.get() === patientId) === -1) {
+     if (!modeles$.patients[patientId].peek()) {
         throw new Error('Patient not found');
       }
-      const measureIndex = patientMeasureStore$.patientMeasures.findIndex((m) => m.id.get() === measureId);
+     const measureIndex = modeles$.patient_measures[patientId].findIndex((m) => m.id.get() === measureId)
       if (measureIndex === -1) {
         throw new Error('Measure not found');
       }
-  
-      patientMeasureStore$.patientMeasures.splice(measureIndex, 1);
+
+      modeles$.patient_measures[patientId].splice(measureIndex,1)
       return { success: true };
     } catch (e) {
       if (e instanceof v.ValiError) {
@@ -90,55 +91,21 @@ export class PatientMeasuresViewModel {
   markMeasureAsExported(patientId: string, measureId: string) {
     try {
       this.isLoading$.set(true);
-      if (patientStore$.patients.findIndex((p) => p.id.get() === patientId) === -1) {
+      if (!modeles$.patients[patientId].peek()) {
         throw new Error('Patient not found');
       }
-      const measure = patientMeasureStore$.patientMeasures.find((m) => m.id.get() === measureId);
-      if (!measure) {
+      const measureIndex = modeles$.patient_measures[patientId].findIndex((m) => m.id.get() === measureId)
+      if (measureIndex === -1) {
         throw new Error('Measure not found');
       }
-      measure.assign(PatientMeasureHelpers.markAsExported(measure.peek()));
+      if (!PatientMeasureHelpers.canBeModified(modeles$.patient_measures[patientId][measureIndex].peek())) {
+        throw new Error('Cette measure ne peut plus etre modifier');
+      }
+      if(modeles$.patient_measures[patientId][measureIndex].isExported.peek()) {
+        throw new Error("This measure are already exported.")
+      }
+      modeles$.patient_measures[patientId][measureIndex].assign({ isExported: true, updatedAt: new Date().toISOString() })
       return { success: true };
-    } catch (e) {
-      if (e instanceof v.ValiError) {
-        return {
-          success: false,
-          errors: v.flatten(e.issues).nested,
-        };
-      }
-      throw e;
-    } finally {
-      this.isLoading$.set(false);
-    }
-  }
-  getPatientMeasures(patientId: string) {
-    try {
-      this.isLoading$.set(true);
-      if (patientStore$.patients.findIndex((p) => p.id.get() === patientId) === -1) {
-        throw new Error('Patient not found');
-      }
-
-      return { success: true, measures: patientMeasureStore$.patientMeasures.filter((m) => m.patientId.get() === patientId) };
-    } catch (e) {
-      if (e instanceof v.ValiError) {
-        return {
-          success: false,
-          errors: v.flatten(e.issues).nested,
-        };
-      }
-      throw e;
-    } finally {
-      this.isLoading$.set(false);
-    }
-  }
-  getExportableMeasures(patientId: string) {
-    try {
-      this.isLoading$.set(true);
-      if (patientStore$.patients.findIndex((p) => p.id.get() === patientId) === -1) {
-        throw new Error('Patient not found');
-      }
-      const measures = patientMeasureStore$.patientMeasures.filter((m) => m.patientId.get() === patientId && !m.isExported.get());
-      return { success: true, measures: measures };
     } catch (e) {
       if (e instanceof v.ValiError) {
         return {

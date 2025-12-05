@@ -1,13 +1,12 @@
 import { nanoid } from 'nanoid/non-secure';
 import {
-  AnthropometricDTO,
   CreatePatientMeasureDTO,
-  DataFieldDTO,
-  PatientMeasureDTO,
+  PatientMeasure,
+  UpdatePatientMeasureDTO,
 } from '../schemas';
 
 export namespace PatientMeasureHelpers {
-  export function create(patientId: string,input: CreatePatientMeasureDTO): PatientMeasureDTO {
+  export function create(patientId: string, input: CreatePatientMeasureDTO): PatientMeasure {
     const now = new Date().toISOString();
     return {
       id: nanoid(),
@@ -19,11 +18,11 @@ export namespace PatientMeasureHelpers {
       updatedAt: now,
     };
   }
-  export function canBeModified(patientMeasure: PatientMeasureDTO): boolean {
+  export function canBeModified(patientMeasure: PatientMeasure): boolean {
     return !patientMeasure.isExported;
   }
 
-  export function markAsExported(patientMeasure: PatientMeasureDTO): PatientMeasureDTO {
+  export function markAsExported(patientMeasure: PatientMeasure): PatientMeasure {
     if (!canBeModified(patientMeasure)) {
       throw new Error('Cette measure ne peut plus etre modifier');
     }
@@ -34,6 +33,16 @@ export namespace PatientMeasureHelpers {
       updatedAt: new Date().toISOString(),
     };
   }
+
+  export function updatePatientMeasure(patientMeasure: PatientMeasure, dto: UpdatePatientMeasureDTO): PatientMeasure {
+    if (!canBeModified(patientMeasure)) {
+      throw new Error('Cette measure ne peut plus etre modifier');
+    }
+    return {
+      ...patientMeasure,
+      ...dto,
+      updatedAt: new Date().toISOString()
+    }
+  }
 }
 
-export type PatientMeasure = PatientMeasureDTO;
