@@ -1,6 +1,6 @@
 import 'react-native-get-random-values';
-import { SplashScreen, Stack } from 'expo-router';
 import '@/../global.css';
+import { SplashScreen, Tabs } from 'expo-router';
 import { UIProvider, useUI } from '@/providers';
 
 export default function RootLayout() {
@@ -21,5 +21,7 @@ function Main() {
     console.error(error);
     return null;
   }
-  return <Stack />;
+  return (
+    <Tabs />
+  );
 }

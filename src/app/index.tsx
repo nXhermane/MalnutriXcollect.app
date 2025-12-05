@@ -1,14 +1,15 @@
-import { Text, View } from 'react-native';
+import { Center } from "@/components/ui/center";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
 
 export default function Index() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-    </View>
+   <VStack>
+    <Center>
+      <Text>
+        Hello ! Welcome to home page
+      </Text>
+    </Center>
+   </VStack>
   );
 }
