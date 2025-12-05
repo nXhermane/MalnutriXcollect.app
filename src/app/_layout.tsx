@@ -21,7 +21,5 @@ function Main() {
     console.error(error);
     return null;
   }
-  return (
-    <Tabs />
-  );
+  return <Tabs />;
 }

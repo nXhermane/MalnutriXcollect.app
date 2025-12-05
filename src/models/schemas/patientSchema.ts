@@ -46,7 +46,7 @@ export const patientSchema = v.object({
     ),
   ),
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
-  isLocked: v.optional(v.boolean(),false),
+  isLocked: v.optional(v.boolean(), false),
   contact: v.optional(contactSchema),
   parents: v.pipe(
     v.array(parentSchema),

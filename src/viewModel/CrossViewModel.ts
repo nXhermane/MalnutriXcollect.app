@@ -9,11 +9,13 @@ type ExportedPatient = Omit<Patient, 'isLocked'> & {
 };
 export class CrossViewModel {
   public isLoading$: Observable<boolean> = observable(false);
-  
+
   export() {
     try {
       return JSON.stringify(this.exportUnExportedPatient());
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
   import(raw: string) {
     try {

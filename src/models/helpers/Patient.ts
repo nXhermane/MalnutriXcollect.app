@@ -1,9 +1,4 @@
-import {
-  Patient,
-  CreatePatientDTO,
-  ParentRelation,
-  ParentDTO,
-} from '../schemas';
+import { Patient, CreatePatientDTO, ParentRelation, ParentDTO } from '../schemas';
 import { nanoid } from 'nanoid/non-secure';
 
 export namespace PatientHelpers {
@@ -101,4 +96,3 @@ export namespace PatientHelpers {
     };
   }
 }
-

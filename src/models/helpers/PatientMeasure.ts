@@ -1,9 +1,5 @@
 import { nanoid } from 'nanoid/non-secure';
-import {
-  CreatePatientMeasureDTO,
-  PatientMeasure,
-  UpdatePatientMeasureDTO,
-} from '../schemas';
+import { CreatePatientMeasureDTO, PatientMeasure, UpdatePatientMeasureDTO } from '../schemas';
 
 export namespace PatientMeasureHelpers {
   export function create(patientId: string, input: CreatePatientMeasureDTO): PatientMeasure {
@@ -34,15 +30,17 @@ export namespace PatientMeasureHelpers {
     };
   }
 
-  export function updatePatientMeasure(patientMeasure: PatientMeasure, dto: UpdatePatientMeasureDTO): PatientMeasure {
+  export function updatePatientMeasure(
+    patientMeasure: PatientMeasure,
+    dto: UpdatePatientMeasureDTO,
+  ): PatientMeasure {
     if (!canBeModified(patientMeasure)) {
       throw new Error('Cette measure ne peut plus etre modifier');
     }
     return {
       ...patientMeasure,
       ...dto,
-      updatedAt: new Date().toISOString()
-    }
+      updatedAt: new Date().toISOString(),
+    };
   }
 }
-
