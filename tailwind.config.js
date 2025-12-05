@@ -13,8 +13,20 @@ module.exports = {
   safelist: [
     {
       pattern:
-        /(bg|border|text|stroke|fill)-(primary|secondary|tertiary|error|success|warning|info|typography|outline|background|indicator)-(0|50|100|200|300|400|500|600|700|800|900|950|white|gray|black|error|warning|muted|success|info|light|dark|primary)/,
+        /(bg|border|text|stroke|fill)-(primary|secondary|tertiary|error|success|warning|info|typography|outline|background|indicator)-(0|50|100|200|300|400|500|600|700|800|900|950)/,
     },
+    {
+      pattern: /(bg|border|text|stroke|fill)-typography-(white|gray|black)/,
+    },
+    {
+      pattern: /(bg|border|text|stroke|fill)-background-(error|warning|muted|success|info|light|dark)/,
+    },
+    {
+      pattern: /(bg|border|text|stroke|fill)-indicator-(primary|info|error)/,
+    },
+    {
+      pattern: /text-(white|black)/,
+    }
   ],
   theme: {
     spacing: {
