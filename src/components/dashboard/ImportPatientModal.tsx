@@ -3,12 +3,16 @@ import { VStack } from '../ui/vstack';
 import { HStack } from '../ui/hstack';
 import { Text } from '../ui/text';
 
+import { View } from 'react-native';
+
 export function ImportPatientModal({
   isVisible,
   onClose,
+  data,
 }: {
   isVisible: boolean;
   onClose?: () => void;
+  data?: string;
 }) {
   return (
     <BottomSheetModal
@@ -23,9 +27,7 @@ export function ImportPatientModal({
             Importer les patients
           </Text>
         </HStack>
-        {/**
-         * TODO!
-         */}
+        <View className="flex-1"></View>
       </VStack>
     </BottomSheetModal>
   );
