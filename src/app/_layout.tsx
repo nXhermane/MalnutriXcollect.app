@@ -59,6 +59,16 @@ function Main() {
         }}
         name="export_patients"
       />
+      <Stack.Screen
+        options={{
+          sheetCornerRadius: 30,
+          presentation: 'formSheet',
+          animation: 'slide_from_bottom',
+          sheetElevation: 0,
+          sheetAllowedDetents: [1, 1],
+        }}
+        name="add_patient"
+      />
     </Stack>
   );
 }
