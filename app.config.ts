@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'Malnutrix_collect',
   version: '1.0.0',
   orientation: 'portrait',
-  "icon": "./assets/images/malnutrix.ic.launcher.dark.png",
+  icon: './assets/images/malnutrix.ic.launcher.dark.png',
   scheme: 'malnutrixcollect',
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,
@@ -34,12 +34,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-splash-screen',
       {
-        image: './assets/images/splash-icon.png',
-        imageWidth: 200,
-        resizeMode: 'contain',
         backgroundColor: '#ffffff',
+        image: './assets/images/malnutrix.ic.launcher.light.png',
+        resizeMode: 'contain',
+        imageWidth: 300,
         dark: {
+          image: './assets/images/malnutrix.ic.launcher.dark.png',
+          resizeMode: 'contain',
           backgroundColor: '#000000',
+          imageWidth: 300,
         },
       },
     ],
@@ -51,6 +54,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         recordAudioAndroid: true,
       },
     ],
+    'expo-font',
+    'expo-web-browser',
   ],
   experiments: {
     typedRoutes: true,

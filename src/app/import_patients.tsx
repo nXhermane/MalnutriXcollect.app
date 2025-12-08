@@ -11,6 +11,7 @@ import { Flashlight, FlashlightOff, X } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import * as Hapatic from 'expo-haptics';
+import { BlurView } from 'expo-blur';
 import { ImportPatientModal } from '@/components/dashboard/ImportPatientModal';
 
 const MALNUTRIX_QRCODE_REGEX = /^malnutrix::data::.*/;
@@ -57,21 +58,28 @@ export default function ImportPatients() {
           enableTorch={isLit}
           onBarcodeScanned={!showImportPatientModal ? onQrCodeScanned : undefined}>
           <VStack className="absolute h-full w-full justify-center items-center">
-            {/* TODO: use blue view after the build development */}
-            <VStack className="absolute  top-18 p-4 rounded-xl bg-gray-500/10">
-              <Text className="font-h4 text-sm text-white">
-                Scanner le code qr du nutritioniste
-              </Text>
+            <VStack className="absolute  top-18   overflow-hidden rounded-xl">
+              <BlurView
+                className="flex-1 p-4"
+                intensity={100}
+                experimentalBlurMethod="dimezisBlurView">
+                <Text className="font-h4 text-sm text-white">Scanner un QrCode MalnutriX</Text>
+              </BlurView>
             </VStack>
+
             <Box className="absolute">
               <QRIndicator />
             </Box>
             <HStack className="absolute bottom-18 justify-between px-10 w-full">
-              <Pressable className=" bg-gray-500/50 p-4 rounded-full" onPress={onFlashToggle}>
-                <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
+              <Pressable className="  rounded-full overflow-hidden" onPress={onFlashToggle}>
+                <BlurView intensity={100} className="p-4">
+                  <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
+                </BlurView>
               </Pressable>
-              <Pressable className="  bg-gray-500/50 p-4 rounded-full" onPress={onCancel}>
-                <Icon as={X} className="text-white" size="lg" />
+              <Pressable className="  rounded-full overflow-hidden" onPress={onCancel}>
+                <BlurView intensity={100} className="p-4">
+                  <Icon as={X} className="text-white" size="lg" />
+                </BlurView>
               </Pressable>
             </HStack>
           </VStack>
