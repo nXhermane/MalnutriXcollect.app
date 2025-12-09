@@ -15,12 +15,13 @@ export function useMarkPatientAsExportedViewModel() {
           isLocked: true,
           updatedAt: new Date().toISOString(),
         });
-      for (const measure of modeles$.patient_measures[patientId]) {
-        if (!measure.isExported)
-          measure.assign({
+      for (let i = 0; i < modeles$.patient_measures[patientId].length; i++) {
+        if (!modeles$.patient_measures[patientId][i].isExported.get()) {
+          modeles$.patient_measures[patientId][i].assign({
             isExported: true,
             updatedAt: new Date().toISOString(),
           });
+        }
       }
     }
     setIsLoading(false);

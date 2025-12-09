@@ -38,8 +38,8 @@ export const modeles$ = observable({
   },
   un_exported_patients: () => {
     const unexported_patients_ids = [];
-    for (const [patientId, measures] of Object.entries(modeles$.patient_measures.get())) {
-      if (measures.some((measure) => !measure.isExported)) {
+    for (const [patientId, measures] of Object.entries(modeles$.patient_measures)) {
+      if (measures.some((measure) => !measure.isExported.get())) {
         unexported_patients_ids.push(patientId);
       }
     }

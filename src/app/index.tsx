@@ -10,12 +10,14 @@ import { useValue } from '@legendapp/state/react';
 import { useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
 import { Plus, QrCode, ScanQrCode } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import * as Hapatic from 'expo-haptics';
 
 export default function Index() {
   const [showSearchBar, setShowSeachBar] = useState<boolean>(false);
   const [permission, requestPermission] = useCameraPermissions();
-  const unexported_patient_nums = useValue(() => modeles$.un_exported_patients.get().length);
+  const unExportedPatientsNums = useValue(() => modeles$.un_exported_patients().length);
+
   return (
     <React.Fragment>
       <VStack className="flex-1 bg-background-50 dark:bg-background-0">
@@ -31,6 +33,7 @@ export default function Index() {
             onPress={() => {
               if (permission?.granted) {
                 router.navigate('/import_patients');
+                Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               } else {
                 requestPermission();
               }
@@ -39,20 +42,25 @@ export default function Index() {
           </Fab>
           <Fab
             className="fixed right-0 -top-8 h-14 w-14 bg-green-600 hover:bg-green-700"
-            onPress={() => router.navigate('/add_patient')}>
+            onPress={() => {
+              router.navigate('/add_patient');
+              Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+            }}>
             <FabIcon as={Plus} className="text-white" />
-            <FabLabel className="absolute -bottom-4 font-semibold font-light  text-gray-700 text-xs">
+            <FabLabel className="absolute -bottom-4 font-semibold font-light  text-gray-700 dark:text-gray-400 text-xs">
               Ajouter
             </FabLabel>
           </Fab>
           <Fab
+            disabled={unExportedPatientsNums === 0}
             className="fixed right-0 h-12 w-12 bg-green-500 hover:bg-green-600 "
             onPress={() => {
               router.navigate('/export_patients');
+              Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
             }}>
-            {unexported_patient_nums > 0 && (
+            {unExportedPatientsNums > 0 && (
               <Badge className="rounded-full h-5 w-5  absolute -top-1 -right-1 bg-orange-500 items-center justify-center">
-                <BadgeText className="text-white text-2xs">{unexported_patient_nums}</BadgeText>
+                <BadgeText className="text-white text-2xs">{unExportedPatientsNums}</BadgeText>
               </Badge>
             )}
             <FabIcon as={QrCode} className="text-white" />

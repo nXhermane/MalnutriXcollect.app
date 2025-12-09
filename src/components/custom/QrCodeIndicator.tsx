@@ -47,9 +47,13 @@ export function QRIndicator({ progress }: { progress: number }) {
           },
         ]}
       />
-      <Box className="absolute w-full ">
+      <AnimatedBox
+        className="absolute w-full "
+        style={{
+          transform: [{ scale: scale.current }],
+        }}>
         <MotiProgressBar progress={progress} color="white" />
-      </Box>
+      </AnimatedBox>
     </VStack>
   );
 }
@@ -68,6 +72,7 @@ class SvgComponent extends React.Component<SvgProps> {
 }
 
 const AnimatedScanner = Animated.createAnimatedComponent(SvgComponent);
+const AnimatedBox = Animated.createAnimatedComponent(Box);
 
 const styles = StyleSheet.create({
   scanner: {

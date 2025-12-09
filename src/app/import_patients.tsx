@@ -27,7 +27,7 @@ export default function ImportPatients() {
   const [qrCodeData, setQrCodeData] = useState<string | undefined>('hello');
   const frames = useRef<State>(null);
   const [progress, setProgress] = useState(0);
-  const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(true);
+  const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(false);
   const onFlashToggle = useCallback(() => {
     Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
     setLit((isLit) => !isLit);
@@ -89,10 +89,32 @@ export default function ImportPatients() {
               height: Dimensions.get('screen').height,
               width: Dimensions.get('screen').width,
             }}>
-            <VStack className="absolute  top-18   overflow-hidden rounded-xl">
+            <VStack className="top-0 absolute h-18 w-full   justify-center items-center">
+              <HStack className="px-4 items-center gap-4 w-full ">
+                <Pressable onPress={onCancel} className=" overflow-hidden  rounded-full">
+                  <BlurView
+                    intensity={100}
+                    experimentalBlurMethod="dimezisBlurView"
+                    className="items-center justify-center h-12 w-12 flex-1">
+                    <Icon as={X} className="" />
+                  </BlurView>
+                </Pressable>
+                <HStack className="flex-1 h-12 overflow-hidden rounded-3xl">
+                  <BlurView
+                    intensity={100}
+                    experimentalBlurMethod="dimezisBlurView"
+                    className="flex-1 h-full justify-center  items-center">
+                    <Text className="font-h4 text-typography-950 text-center ">
+                      Importer des patients
+                    </Text>
+                  </BlurView>
+                </HStack>
+              </HStack>
+            </VStack>
+            <VStack className="absolute  top-24 w-full  overflow-hidden ">
               <BlurView
-                className="flex-1 p-4"
-                intensity={100}
+                className="flex-1 p-4 w-full justify-center items-center"
+                intensity={50}
                 experimentalBlurMethod="dimezisBlurView">
                 <Text className="font-h4 text-sm text-white">Scanner un Qr Code MalnutriX</Text>
               </BlurView>
@@ -101,17 +123,17 @@ export default function ImportPatients() {
             <Box className="absolute">
               <QRIndicator progress={progress} />
             </Box>
-            <HStack className="absolute bottom-18 justify-between px-10 w-full">
+            <HStack className="absolute bottom-18 justify-center px-10 w-full">
               <Pressable className="  rounded-full overflow-hidden" onPress={onFlashToggle}>
                 <BlurView intensity={100} className="p-4">
                   <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
                 </BlurView>
               </Pressable>
-              <Pressable className="  rounded-full overflow-hidden" onPress={onCancel}>
+              {/* <Pressable className="  rounded-full overflow-hidden" onPress={onCancel}>
                 <BlurView intensity={100} className="p-4">
                   <Icon as={X} className="text-white" size="lg" />
                 </BlurView>
-              </Pressable>
+              </Pressable> */}
             </HStack>
           </View>
         </CameraView>

@@ -12,6 +12,7 @@ import { X } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Center } from '@/components/ui/center';
 import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
+import * as Hapatic from 'expo-haptics';
 
 export default function ExportPatients() {
   const { exportPatient, data, confirmExport, confirmIsLoading } = useExportPatientViewModel();
@@ -24,7 +25,7 @@ export default function ExportPatients() {
   }, [exportPatient]);
   useEffect(() => {
     if (data) {
-      setDataFrames(dataToFrames(data, 50));
+      setDataFrames(dataToFrames(data, 100, 5));
     }
   }, [data]);
   return (
@@ -32,7 +33,10 @@ export default function ExportPatients() {
       <VStack className=" h-18 w-full   justify-center items-center">
         <HStack className="px-4 items-center gap-4 w-full ">
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => {
+              router.back();
+              Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+            }}
             className="h-12 w-12 items-center justify-center bg-background-0 dark:bg-background-50 rounded-full">
             <Icon as={X} className="" />
           </Pressable>
@@ -69,8 +73,11 @@ export default function ExportPatients() {
       <VStack className="w-full px-4 absolute bottom-18 py-4">
         <Button
           className="w-full  rounded-xl h-v-12 bg-green-500"
-          onPress={confirmExport}
-          disabled={confirmIsLoading}>
+          onPress={() => {
+            confirmExport();
+            Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+          }}
+          disabled={dataFrames.length === 0 || confirmIsLoading}>
           {confirmIsLoading ? (
             <ButtonSpinner className="text-white" />
           ) : (
