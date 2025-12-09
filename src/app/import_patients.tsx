@@ -5,7 +5,6 @@ import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { CameraView } from 'expo-camera';
 import { router } from 'expo-router';
 import { Flashlight, FlashlightOff, X } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
@@ -21,6 +20,12 @@ import {
   State,
 } from 'qrloop';
 import { isMalnutriXCollectUri } from '@/utils/malnutrix_formt';
+import {
+  Camera,
+  useCameraDevice,
+  useCameraFormat,
+  useCodeScanner,
+} from 'react-native-vision-camera';
 
 export default function ImportPatients() {
   const [isLit, setLit] = useState<boolean>(false);
@@ -28,6 +33,42 @@ export default function ImportPatients() {
   const frames = useRef<State>(null);
   const [progress, setProgress] = useState(0);
   const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(false);
+  const device = useCameraDevice('back');
+  const format = useCameraFormat(device, [
+    {
+      videoResolution: 'max',
+      photoResolution: 'max',
+    },
+  ]);
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr', 'ean-13'],
+    onCodeScanned: (codes) => {
+      for (const code of codes) {
+        if (!code.value) return;
+        try {
+          frames.current = parseFramesReducer(frames.current, code.value);
+          if (areFramesComplete(frames.current)) {
+            const uri = framesToData(frames.current).toString();
+            setProgress(progressOfFrames(frames.current));
+            // TODO: Change to isMalnutriXUri
+            if (isMalnutriXCollectUri(uri)) {
+              setQrCodeData(uri);
+              setTimeout(() => {
+                setShowImportPatientModal(true);
+                Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+              }, 500);
+            } else {
+              Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
+            }
+          } else {
+            setProgress(progressOfFrames(frames.current));
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+    },
+  });
   const onFlashToggle = useCallback(() => {
     Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
     setLit((isLit) => !isLit);
@@ -38,29 +79,10 @@ export default function ImportPatients() {
     router.back();
   }, []);
 
-  const onQrCodeScanned = useCallback(({ data }: { data: string }) => {
-    try {
-      frames.current = parseFramesReducer(frames.current, data);
-      if (areFramesComplete(frames.current)) {
-        const uri = framesToData(frames.current).toString();
-        setProgress(progressOfFrames(frames.current));
-        // TODO: Change to isMalnutriXUri
-        if (isMalnutriXCollectUri(uri)) {
-          setQrCodeData(uri);
-          setTimeout(() => {
-            setShowImportPatientModal(true);
-            Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-          }, 500);
-        } else {
-          Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
-        }
-      } else {
-        setProgress(progressOfFrames(frames.current));
-      }
-    } catch (e) {
-      console.warn(e);
-    }
-  }, []);
+  if (!device) {
+    alert('Ce smarphone ne peux pas importez de patient.');
+    return null;
+  }
 
   return (
     <>
@@ -68,18 +90,17 @@ export default function ImportPatients() {
         style={{
           flex: 1,
         }}>
-        <CameraView
+        <Camera
           style={{
             flex: 1,
             minHeight: Dimensions.get('screen').height,
             minWidth: Dimensions.get('screen').width,
           }}
-          facing={'back'}
-          barcodeScannerSettings={{
-            barcodeTypes: ['qr'],
-          }}
-          enableTorch={isLit}
-          onBarcodeScanned={!showImportPatientModal ? onQrCodeScanned : undefined}>
+          device={device}
+          isActive={!showImportPatientModal}
+          codeScanner={codeScanner}
+          format={format}
+          torch={isLit ? 'on' : 'off'}>
           <View
             style={{
               flex: 1,
@@ -129,14 +150,9 @@ export default function ImportPatients() {
                   <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
                 </BlurView>
               </Pressable>
-              {/* <Pressable className="  rounded-full overflow-hidden" onPress={onCancel}>
-                <BlurView intensity={100} className="p-4">
-                  <Icon as={X} className="text-white" size="lg" />
-                </BlurView>
-              </Pressable> */}
             </HStack>
           </View>
-        </CameraView>
+        </Camera>
       </View>
 
       {showImportPatientModal && (

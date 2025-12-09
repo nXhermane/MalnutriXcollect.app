@@ -46,14 +46,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       },
     ],
-    [
-      'expo-camera',
-      {
-        cameraPermission: 'Allow $(PRODUCT_NAME) to access your camera',
-        microphonePermission: 'Allow $(PRODUCT_NAME) to access your microphone',
-        recordAudioAndroid: true,
-      },
-    ],
     'expo-font',
     'expo-web-browser',
     ["react-native-camera-vision",{
