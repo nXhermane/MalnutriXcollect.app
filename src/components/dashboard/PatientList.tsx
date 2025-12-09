@@ -1,13 +1,12 @@
-import { filtered_patients$ } from '@/store';
+import { modeles$ } from '@/store';
 import { useCallback } from 'react';
 import { VStack } from '../ui/vstack';
 import { FlatList, ListRenderItemInfo } from 'react-native';
 import { Patient } from '@/models/schemas';
 import { PatientItem } from './PatientItem';
 import { useValue } from '@legendapp/state/react';
-
 export function PatientList() {
-  const filteredPatients = useValue(filtered_patients$);
+  const filteredPatients = useValue(() => modeles$.filtered_patients());
 
   const renderItem = useCallback(({ item }: ListRenderItemInfo<Patient>) => {
     return <PatientItem {...item} />;

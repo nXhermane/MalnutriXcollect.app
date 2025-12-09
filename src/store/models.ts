@@ -1,6 +1,6 @@
 import { Patient, PatientMeasure } from '@/models/schemas';
 import { staticPatientMeasures, staticPatients } from '@/utils/staticData';
-import { observable, observe } from '@legendapp/state';
+import { observable } from '@legendapp/state';
 import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv';
 import { synced } from '@legendapp/state/sync';
 
@@ -26,18 +26,23 @@ export const modeles$ = observable({
     initial: staticPatientMeasures,
   }),
   search_text: '',
-});
-
-export const filtered_patients$ = observable<Patient[]>([]);
-observe(() => {
-  const patientsObj = modeles$.patients.get() || {};
-  const patients: Patient[] = Object.values(patientsObj);
-  const search = modeles$.search_text.get()?.trim().toLowerCase() || '';
-  if (!search) {
-    filtered_patients$.set(patients);
-  } else {
-    filtered_patients$.set(
-      patients.filter((patient) => patient.name.toLowerCase().includes(search)),
-    );
-  }
+  filtered_patients: () => {
+    const patientsObj = modeles$.patients.get();
+    const patients: Patient[] = Object.values(patientsObj);
+    const search = modeles$.search_text.get()?.trim().toLowerCase() || '';
+    if (!search) {
+      return patients;
+    } else {
+      return patients.filter((patient) => patient.name.toLowerCase().includes(search));
+    }
+  },
+  un_exported_patients: () => {
+    const unexported_patients_ids = [];
+    for (const [patientId, measures] of Object.entries(modeles$.patient_measures.get())) {
+      if (measures.some((measure) => !measure.isExported)) {
+        unexported_patients_ids.push(patientId);
+      }
+    }
+    return unexported_patients_ids;
+  },
 });

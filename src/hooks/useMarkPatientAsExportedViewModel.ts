@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 export function useMarkPatientAsExportedViewModel() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const markPatientAsExported = useCallback((ids: string[]) => {
+  const markPatientAsExported = useCallback(async (ids: string[]) => {
     setIsLoading(true);
     for (const patientId of ids) {
       if (!modeles$.patients[patientId].peek()) {

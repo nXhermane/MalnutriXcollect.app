@@ -1,9 +1,13 @@
 import { BottomSheetModal } from '../custom';
 import { VStack } from '../ui/vstack';
-import { HStack } from '../ui/hstack';
-import { Text } from '../ui/text';
 
-import { View } from 'react-native';
+import { useImportPatientViewModel } from '@/hooks/useImportPatientViewModel';
+import { Center } from '../ui/center';
+import { Spinner } from '../ui/spinner';
+import { useToast } from '@/providers/Toast';
+import { useEffect } from 'react';
+import { Icon } from '../ui/icon';
+import { AlertTriangle, Check } from 'lucide-react-native';
 
 export function ImportPatientModal({
   isVisible,
@@ -14,20 +18,35 @@ export function ImportPatientModal({
   onClose?: () => void;
   data?: string;
 }) {
+  const toast = useToast();
+  const { error, importPatient, isLoading } = useImportPatientViewModel();
+  useEffect(() => {
+    if (error) {
+      toast.show('Error', "Une erreur est survenue lors de l'importation.", error, 'top');
+      onClose && onClose();
+    }
+  }, [error, toast, onClose]);
+  useEffect(() => {
+    if (data) importPatient(data);
+  }, [data, importPatient]);
   return (
     <BottomSheetModal
       isVisible={isVisible}
       onClose={onClose}
       stackBehavior="switch"
-      snapPoints={['80%']}
+      snapPoints={['20%']}
       enableContentPanningGesture>
       <VStack className="h-full flex-1">
-        <HStack className="items-center justify-center border-b-[1px] border-primary-border/5 px-4 py-3">
-          <Text className="font-h4 text-lg font-medium text-typography-primary text-center">
-            Importer les patients
-          </Text>
-        </HStack>
-        <View className="flex-1"></View>
+        <Center className="flex-1 ">
+          {isLoading ? (
+            <Spinner size={'large'} className="text-blue-500 h-18 w-18" />
+          ) : (
+            <Icon
+              as={error ? AlertTriangle : Check}
+              className={`h-18 w-18 ${error ? 'text-warning-500' : 'text-green-500'}`}
+            />
+          )}
+        </Center>
       </VStack>
     </BottomSheetModal>
   );

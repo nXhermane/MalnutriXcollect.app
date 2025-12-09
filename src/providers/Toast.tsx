@@ -4,11 +4,10 @@ import {
   ToastTitle,
   useToast as useGluestackToast,
 } from '@/components/ui/toast';
-import { InfoIcon, X } from 'lucide-react-native';
-import React, { createContext, ReactNode, useContext } from 'react';
+import { InfoIcon } from 'lucide-react-native';
+import React, { createContext, ReactNode, useCallback, useContext } from 'react';
 import { Dimensions } from 'react-native';
 import { ToastPlacement } from '@gluestack-ui/core/lib/esm/toast/creator/types';
-import { Pressable } from '@/components/ui/pressable';
 import { Icon } from '@/components/ui/icon';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -27,31 +26,29 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const toast = useGluestackToast();
   const [toastId, setToastId] = React.useState('0');
 
-  const show = (
-    type: ToastType,
-    title: string,
-    desc?: string,
-    placement: ToastPlacement = 'bottom',
-  ) => {
-    const newId = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    setToastId(newId);
+  const show = useCallback(
+    (type: ToastType, title: string, desc?: string, placement: ToastPlacement = 'bottom') => {
+      const newId = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setToastId(newId);
 
-    console.log(`[ToastContext] Showing ${type} toast with id: ${newId}`);
-    if (!toast.isActive(toastId))
-      toast.show({
-        id: newId,
-        placement: placement,
-        duration: 5000,
-        containerStyle: {
-          width: Dimensions.get('screen').width,
-          zIndex: 9999,
-        },
-        render: ({ id }) => {
-          console.log(`[ToastContext] Rendering ${type} toast component with id: ${id}`);
-          return <CustomToast id={id} type={type} title={title} description={desc} />;
-        },
-      });
-  };
+      console.log(`[ToastContext] Showing ${type} toast with id: ${newId}`);
+      if (!toast.isActive(toastId))
+        toast.show({
+          id: newId,
+          placement: placement,
+          duration: 5000,
+          containerStyle: {
+            width: Dimensions.get('screen').width,
+            zIndex: 9999,
+          },
+          render: ({ id }) => {
+            console.log(`[ToastContext] Rendering ${type} toast component with id: ${id}`);
+            return <CustomToast id={id} type={type} title={title} description={desc} />;
+          },
+        });
+    },
+    [toast, toastId],
+  );
 
   return <ToastContext.Provider value={{ show }}>{children}</ToastContext.Provider>;
 };
@@ -71,7 +68,6 @@ interface ToastProps {
   description?: string;
 }
 const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => {
-  const toast = useGluestackToast();
   const variant: Record<
     ToastType,
     {
@@ -99,15 +95,15 @@ const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => 
         alignSelf: 'center',
       }}
       className={
-        'elevation-sm w-[95%] overflow-hidden rounded-2xl border border-primary-border/5 bg-background-secondary p-4'
+        'elevation-sm w-[95%] overflow-hidden rounded-2xl border border-primary-border/5 bg-background-0 p-4'
       }>
-      <Pressable
+      {/* <Pressable
         onPress={() => {
           toast.closeAll();
         }}
         className={'absolute right-3 top-3'}>
         <Icon as={X} size={'md'} className={''} />
-      </Pressable>
+      </Pressable> */}
       <HStack className="gap-3">
         <Icon
           as={InfoIcon}

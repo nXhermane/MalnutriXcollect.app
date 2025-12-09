@@ -5,6 +5,8 @@ import { Badge, BadgeText } from '@/components/ui/badge';
 import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
+import { modeles$ } from '@/store';
+import { useValue } from '@legendapp/state/react';
 import { useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
 import { Plus, QrCode, ScanQrCode } from 'lucide-react-native';
@@ -13,7 +15,7 @@ import React, { useState } from 'react';
 export default function Index() {
   const [showSearchBar, setShowSeachBar] = useState<boolean>(false);
   const [permission, requestPermission] = useCameraPermissions();
-
+  const unexported_patient_nums = useValue(() => modeles$.un_exported_patients.get().length);
   return (
     <React.Fragment>
       <VStack className="flex-1 bg-background-50 dark:bg-background-0">
@@ -48,9 +50,11 @@ export default function Index() {
             onPress={() => {
               router.navigate('/export_patients');
             }}>
-            <Badge className="rounded-full h-5 w-5  absolute -top-1 -right-1 bg-orange-500 items-center justify-center">
-              <BadgeText className="text-white text-2xs">1</BadgeText>
-            </Badge>
+            {unexported_patient_nums > 0 && (
+              <Badge className="rounded-full h-5 w-5  absolute -top-1 -right-1 bg-orange-500 items-center justify-center">
+                <BadgeText className="text-white text-2xs">{unexported_patient_nums}</BadgeText>
+              </Badge>
+            )}
             <FabIcon as={QrCode} className="text-white" />
           </Fab>
         </HStack>

@@ -11,13 +11,15 @@ import { Icon } from '@/components/ui/icon';
 import { X } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Center } from '@/components/ui/center';
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 
 export default function ExportPatients() {
-  const { exportPatient, data } = useExportPatientViewModel();
+  const { exportPatient, data, confirmExport, confirmIsLoading } = useExportPatientViewModel();
+
   const [dataFrames, setDataFrames] = useState<string[]>([]);
 
   useEffect(() => {
+    // TODO: improve perfs
     exportPatient();
   }, [exportPatient]);
   useEffect(() => {
@@ -44,31 +46,38 @@ export default function ExportPatients() {
           {dataFrames.length !== 0 ? (
             <QrCodeLoop frames={dataFrames} />
           ) : (
-            <Spinner size={'large'} />
+            <Spinner size={'large'} className="text-blue-500" />
           )}
         </Center>
       </VStack>
       <VStack className="h-60  px-4 items-center justify-center">
-        <VStack className="bg-info-500/10 p-4 rounded-xl border-info-500 border-[0.5px]">
-          <Text className="text-info-500 font-h4 text-lg font-medium pb-3 text-center">
+        <VStack className="bg-blue-50 p-4 rounded-xl border-blue-200 dark:bg-background-50 dark:border-transparent border-[0.5px]">
+          <Text className="text-blue-900  dark:text-typography-800 font-h4 text-lg font-medium mb-2 text-center">
             {"Étapes d'export"}
           </Text>
-          <Text className="text-info-500 font-body text-sm font-normal pb-2">
+          <Text className="text-blue-800 dark:text-gray-400 font-body text-sm font-normal mb-1">
             {'1. Le nutritionniste scanne le Qr Code'}
           </Text>
-          <Text className="text-info-500 font-body text-sm font-normal pb-2">
+          <Text className="text-blue-800 dark:text-gray-400 font-body text-sm font-normal mb-1">
             {'2. Vérifiez que toutes les données sont transférés'}
           </Text>
-          <Text className="text-info-500 font-body text-sm font-normal pb-2">
+          <Text className="text-blue-800 dark:text-gray-400 font-body text-sm font-normal mb-1">
             {`3. Cliquez sur "Confirmer l'export" ci-dessous`}
           </Text>
         </VStack>
       </VStack>
-      <VStack className="w-full px-4  ">
-        <Button className="w-full  rounded-xl h-v-12 bg-green-500">
-          <ButtonText className="text-white font-h4 text-base">{"Confirmer l'export"}</ButtonText>
+      <VStack className="w-full px-4 absolute bottom-18 py-4">
+        <Button
+          className="w-full  rounded-xl h-v-12 bg-green-500"
+          onPress={confirmExport}
+          disabled={confirmIsLoading}>
+          {confirmIsLoading ? (
+            <ButtonSpinner className="text-white" />
+          ) : (
+            <ButtonText className="text-white font-h4 text-base">{"Confirmer l'export"}</ButtonText>
+          )}
         </Button>
-        <Text className="text-center text-xs text-gray-700 pt-2">
+        <Text className="text-center text-xs text-gray-700 dark:text-gray-400 font-light pt-2">
           Les patients seront marqués comme exportés après confirmation
         </Text>
       </VStack>

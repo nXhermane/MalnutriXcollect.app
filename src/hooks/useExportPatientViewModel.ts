@@ -18,7 +18,7 @@ export function useExportPatientViewModel() {
   const patient_measures = useValue(modeles$.patient_measures);
 
   const { isLoading, markPatientAsExported } = useMarkPatientAsExportedViewModel();
-  const exportPatient = useCallback(() => {
+  const exportPatient = useCallback(async () => {
     setExportedIsLoading(true);
     const data = compileUnExportedPatient(Object.values(patients), patient_measures);
     const formated_data = exportCompiledPatient(JSON.stringify(data.data));

@@ -40,6 +40,7 @@ function Main() {
       screenOptions={{
         headerShown: false,
       }}>
+      <Stack.Screen name="index" />
       <Stack.Screen
         options={{
           sheetCornerRadius: 30,

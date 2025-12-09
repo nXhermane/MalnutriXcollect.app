@@ -27,7 +27,7 @@ export function QrCodeLoop({ frames }: { frames: string[] }) {
       scheduleOnUI(animateLoop);
     }, INTERVAL_MS);
     return () => clearTimeout(timerId);
-  }, []);
+  });
 
   return (
     <VStack className="h-60 w-60  items-center justify-center">

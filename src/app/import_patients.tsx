@@ -24,10 +24,10 @@ import { isMalnutriXCollectUri } from '@/utils/malnutrix_formt';
 
 export default function ImportPatients() {
   const [isLit, setLit] = useState<boolean>(false);
-  const [qrCodeData, setQrCodeData] = useState<string>();
+  const [qrCodeData, setQrCodeData] = useState<string | undefined>('hello');
   const frames = useRef<State>(null);
   const [progress, setProgress] = useState(0);
-  const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(false);
+  const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(true);
   const onFlashToggle = useCallback(() => {
     Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
     setLit((isLit) => !isLit);

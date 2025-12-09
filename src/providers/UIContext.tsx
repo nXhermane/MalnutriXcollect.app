@@ -18,6 +18,7 @@ import {
 } from '@expo-google-fonts/lato';
 import { theme$ } from '@/store';
 import { useValue } from '@legendapp/state/react';
+import { ToastProvider } from './Toast';
 
 export interface UIContextType {
   loaded: boolean;
@@ -62,7 +63,9 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
         <View style={[{ flex: 1, height: '100%', width: '100%' }, generatedVars]}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <GluestackUIProvider mode={theme}>
-              <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+              <ToastProvider>
+                <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+              </ToastProvider>
             </GluestackUIProvider>
           </GestureHandlerRootView>
         </View>
