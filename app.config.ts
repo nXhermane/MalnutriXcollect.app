@@ -48,7 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-font',
     'expo-web-browser',
-    ["react-native-camera-vision",{
+    ["react-native-vision-camera",{
         cameraPermissionText: 'Allow $(PRODUCT_NAME) to access your camera',
         enableCodeScanner: true 
     }]
