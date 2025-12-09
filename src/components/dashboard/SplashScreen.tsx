@@ -5,7 +5,7 @@ import { Text } from '../ui/text';
 
 export function SplashScreen() {
   return (
-    <Center className={'bg-background-0 flex-1'}>
+    <Center className={'bg-background-50 dark:bg-background-0 flex-1'}>
       <AppLogo className={'aspect-[320/320] h-v-32'} />
       <VStack className={' absolute bottom-8  items-center gap-4'}>
         <Text className=" font-h3 font-semibold text-xl  dark:text-white text-black">

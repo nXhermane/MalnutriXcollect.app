@@ -1,6 +1,7 @@
 import { ControlPanel } from '@/components/dashboard/ControlPanel';
 import { Header } from '@/components/dashboard/Header';
 import { PatientList } from '@/components/dashboard/PatientList';
+import { Badge, BadgeText } from '@/components/ui/badge';
 import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
@@ -15,16 +16,16 @@ export default function Index() {
 
   return (
     <React.Fragment>
-      <VStack className="flex-1 bg-background-0">
+      <VStack className="flex-1 bg-background-50 dark:bg-background-0">
         <Header
           searchBarIsVisible={showSearchBar}
           toggleSearchBar={() => setShowSeachBar((prev) => !prev)}
         />
         <ControlPanel showSearchBar={showSearchBar} />
         <PatientList />
-        <HStack className="absolute w-full bottom-0 justify-center gap-4">
+        <HStack className="absolute w-full bottom-0  justify-between px-4 gap-4">
           <Fab
-            className="fixed right-0 h-12 w-12 bg-primary-c_light"
+            className="fixed right-0 h-12 w-12 bg-green-500 hover:bg-green-600 "
             onPress={() => {
               if (permission?.granted) {
                 router.navigate('/import_patients');
@@ -35,16 +36,21 @@ export default function Index() {
             <FabIcon as={ScanQrCode} className="text-white" />
           </Fab>
           <Fab
-            className="fixed right-0 h-12 bg-primary-c_light"
+            className="fixed right-0 -top-8 h-14 w-14 bg-green-600 hover:bg-green-700"
             onPress={() => router.navigate('/add_patient')}>
             <FabIcon as={Plus} className="text-white" />
-            <FabLabel className="font-semibold font-h3 text-white text-base">Ajouter</FabLabel>
+            <FabLabel className="absolute -bottom-4 font-semibold font-light  text-gray-700 text-xs">
+              Ajouter
+            </FabLabel>
           </Fab>
           <Fab
-            className="fixed right-0 h-12 w-12 bg-primary-c_light"
+            className="fixed right-0 h-12 w-12 bg-green-500 hover:bg-green-600 "
             onPress={() => {
               router.navigate('/export_patients');
             }}>
+            <Badge className="rounded-full h-5 w-5  absolute -top-1 -right-1 bg-orange-500 items-center justify-center">
+              <BadgeText className="text-white text-2xs">1</BadgeText>
+            </Badge>
             <FabIcon as={QrCode} className="text-white" />
           </Fab>
         </HStack>

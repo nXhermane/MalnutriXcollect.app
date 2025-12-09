@@ -8,18 +8,25 @@ import { VStack } from '@/components/ui/vstack';
 import { CameraView } from 'expo-camera';
 import { router } from 'expo-router';
 import { Flashlight, FlashlightOff, X } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
-import { View } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { Dimensions, View } from 'react-native';
 import * as Hapatic from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 import { ImportPatientModal } from '@/components/dashboard/ImportPatientModal';
-
-const MALNUTRIX_QRCODE_REGEX = /^malnutrix::data::.*/;
-const MALNUTRIX_QRCODE_PREFIX_REGEX = /^malnutrix::data::/;
+import {
+  areFramesComplete,
+  framesToData,
+  parseFramesReducer,
+  progressOfFrames,
+  State,
+} from 'qrloop';
+import { isMalnutriXCollectUri } from '@/utils/malnutrix_formt';
 
 export default function ImportPatients() {
   const [isLit, setLit] = useState<boolean>(false);
   const [qrCodeData, setQrCodeData] = useState<string>();
+  const frames = useRef<State>(null);
+  const [progress, setProgress] = useState(0);
   const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(false);
   const onFlashToggle = useCallback(() => {
     Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
@@ -32,43 +39,67 @@ export default function ImportPatients() {
   }, []);
 
   const onQrCodeScanned = useCallback(({ data }: { data: string }) => {
-    if (MALNUTRIX_QRCODE_REGEX.test(data)) {
-      const uri = data.replace(MALNUTRIX_QRCODE_PREFIX_REGEX, '');
-      setQrCodeData(uri);
-      setTimeout(() => {
-        setShowImportPatientModal(true);
-        Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-      }, 500);
-    } else {
-      Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
+    try {
+      frames.current = parseFramesReducer(frames.current, data);
+      if (areFramesComplete(frames.current)) {
+        const uri = framesToData(frames.current).toString();
+        setProgress(progressOfFrames(frames.current));
+        // TODO: Change to isMalnutriXUri
+        if (isMalnutriXCollectUri(uri)) {
+          setQrCodeData(uri);
+          setTimeout(() => {
+            setShowImportPatientModal(true);
+            Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+          }, 500);
+        } else {
+          Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
+        }
+      } else {
+        setProgress(progressOfFrames(frames.current));
+      }
+    } catch (e) {
+      console.warn(e);
     }
   }, []);
 
   return (
     <>
-      <View className="flex-1">
+      <View
+        style={{
+          flex: 1,
+        }}>
         <CameraView
           style={{
             flex: 1,
+            minHeight: Dimensions.get('screen').height,
+            minWidth: Dimensions.get('screen').width,
           }}
-          facing="back"
+          facing={'back'}
           barcodeScannerSettings={{
             barcodeTypes: ['qr'],
           }}
           enableTorch={isLit}
           onBarcodeScanned={!showImportPatientModal ? onQrCodeScanned : undefined}>
-          <VStack className="absolute h-full w-full justify-center items-center">
+          <View
+            style={{
+              flex: 1,
+              position: 'absolute',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: Dimensions.get('screen').height,
+              width: Dimensions.get('screen').width,
+            }}>
             <VStack className="absolute  top-18   overflow-hidden rounded-xl">
               <BlurView
                 className="flex-1 p-4"
                 intensity={100}
                 experimentalBlurMethod="dimezisBlurView">
-                <Text className="font-h4 text-sm text-white">Scanner un QrCode MalnutriX</Text>
+                <Text className="font-h4 text-sm text-white">Scanner un Qr Code MalnutriX</Text>
               </BlurView>
             </VStack>
 
             <Box className="absolute">
-              <QRIndicator />
+              <QRIndicator progress={progress} />
             </Box>
             <HStack className="absolute bottom-18 justify-between px-10 w-full">
               <Pressable className="  rounded-full overflow-hidden" onPress={onFlashToggle}>
@@ -82,9 +113,10 @@ export default function ImportPatients() {
                 </BlurView>
               </Pressable>
             </HStack>
-          </VStack>
+          </View>
         </CameraView>
       </View>
+
       {showImportPatientModal && (
         <ImportPatientModal
           isVisible={showImportPatientModal}

@@ -1,5 +1,6 @@
 import 'react-native-get-random-values';
 import './../../global.css';
+import 'cbor-rn-prereqs';
 import { SplashScreen, Stack } from 'expo-router';
 import { UIProvider, useUI } from '@/providers';
 import React, { useState } from 'react';

@@ -28,10 +28,10 @@ export function PatientItem(patient: Patient) {
       }>
       <HStack
         key={patient.id}
-        className={`elevation-sm h-v-14 items-center justify-between rounded-xl bg-background-50 px-2 py-2`}>
+        className={`elevation-sm h-v-14 items-center justify-between rounded-xl bg-background-0 dark:bg-background-50 px-2 py-2`}>
         <HStack className="items-center gap-2">
-          <Avatar className="h-10 w-10 rounded-full bg-primary-c_light/10">
-            <AvatarFallbackText className="font-h3 text-base font-semibold text-primary-c_light">
+          <Avatar className="h-10 w-10 rounded-full bg-green-500">
+            <AvatarFallbackText className="font-h3 text-base font-semibold text-white">
               {patient.name}
             </AvatarFallbackText>
             {patient.isLocked && (

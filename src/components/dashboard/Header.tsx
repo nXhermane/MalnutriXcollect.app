@@ -20,7 +20,7 @@ export const Header = ({
     <React.Fragment>
       <HStack
         className={
-          'p-safe dark:elevation-md h-v-18 w-full items-center justify-between bg-background-50'
+          'p-safe dark:elevation-md h-v-18 w-full items-center justify-between bg-background-0 dark:bg-background-50'
         }>
         <HStack className={'items-center w-full justify-between px-4 pb-2'}>
           <Box>
