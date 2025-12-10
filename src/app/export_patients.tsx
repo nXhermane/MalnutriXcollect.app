@@ -15,7 +15,8 @@ import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import * as Hapatic from 'expo-haptics';
 
 export default function ExportPatients() {
-  const { exportPatient, data, confirmExport, confirmIsLoading } = useExportPatientViewModel();
+  const { exportPatient, data, confirmExport, confirmIsLoading, isConfirmed } =
+    useExportPatientViewModel();
 
   const [dataFrames, setDataFrames] = useState<string[]>([]);
 
@@ -25,9 +26,14 @@ export default function ExportPatients() {
   }, [exportPatient]);
   useEffect(() => {
     if (data) {
-      setDataFrames(dataToFrames(data, 100, 5));
+      setDataFrames(dataToFrames(data, 150, 5));
     }
   }, [data]);
+  useEffect(() => {
+    if (isConfirmed) {
+      setTimeout(() => router.back(), 1000);
+    }
+  }, [isConfirmed]);
   return (
     <VStack className="flex-1 bg-background-50 dark:bg-background-0">
       <VStack className=" h-18 w-full   justify-center items-center">

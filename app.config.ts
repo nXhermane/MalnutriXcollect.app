@@ -46,16 +46,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         },
       },
     ],
-    [
-      'expo-camera',
-      {
-        cameraPermission: 'Allow $(PRODUCT_NAME) to access your camera',
-        microphonePermission: 'Allow $(PRODUCT_NAME) to access your microphone',
-        recordAudioAndroid: true,
-      },
-    ],
     'expo-font',
     'expo-web-browser',
+    ["react-native-vision-camera",{
+        cameraPermissionText: 'Allow $(PRODUCT_NAME) to access your camera',
+        enableCodeScanner: true 
+    }]
   ],
   experiments: {
     typedRoutes: true,

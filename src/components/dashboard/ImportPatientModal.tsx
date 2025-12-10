@@ -1,6 +1,5 @@
 import { BottomSheetModal } from '../custom';
 import { VStack } from '../ui/vstack';
-
 import { useImportPatientViewModel } from '@/hooks/useImportPatientViewModel';
 import { Center } from '../ui/center';
 import { Spinner } from '../ui/spinner';
@@ -42,8 +41,8 @@ export function ImportPatientModal({
             <Spinner size={'large'} className="text-blue-500 h-18 w-18" />
           ) : (
             <Icon
-              as={error ? AlertTriangle : Check}
-              className={`h-18 w-18 ${error ? 'text-warning-500' : 'text-green-500'}`}
+              as={error === null ? AlertTriangle : Check}
+              className={`h-18 w-18 ${error === null ? 'text-warning-500' : 'text-green-500'}`}
             />
           )}
         </Center>

@@ -30,7 +30,7 @@ export function QrCodeLoop({ frames }: { frames: string[] }) {
   });
 
   return (
-    <VStack className="h-60 w-60  items-center justify-center">
+    <VStack className="h-60 w-60 p-1 bg-white  items-center justify-center">
       {frames.map((data, index) => {
         return (
           <AnimatedQRItem

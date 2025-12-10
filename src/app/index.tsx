@@ -7,15 +7,16 @@ import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { modeles$ } from '@/store';
 import { useValue } from '@legendapp/state/react';
-import { useCameraPermissions } from 'expo-camera';
+import { useCameraPermission } from 'react-native-vision-camera';
 import { router } from 'expo-router';
 import { Plus, QrCode, ScanQrCode } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import * as Hapatic from 'expo-haptics';
 
 export default function Index() {
   const [showSearchBar, setShowSeachBar] = useState<boolean>(false);
-  const [permission, requestPermission] = useCameraPermissions();
+  const { hasPermission, requestPermission } = useCameraPermission();
+
   const unExportedPatientsNums = useValue(() => modeles$.un_exported_patients().length);
 
   return (
@@ -31,11 +32,12 @@ export default function Index() {
           <Fab
             className="fixed right-0 h-12 w-12 bg-green-500 hover:bg-green-600 "
             onPress={() => {
-              if (permission?.granted) {
+              if (!hasPermission) {
+                requestPermission();
+                return;
+              } else {
                 router.navigate('/import_patients');
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-              } else {
-                requestPermission();
               }
             }}>
             <FabIcon as={ScanQrCode} className="text-white" />
