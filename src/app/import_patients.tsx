@@ -85,10 +85,7 @@ export default function ImportPatients() {
 
   return (
     <>
-      <View
-        style={{
-          flex: 1,
-        }}>
+      <VStack className="flex-1 pt-safe">
         <Camera
           style={{
             flex: 1,
@@ -101,16 +98,8 @@ export default function ImportPatients() {
           format={format}
           torch={isLit ? 'on' : 'off'}
         />
-        <View
-          style={{
-            flex: 1,
-            position: 'absolute',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: Dimensions.get('screen').height,
-            width: Dimensions.get('screen').width,
-          }}>
-          <VStack className="top-0 absolute h-18 w-full   justify-center items-center">
+        <VStack className="flex-1 absolute  h-full w-full pt-safe">
+          <VStack className=" h-18 w-full   justify-center items-center">
             <HStack className="px-4 items-center gap-4 w-full ">
               <Pressable onPress={onCancel} className=" overflow-hidden  rounded-full">
                 <BlurView
@@ -132,27 +121,29 @@ export default function ImportPatients() {
               </HStack>
             </HStack>
           </VStack>
-          <VStack className="absolute  top-24 w-full  overflow-hidden ">
-            <BlurView
-              className="flex-1 p-4 w-full justify-center items-center"
-              intensity={50}
-              experimentalBlurMethod="dimezisBlurView">
-              <Text className="font-h4 text-sm text-white">Scanner un Qr Code MalnutriX</Text>
-            </BlurView>
-          </VStack>
-
-          <Box className="absolute">
-            <QRIndicator progress={progress} />
-          </Box>
-          <HStack className="absolute bottom-18 justify-center px-10 w-full">
-            <Pressable className="  rounded-full overflow-hidden" onPress={onFlashToggle}>
-              <BlurView intensity={100} className="p-4">
-                <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
+          <VStack className="flex-1 items-center justify-center">
+            <VStack className="absolute  top-14 w-full  overflow-hidden ">
+              <BlurView
+                className="flex-1 p-4 w-full justify-center items-center"
+                intensity={50}
+                experimentalBlurMethod="dimezisBlurView">
+                <Text className="font-h4 text-sm text-white">Scanner un Qr Code MalnutriX</Text>
               </BlurView>
-            </Pressable>
-          </HStack>
-        </View>
-      </View>
+            </VStack>
+
+            <Box className="absolute">
+              <QRIndicator progress={progress} />
+            </Box>
+            <HStack className="absolute bottom-10 justify-center px-10 w-full">
+              <Pressable className="  rounded-full overflow-hidden" onPress={onFlashToggle}>
+                <BlurView intensity={100} className="p-4">
+                  <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
+                </BlurView>
+              </Pressable>
+            </HStack>
+          </VStack>
+        </VStack>
+      </VStack>
 
       {showImportPatientModal && (
         <ImportPatientModal

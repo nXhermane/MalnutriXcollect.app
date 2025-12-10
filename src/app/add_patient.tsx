@@ -9,7 +9,7 @@ import { X } from 'lucide-react-native';
 
 export default function AddPatient() {
   return (
-    <VStack className="flex-1 bg-background-50 dark:bg-background-0">
+    <VStack className="flex-1 bg-background-50 dark:bg-background-0 pt-safe">
       <VStack className=" h-18 w-full   justify-center items-center">
         <HStack className="px-4 items-center gap-4 w-full ">
           <Pressable
