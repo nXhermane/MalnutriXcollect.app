@@ -21,12 +21,12 @@ export function PatientList() {
 
   return (
     <VStack className="flex-1 py-4">
-      <HStack className="px-4 justify-between items-center mb-4  ">
-        <Text className="text-gray-700 dark:text-typography-800 font-h4 font-medium">
+      <HStack className="mb-4 items-center justify-between px-4  ">
+        <Text className="font-h4 font-medium text-gray-700 dark:text-typography-800">
           {filteredPatients.length} patient{filteredPatients.length > 1 && 's'}
         </Text>
         {nonExportedPatientsCount > 0 && (
-          <Text className="px-2.5 py-1 font-body bg-orange-50 dark:bg-orange-600/10 dark:text-orange-600 text-orange-600 rounded-full border border-orange-200 dark:border-orange-100/20 text-xs">
+          <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 dark:border-orange-100/20 dark:bg-orange-600/10 dark:text-orange-600">
             {nonExportedPatientsCount} mésure{nonExportedPatientsCount > 1 ? 's' : ''} à exporter
           </Text>
         )}
@@ -38,13 +38,13 @@ export function PatientList() {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={() => (
-          <VStack className="p-8 text-center border-gray-100 bg-background-0 dark:bg-background-50 rounded-xl shadow-sm">
+          <VStack className="rounded-xl border-gray-100 bg-background-0 p-8 text-center shadow-sm dark:bg-background-50">
             <Center className="gap-4">
-              <Box className="w-14 h-14 bg-background-100 rounded-full flex items-center justify-center">
-                <Icon as={User} className="h-7 w-7 text-gray-400" />
+              <Box className="flex size-14 items-center justify-center rounded-full bg-background-100">
+                <Icon as={User} className="size-7 text-gray-400" />
               </Box>
               <VStack className="">
-                <Text className="text-gray-600 dark:text-typography-600 mb-1 text-center font-body">
+                <Text className="mb-1 text-center font-body text-gray-600 dark:text-typography-600">
                   Aucun patient enregistré
                 </Text>
               </VStack>

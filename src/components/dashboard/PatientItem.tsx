@@ -11,7 +11,6 @@ import { Icon } from '../ui/icon';
 import { Badge, BadgeText } from '../ui/badge';
 
 export function PatientItem(patient: Patient) {
-
   return (
     <Pressable
       onPress={() =>
@@ -24,7 +23,7 @@ export function PatientItem(patient: Patient) {
       }>
       <HStack
         key={patient.id}
-        className={`elevation-sm p-4 items-center justify-between rounded-xl bg-background-0  dark:bg-background-50`}>
+        className={`elevation-sm items-center justify-between rounded-xl bg-background-0 p-4  dark:bg-background-50`}>
         <HStack className="items-center gap-3">
           <Avatar className="size-10 rounded-full bg-green-500">
             <AvatarFallbackText className="font-h3 text-base font-semibold text-white">

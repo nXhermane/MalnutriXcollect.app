@@ -13,8 +13,7 @@ import {
   User,
   X,
 } from 'lucide-react-native';
-import React, { useCallback, useState } from 'react';
-import { AddMeasureToPatientModal } from '@/components/dashboard/AddMeasureToPatientModal';
+import React, { useCallback } from 'react';
 import { HStack } from '@/components/ui/hstack';
 import { Pressable } from '@/components/ui/pressable';
 import { Icon } from '@/components/ui/icon';
@@ -31,7 +30,6 @@ import { FlatList, ListRenderItemInfo } from 'react-native';
 export default function PatientScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const patients = useValue(() => modeles$.patients);
-  const [showAddMeasureToPatientModal, setShowAddMeasureToPatientModal] = useState<boolean>(false);
   const nonExportedCount = useValue(
     () => modeles$.patient_measures[id].get().filter((m) => !m.isExported).length,
   );
@@ -47,29 +45,29 @@ export default function PatientScreen() {
   const renderPatientMeasure = useCallback(
     ({ item, index }: ListRenderItemInfo<PatientMeasure>) => {
       return (
-        <HStack className="p-4 gap-3 items-center justify-between border-gray-100 bg-background-0 dark:bg-background-50 rounded-xl shadow-sm">
+        <HStack className="items-center justify-between gap-3 rounded-xl border-gray-100 bg-background-0 p-4 shadow-sm dark:bg-background-50">
           <HStack className="gap-3">
-            <Avatar className="w-10 h-10 bg-green-50 dark:bg-green-500/20 rounded-full flex items-center justify-center border border-green-200 dark:border-green-500/20">
-              <AvatarFallbackText className="text-green-600 dark:text-green-50 font-medium font-h4">
+            <Avatar className="flex size-10 items-center justify-center rounded-full border border-green-200 bg-green-50 dark:border-green-500/20 dark:bg-green-500/20">
+              <AvatarFallbackText className="font-h4 font-medium text-green-600 dark:text-green-50">
                 {(patientMeasures.length - index).toString()}
               </AvatarFallbackText>
             </Avatar>
             <VStack>
-              <Text className="text-gray-900 dark:text-typography-900 text-sm font-medium font-h4">
+              <Text className="font-h4 text-sm font-medium text-gray-900 dark:text-typography-900">
                 Visite {patientMeasures.length - index}
               </Text>
-              <Text className="text-gray-500 dark:text-typography-500 text-xs font-body font-normal">
+              <Text className="font-body text-xs font-normal text-gray-500 dark:text-typography-500">
                 {formatShortDate(item.createdAt)}
               </Text>
             </VStack>
           </HStack>
 
           {item.isExported ? (
-            <Text className="px-2.5 py-1 font-body bg-green-50 dark:bg-green-600/10 dark:text-green-600 text-green-600 rounded-full border border-green-200 dark:border-green-100/20 text-xs">
+            <Text className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 font-body text-xs text-green-600 dark:border-green-100/20 dark:bg-green-600/10 dark:text-green-600">
               ✓ Exporté
             </Text>
           ) : (
-            <Text className="px-2.5 py-1 font-body bg-orange-50 dark:bg-orange-600/10 dark:text-orange-600 text-orange-600 rounded-full border border-orange-200 dark:border-orange-100/20 text-xs">
+            <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 dark:border-orange-100/20 dark:bg-orange-600/10 dark:text-orange-600">
               À exporter
             </Text>
           )}
@@ -109,17 +107,15 @@ export default function PatientScreen() {
           </HStack>
         </VStack>
 
-        <VStack className="px-4 py-4">
-          {patients[id] && <PatientHero patient={patients[id]} />}
-        </VStack>
+        <VStack className="p-4">{patients[id] && <PatientHero patient={patients[id]} />}</VStack>
         <VStack className="mb-4 flex-1">
-          <HStack className="px-4 justify-between items-center">
-            <Text className="text-gray-700 dark:text-typography-800 font-h4 font-medium">
+          <HStack className="items-center justify-between px-4">
+            <Text className="font-h4 font-medium text-gray-700 dark:text-typography-800">
               Visites & Mesures
             </Text>
 
             {nonExportedCount > 0 && (
-              <Text className="px-2.5 py-1 font-body bg-orange-50 dark:bg-orange-600/10 dark:text-orange-600 text-orange-600 rounded-full border border-orange-200 dark:border-orange-100/20 text-xs">
+              <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 dark:border-orange-100/20 dark:bg-orange-600/10 dark:text-orange-600">
                 {nonExportedCount} non exportée{nonExportedCount > 1 ? 's' : ''}
               </Text>
             )}
@@ -133,16 +129,16 @@ export default function PatientScreen() {
             keyExtractor={(item) => item.id}
             contentContainerClassName="mt-5 mx-4 gap-4 "
             ListEmptyComponent={() => (
-              <VStack className="p-8 text-center border-gray-100 bg-background-0 dark:bg-background-50 rounded-xl shadow-sm">
+              <VStack className="rounded-xl border-gray-100 bg-background-0 p-8 text-center shadow-sm dark:bg-background-50">
                 <Center className="gap-4">
-                  <Box className="w-14 h-14 bg-background-100 rounded-full flex items-center justify-center">
-                    <Icon as={Calendar} className="h-7 w-7 text-gray-400" />
+                  <Box className="flex size-14 items-center justify-center rounded-full bg-background-100">
+                    <Icon as={Calendar} className="size-7 text-gray-400" />
                   </Box>
                   <VStack className="">
-                    <Text className="text-gray-600 dark:text-typography-600 mb-1 text-center font-body">
+                    <Text className="mb-1 text-center font-body text-gray-600 dark:text-typography-600">
                       Aucune visite enregistrée
                     </Text>
-                    <Text className="text-gray-400 dark:text-typography-400 text-sm text-center font-light">
+                    <Text className="text-center font-light text-sm text-gray-400 dark:text-typography-400">
                       Ajoutez une première visite pour ce patient
                     </Text>
                   </VStack>
@@ -184,7 +180,7 @@ function PatientHero({ patient }: { patient: Patient }) {
   return (
     <HStack
       className={`elevation-sm  items-center justify-between rounded-xl bg-background-0 p-4 dark:bg-background-50`}>
-      <HStack className="items-center gap-3 flex-1">
+      <HStack className="flex-1 items-center gap-3">
         <Avatar className="size-10 rounded-full bg-green-500">
           <AvatarFallbackText className="font-h3 text-base font-semibold text-white">
             {patient.name}
@@ -203,7 +199,7 @@ function PatientHero({ patient }: { patient: Patient }) {
             <HStack className="items-center gap-2 ">
               <Icon as={Calendar} className="text-gray-600 dark:text-typography-600 " size="xs" />
               <Text
-                className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
                 numberOfLines={1}>
                 {HumanDateFormatter.formatAgeInMonths(patient.birthdate)} •{' '}
                 {patient.sex === 'M' ? 'Masculin' : 'Féminin'}
@@ -212,7 +208,7 @@ function PatientHero({ patient }: { patient: Patient }) {
             <HStack className="items-center gap-2 ">
               <Icon as={User} className="text-gray-600 dark:text-typography-600 " size="xs" />
               <Text
-                className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
                 numberOfLines={1}>
                 {`Né${patient.sex === 'F' ? 'e' : ''}`} le {formatDate(patient.birthdate)}
               </Text>
@@ -223,7 +219,7 @@ function PatientHero({ patient }: { patient: Patient }) {
               <HStack className="items-center gap-2 ">
                 <Icon as={Phone} className="text-gray-600 dark:text-typography-600 " size="xs" />
                 <Text
-                  className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                  className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
                   numberOfLines={1}>
                   {patient.contact.tel}
                 </Text>
@@ -233,7 +229,7 @@ function PatientHero({ patient }: { patient: Patient }) {
               <HStack className="items-center gap-2 ">
                 <Icon as={Mail} className="text-gray-600 dark:text-typography-600" size="xs" />
                 <Text
-                  className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                  className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
                   numberOfLines={1}>
                   {patient.contact.email}
                 </Text>
@@ -244,7 +240,7 @@ function PatientHero({ patient }: { patient: Patient }) {
             <HStack className="items-center gap-2 ">
               <Icon as={MapPin} className="text-gray-600 dark:text-typography-600 " size="xs" />
               <Text
-                className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
                 numberOfLines={1}>
                 {patient.address.fullAddress || patient.address.city}
               </Text>

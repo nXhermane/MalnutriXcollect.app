@@ -54,7 +54,7 @@ export default function Index() {
             </FabLabel>
           </Fab>
           <Fab
-            disabled={ nonExportedPatientsCount === 0}
+            disabled={nonExportedPatientsCount === 0}
             className="fixed right-0 size-12 bg-green-500 hover:bg-green-600 "
             onPress={() => {
               router.navigate('/export_patients');

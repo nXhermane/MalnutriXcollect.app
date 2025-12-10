@@ -52,7 +52,7 @@ export default function ExportPatients() {
         </HStack>
       </VStack>
       <VStack className="h-96 w-full items-center justify-center">
-        <Center className="rounded-3xl shadow-md bg-background-0 p-4 dark:bg-background-50">
+        <Center className="rounded-3xl bg-background-0 p-4 shadow-md dark:bg-background-50">
           {dataFrames.length !== 0 ? (
             <QrCodeLoop frames={dataFrames} />
           ) : (
@@ -62,7 +62,7 @@ export default function ExportPatients() {
       </VStack>
       <VStack className="h-60  items-center justify-center px-4">
         <VStack className="rounded-xl border-[0.5px] border-blue-200 bg-blue-50 p-4 dark:border-transparent dark:bg-background-50">
-          <HStack className="items-center gap-3 mb-2">
+          <HStack className="mb-2 items-center gap-3">
             <Icon as={Info} />
             <Text className="  text-center font-h4 text-lg font-medium text-blue-900 dark:text-typography-800">
               {"Étapes d'export"}
