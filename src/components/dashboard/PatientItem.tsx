@@ -6,18 +6,14 @@ import { router } from 'expo-router';
 import { HStack } from '../ui/hstack';
 import { Avatar, AvatarBadge, AvatarFallbackText } from '../ui/avatar';
 import { HumanDateFormatter } from '@/utils/human-date-formatter';
-import { useState } from 'react';
-import { MotiView } from 'moti';
-import { ChevronRight, LockKeyhole } from 'lucide-react-native';
+import { LockKeyhole } from 'lucide-react-native';
 import { Icon } from '../ui/icon';
 import { Badge, BadgeText } from '../ui/badge';
 
 export function PatientItem(patient: Patient) {
-  const [pressed, setPressed] = useState<boolean>(false);
+
   return (
     <Pressable
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
       onPress={() =>
         router.navigate({
           pathname: '/[id]',
@@ -28,8 +24,8 @@ export function PatientItem(patient: Patient) {
       }>
       <HStack
         key={patient.id}
-        className={`elevation-sm h-v-14 items-center justify-between rounded-xl bg-background-0 p-2 dark:bg-background-50`}>
-        <HStack className="items-center gap-2">
+        className={`elevation-sm p-4 items-center justify-between rounded-xl bg-background-0  dark:bg-background-50`}>
+        <HStack className="items-center gap-3">
           <Avatar className="size-10 rounded-full bg-green-500">
             <AvatarFallbackText className="font-h3 text-base font-semibold text-white">
               {patient.name}
@@ -59,15 +55,6 @@ export function PatientItem(patient: Patient) {
               {HumanDateFormatter.formatAgeInMonths(patient.birthdate)}
             </BadgeText>
           </Badge>
-          <MotiView
-            transition={{
-              type: 'timing',
-              duration: 200,
-            }}
-            animate={{ translateX: pressed ? 5 : 0 }}
-            className={'items-end justify-center'}>
-            <Icon as={ChevronRight} />
-          </MotiView>
         </HStack>
       </HStack>
     </Pressable>

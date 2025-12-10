@@ -17,7 +17,7 @@ export default function Index() {
   const [showSearchBar, setShowSeachBar] = useState<boolean>(false);
   const { hasPermission, requestPermission } = useCameraPermission();
 
-  const unExportedPatientsNums = useValue(() => modeles$.un_exported_patients().length);
+  const nonExportedPatientsCount = useValue(() => modeles$.non_exported_patients().length);
 
   return (
     <React.Fragment>
@@ -54,15 +54,15 @@ export default function Index() {
             </FabLabel>
           </Fab>
           <Fab
-            disabled={unExportedPatientsNums === 0}
+            disabled={ nonExportedPatientsCount === 0}
             className="fixed right-0 size-12 bg-green-500 hover:bg-green-600 "
             onPress={() => {
               router.navigate('/export_patients');
               Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
             }}>
-            {unExportedPatientsNums > 0 && (
+            {nonExportedPatientsCount > 0 && (
               <Badge className="absolute -right-1 -top-1  size-5 items-center justify-center rounded-full bg-orange-500">
-                <BadgeText className="text-2xs text-white">{unExportedPatientsNums}</BadgeText>
+                <BadgeText className="text-2xs text-white">{nonExportedPatientsCount}</BadgeText>
               </Badge>
             )}
             <FabIcon as={QrCode} className="text-white" />

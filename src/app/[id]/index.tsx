@@ -2,8 +2,18 @@ import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
-import { Edit, Plus, X } from 'lucide-react-native';
-import React, { useState } from 'react';
+import {
+  Calendar,
+  Edit,
+  LockKeyhole,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  User,
+  X,
+} from 'lucide-react-native';
+import React, { useCallback, useState } from 'react';
 import { AddMeasureToPatientModal } from '@/components/dashboard/AddMeasureToPatientModal';
 import { HStack } from '@/components/ui/hstack';
 import { Pressable } from '@/components/ui/pressable';
@@ -11,11 +21,64 @@ import { Icon } from '@/components/ui/icon';
 import * as Hapatic from 'expo-haptics';
 import { useValue } from '@legendapp/state/react';
 import { modeles$ } from '@/store';
+import { Patient, PatientMeasure } from '@/models/schemas';
+import { Avatar, AvatarBadge, AvatarFallbackText } from '@/components/ui/avatar';
+import { HumanDateFormatter } from '@/utils/human-date-formatter';
+import { Center } from '@/components/ui/center';
+import { Box } from '@/components/ui/box';
+import { FlatList, ListRenderItemInfo } from 'react-native';
 
 export default function PatientScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const patients = useValue(() => modeles$.patients);
   const [showAddMeasureToPatientModal, setShowAddMeasureToPatientModal] = useState<boolean>(false);
+  const nonExportedCount = useValue(
+    () => modeles$.patient_measures[id].get().filter((m) => !m.isExported).length,
+  );
+  const patientMeasures = useValue(() => modeles$.patient_measures[id].get());
+  const formatShortDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+  const renderPatientMeasure = useCallback(
+    ({ item, index }: ListRenderItemInfo<PatientMeasure>) => {
+      return (
+        <HStack className="p-4 gap-3 items-center justify-between border-gray-100 bg-background-0 dark:bg-background-50 rounded-xl shadow-sm">
+          <HStack className="gap-3">
+            <Avatar className="w-10 h-10 bg-green-50 dark:bg-green-500/20 rounded-full flex items-center justify-center border border-green-200 dark:border-green-500/20">
+              <AvatarFallbackText className="text-green-600 dark:text-green-50 font-medium font-h4">
+                {(patientMeasures.length - index).toString()}
+              </AvatarFallbackText>
+            </Avatar>
+            <VStack>
+              <Text className="text-gray-900 dark:text-typography-900 text-sm font-medium font-h4">
+                Visite {patientMeasures.length - index}
+              </Text>
+              <Text className="text-gray-500 dark:text-typography-500 text-xs font-body font-normal">
+                {formatShortDate(item.createdAt)}
+              </Text>
+            </VStack>
+          </HStack>
+
+          {item.isExported ? (
+            <Text className="px-2.5 py-1 font-body bg-green-50 dark:bg-green-600/10 dark:text-green-600 text-green-600 rounded-full border border-green-200 dark:border-green-100/20 text-xs">
+              ✓ Exporté
+            </Text>
+          ) : (
+            <Text className="px-2.5 py-1 font-body bg-orange-50 dark:bg-orange-600/10 dark:text-orange-600 text-orange-600 rounded-full border border-orange-200 dark:border-orange-100/20 text-xs">
+              À exporter
+            </Text>
+          )}
+        </HStack>
+      );
+    },
+    // Use Flashlist to access to extradata and remove this
+    [patientMeasures],
+  );
   return (
     <React.Fragment>
       <VStack className="pt-safe flex-1 bg-background-50 dark:bg-background-0">
@@ -45,10 +108,58 @@ export default function PatientScreen() {
             </Pressable>
           </HStack>
         </VStack>
+
+        <VStack className="px-4 py-4">
+          {patients[id] && <PatientHero patient={patients[id]} />}
+        </VStack>
+        <VStack className="mb-4 flex-1">
+          <HStack className="px-4 justify-between items-center">
+            <Text className="text-gray-700 dark:text-typography-800 font-h4 font-medium">
+              Visites & Mesures
+            </Text>
+
+            {nonExportedCount > 0 && (
+              <Text className="px-2.5 py-1 font-body bg-orange-50 dark:bg-orange-600/10 dark:text-orange-600 text-orange-600 rounded-full border border-orange-200 dark:border-orange-100/20 text-xs">
+                {nonExportedCount} non exportée{nonExportedCount > 1 ? 's' : ''}
+              </Text>
+            )}
+          </HStack>
+          <FlatList
+            data={patientMeasures.sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            )}
+            extraData={patientMeasures.length}
+            renderItem={renderPatientMeasure}
+            keyExtractor={(item) => item.id}
+            contentContainerClassName="mt-5 mx-4 gap-4 "
+            ListEmptyComponent={() => (
+              <VStack className="p-8 text-center border-gray-100 bg-background-0 dark:bg-background-50 rounded-xl shadow-sm">
+                <Center className="gap-4">
+                  <Box className="w-14 h-14 bg-background-100 rounded-full flex items-center justify-center">
+                    <Icon as={Calendar} className="h-7 w-7 text-gray-400" />
+                  </Box>
+                  <VStack className="">
+                    <Text className="text-gray-600 dark:text-typography-600 mb-1 text-center font-body">
+                      Aucune visite enregistrée
+                    </Text>
+                    <Text className="text-gray-400 dark:text-typography-400 text-sm text-center font-light">
+                      Ajoutez une première visite pour ce patient
+                    </Text>
+                  </VStack>
+                </Center>
+              </VStack>
+            )}
+          />
+        </VStack>
+
         <Fab
+          placement="bottom center"
           className="bottom-8 size-14 bg-green-600 hover:bg-green-700"
           onPress={() => {
-            setShowAddMeasureToPatientModal(true);
+            router.navigate({
+              pathname: '/[id]/add_measure_to_patient',
+              params: { id },
+            });
             Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
           }}>
           <FabIcon as={Plus} className="text-white" />
@@ -57,13 +168,90 @@ export default function PatientScreen() {
           </FabLabel>
         </Fab>
       </VStack>
-      {showAddMeasureToPatientModal && (
-        <AddMeasureToPatientModal
-          patientId={id}
-          isVisible={showAddMeasureToPatientModal}
-          onClose={() => setShowAddMeasureToPatientModal(false)}
-        />
-      )}
     </React.Fragment>
+  );
+}
+
+function PatientHero({ patient }: { patient: Patient }) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+  return (
+    <HStack
+      className={`elevation-sm  items-center justify-between rounded-xl bg-background-0 p-4 dark:bg-background-50`}>
+      <HStack className="items-center gap-3 flex-1">
+        <Avatar className="size-10 rounded-full bg-green-500">
+          <AvatarFallbackText className="font-h3 text-base font-semibold text-white">
+            {patient.name}
+          </AvatarFallbackText>
+          {patient.isLocked && (
+            <AvatarBadge className=" size-4 items-center justify-center border-transparent bg-transparent">
+              <Icon as={LockKeyhole} className="size-3" />
+            </AvatarBadge>
+          )}
+        </Avatar>
+        <VStack className="flex-1 pr-5">
+          <Text className="font-h4 text-base font-medium text-typography-950" numberOfLines={1}>
+            {patient.name}
+          </Text>
+          <VStack>
+            <HStack className="items-center gap-2 ">
+              <Icon as={Calendar} className="text-gray-600 dark:text-typography-600 " size="xs" />
+              <Text
+                className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                numberOfLines={1}>
+                {HumanDateFormatter.formatAgeInMonths(patient.birthdate)} •{' '}
+                {patient.sex === 'M' ? 'Masculin' : 'Féminin'}
+              </Text>
+            </HStack>
+            <HStack className="items-center gap-2 ">
+              <Icon as={User} className="text-gray-600 dark:text-typography-600 " size="xs" />
+              <Text
+                className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                numberOfLines={1}>
+                {`Né${patient.sex === 'F' ? 'e' : ''}`} le {formatDate(patient.birthdate)}
+              </Text>
+            </HStack>
+          </VStack>
+          <VStack>
+            {patient.contact?.tel && (
+              <HStack className="items-center gap-2 ">
+                <Icon as={Phone} className="text-gray-600 dark:text-typography-600 " size="xs" />
+                <Text
+                  className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                  numberOfLines={1}>
+                  {patient.contact.tel}
+                </Text>
+              </HStack>
+            )}
+            {patient.contact?.email && (
+              <HStack className="items-center gap-2 ">
+                <Icon as={Mail} className="text-gray-600 dark:text-typography-600" size="xs" />
+                <Text
+                  className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                  numberOfLines={1}>
+                  {patient.contact.email}
+                </Text>
+              </HStack>
+            )}
+          </VStack>
+          {patient.address && (
+            <HStack className="items-center gap-2 ">
+              <Icon as={MapPin} className="text-gray-600 dark:text-typography-600 " size="xs" />
+              <Text
+                className="font-light text-xs font-normal text-gray-600 dark:text-typography-600 truncate"
+                numberOfLines={1}>
+                {patient.address.fullAddress || patient.address.city}
+              </Text>
+            </HStack>
+          )}
+        </VStack>
+      </HStack>
+    </HStack>
   );
 }

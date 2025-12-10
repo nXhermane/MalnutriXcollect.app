@@ -77,6 +77,15 @@ function Main() {
         }}
         name="[id]/index"
       />
+      <Stack.Screen
+        options={{
+          sheetCornerRadius: 30,
+          presentation: 'formSheet',
+          animation: 'slide_from_bottom',
+          sheetElevation: 0,
+        }}
+        name="[id]/add_measure_to_patient"
+      />
     </Stack>
   );
 }

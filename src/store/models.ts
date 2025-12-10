@@ -36,7 +36,7 @@ export const modeles$ = observable({
       return patients.filter((patient) => patient.name.toLowerCase().includes(search));
     }
   },
-  un_exported_patients: () => {
+  non_exported_patients: () => {
     const unexported_patients_ids = [];
     for (const [patientId, measures] of Object.entries(modeles$.patient_measures)) {
       if (measures.some((measure) => !measure.isExported.get())) {
