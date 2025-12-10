@@ -1,18 +1,8 @@
 import { SelectField } from '@/utils/field';
-import { FieldErrors, Controller, Control } from 'react-hook-form';
-import {
-  FormControl,
-  FormControlError,
-  FormControlErrorIcon,
-  FormControlErrorText,
-  FormControlHelper,
-  FormControlHelperText,
-  FormControlLabel,
-  FormControlLabelAstrick,
-  FormControlLabelText,
-} from '../ui/form-control';
-import { AlertCircleIcon } from 'lucide-react-native';
 import React from 'react';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
+import colors from 'tailwindcss/colors';
+import { ChevronDownIcon } from '../ui/icon';
 import {
   Select,
   SelectBackdrop,
@@ -26,7 +16,7 @@ import {
   SelectScrollView,
   SelectTrigger,
 } from '../ui/select';
-import { ChevronDownIcon } from '../ui/icon';
+import { FieldWrapper } from './FieldWrapper';
 
 interface SelectFieldComponentProps {
   field: SelectField;
@@ -38,15 +28,7 @@ export function SelectFieldComponent({ field, control, errors }: SelectFieldComp
   const error = errors[field.name];
 
   return (
-    <FormControl
-      className="mb-4"
-      isRequired={field.validation?.required}
-      isReadOnly={field.readonly}
-      isDisabled={field.disabled}>
-      <FormControlLabel className="mb-2 block text-gray-700">
-        <FormControlLabelText>{field.label}</FormControlLabelText>
-        {field.validation?.required && <FormControlLabelAstrick />}
-      </FormControlLabel>
+    <FieldWrapper field={field} error={error}>
       <Controller
         name={field.name}
         control={control}
@@ -58,10 +40,12 @@ export function SelectFieldComponent({ field, control, errors }: SelectFieldComp
               ref={ref}
               selectedValue={value || field.default}
               onValueChange={onChange}>
-              <SelectTrigger className=" h-v-10 justify-between rounded-lg border border-primary-border/5 data-[focus=true]:border-primary-c">
+              <SelectTrigger
+                className={`h-v-10 w-full justify-between  rounded-lg   border border-gray-50 bg-background-100 px-2 py-3 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500  dark:border-gray-600 dark:bg-background-100 dark:placeholder:text-gray-400`}>
                 <SelectInput
-                  className=" font-body text-base font-normal"
-                  placeholderClassName={'text-base font-body '}
+                  className={'font-body text-sm font-normal text-typography-800 dark:text-white'}
+                  placeholderClassName={'text-typography-600/60 font-body text-base  font-normal'}
+                  cursorColor={colors.green[500]}
                   placeholder={field.placeholder}
                   value={
                     field.options.find(
@@ -73,7 +57,7 @@ export function SelectFieldComponent({ field, control, errors }: SelectFieldComp
               </SelectTrigger>
               <SelectPortal>
                 <SelectBackdrop />
-                <SelectContent className={' max-h-[85vh]'}>
+                <SelectContent className={' max-h-[85vh] bg-background-0 dark:bg-background-50 '}>
                   <SelectDragIndicatorWrapper>
                     <SelectDragIndicator className={'h-v-1 w-5 rounded-sm border-0'} />
                   </SelectDragIndicatorWrapper>
@@ -88,21 +72,6 @@ export function SelectFieldComponent({ field, control, errors }: SelectFieldComp
           );
         }}
       />
-      {field.help && (
-        <FormControlHelper>
-          <FormControlHelperText className="mt-1 text-sm text-gray-500">
-            {field.help}
-          </FormControlHelperText>
-        </FormControlHelper>
-      )}
-      {error && (
-        <FormControlError>
-          <FormControlErrorIcon as={AlertCircleIcon} className="text-red-500" />
-          <FormControlErrorText className="text-red-500">
-            {error.message?.toString()}
-          </FormControlErrorText>
-        </FormControlError>
-      )}
-    </FormControl>
+    </FieldWrapper>
   );
 }

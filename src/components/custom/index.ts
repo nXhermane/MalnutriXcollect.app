@@ -5,3 +5,4 @@ export * from './SearchBar';
 export * from './Chips';
 export * from './AlertDialog';
 export * from './QrCodeIndicator';
+export * from './DynamicForm';

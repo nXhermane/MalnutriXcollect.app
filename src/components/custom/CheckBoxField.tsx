@@ -1,18 +1,7 @@
 import { CheckBoxField } from '@/utils/field';
-import { FieldErrors, Controller, Control } from 'react-hook-form';
-import {
-  FormControl,
-  FormControlError,
-  FormControlErrorIcon,
-  FormControlErrorText,
-  FormControlHelper,
-  FormControlHelperText,
-  FormControlLabel,
-  FormControlLabelAstrick,
-  FormControlLabelText,
-} from '../ui/form-control';
-import { AlertCircleIcon, CheckIcon } from 'lucide-react-native';
+import { CheckIcon } from 'lucide-react-native';
 import React from 'react';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
 import {
   Checkbox,
   CheckboxGroup,
@@ -20,6 +9,7 @@ import {
   CheckboxIndicator,
   CheckboxLabel,
 } from '../ui/checkbox';
+import { FieldWrapper } from './FieldWrapper';
 
 interface CheckBoxFieldComponentProps {
   field: CheckBoxField;
@@ -31,15 +21,7 @@ export function CheckBoxFieldComponent({ field, control, errors }: CheckBoxField
   const error = errors[field.name];
 
   return (
-    <FormControl
-      className="mb-4"
-      isRequired={field.validation?.required}
-      isReadOnly={field.readonly}
-      isDisabled={field.disabled}>
-      <FormControlLabel className="mb-2 block text-gray-700">
-        <FormControlLabelText>{field.label}</FormControlLabelText>
-        {field.validation?.required && <FormControlLabelAstrick />}
-      </FormControlLabel>
+    <FieldWrapper error={error} field={field}>
       <Controller
         name={field.name}
         control={control}
@@ -55,32 +37,22 @@ export function CheckBoxFieldComponent({ field, control, errors }: CheckBoxField
               className={`${isVertical ? 'flex flex-col gap-2' : 'flex-row gap-5'}`}
               onChange={onChange}>
               {field.options.map((item, index) => (
-                <Checkbox key={index} value={item.value}>
-                  <CheckboxIndicator className={' size-4'}>
+                <Checkbox
+                  key={index}
+                  value={item.value}
+                  className={`flex h-v-10 cursor-pointer items-center rounded-lg border border-gray-300 p-3 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-background-100 dark:hover:bg-gray-700`}>
+                  <CheckboxIndicator className={' size-5 text-green-500 focus:ring-green-500'}>
                     <CheckboxIcon as={CheckIcon} />
                   </CheckboxIndicator>
-                  <CheckboxLabel>{item.label}</CheckboxLabel>
+                  <CheckboxLabel className="font-body text-sm  text-gray-700 dark:text-gray-200">
+                    {item.label}
+                  </CheckboxLabel>
                 </Checkbox>
               ))}
             </CheckboxGroup>
           );
         }}
       />
-      {field.help && (
-        <FormControlHelper>
-          <FormControlHelperText className="mt-1 text-sm text-gray-500">
-            {field.help}
-          </FormControlHelperText>
-        </FormControlHelper>
-      )}
-      {error && (
-        <FormControlError>
-          <FormControlErrorIcon as={AlertCircleIcon} className="text-red-500" />
-          <FormControlErrorText className="text-red-500">
-            {error.message?.toString()}
-          </FormControlErrorText>
-        </FormControlError>
-      )}
-    </FormControl>
+    </FieldWrapper>
   );
 }

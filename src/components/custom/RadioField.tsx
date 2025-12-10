@@ -1,19 +1,9 @@
 import { RadioField } from '@/utils/field';
-import { FieldErrors, Controller, Control } from 'react-hook-form';
-import {
-  FormControl,
-  FormControlError,
-  FormControlErrorIcon,
-  FormControlErrorText,
-  FormControlHelper,
-  FormControlHelperText,
-  FormControlLabel,
-  FormControlLabelAstrick,
-  FormControlLabelText,
-} from '../ui/form-control';
-import { AlertCircleIcon, Circle } from 'lucide-react-native';
+import { Circle } from 'lucide-react-native';
 import React from 'react';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
 import { Radio, RadioGroup, RadioIcon, RadioIndicator, RadioLabel } from '../ui/radio';
+import { FieldWrapper } from './FieldWrapper';
 
 interface RadioFieldComponentProps {
   field: RadioField;
@@ -25,35 +15,28 @@ export function RadioFieldComponent({ field, control, errors }: RadioFieldCompon
   const error = errors[field.name];
 
   return (
-    <FormControl
-      className="mb-4"
-      isRequired={field.validation?.required}
-      isReadOnly={field.readonly}
-      isDisabled={field.disabled}>
-      <FormControlLabel className="mb-2 block text-gray-700">
-        <FormControlLabelText>{field.label}</FormControlLabelText>
-        {field.validation?.required && <FormControlLabelAstrick />}
-      </FormControlLabel>
+    <FieldWrapper error={error} field={field}>
       <Controller
         name={field.name}
         control={control}
         defaultValue={field.default || ''}
         render={({ field: { onChange, onBlur, value, ref } }) => {
-          const isVertical =
-            field.options.length > 2 || field.options.some((opt) => opt.label.length > 10);
           return (
             <RadioGroup
               value={(value as string) || field.default}
-              className={`pt-3 ${isVertical ? 'flex flex-col gap-2' : 'flex-row gap-5'}`}
+              className={`flex flex-col gap-2 pt-3`}
               onChange={onChange}
               onBlur={onBlur}
               ref={ref}>
               {field.options.map((item, index) => (
-                <Radio key={index} value={item.value} className="">
-                  <RadioIndicator className={`size-4 `}>
+                <Radio
+                  key={index}
+                  value={item.value}
+                  className={`flex h-v-10 cursor-pointer items-center rounded-lg border border-gray-300 p-3 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-background-100 dark:hover:bg-gray-700`}>
+                  <RadioIndicator className={`size-5 text-green-500   focus:ring-green-500`}>
                     <RadioIcon as={Circle} className="" />
                   </RadioIndicator>
-                  <RadioLabel className={'font-body text-sm text-typography-0'}>
+                  <RadioLabel className={'font-body text-sm  text-gray-700 dark:text-gray-200'}>
                     {item.label}
                   </RadioLabel>
                 </Radio>
@@ -62,21 +45,6 @@ export function RadioFieldComponent({ field, control, errors }: RadioFieldCompon
           );
         }}
       />
-      {field.help && (
-        <FormControlHelper>
-          <FormControlHelperText className="mt-1 text-sm text-gray-500">
-            {field.help}
-          </FormControlHelperText>
-        </FormControlHelper>
-      )}
-      {error && (
-        <FormControlError>
-          <FormControlErrorIcon as={AlertCircleIcon} className="text-red-500" />
-          <FormControlErrorText className="text-red-500">
-            {error.message?.toString()}
-          </FormControlErrorText>
-        </FormControlError>
-      )}
-    </FormControl>
+    </FieldWrapper>
   );
 }

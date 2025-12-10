@@ -12,7 +12,7 @@ export function ControlPanel({ showSearchBar = false }: { showSearchBar?: boolea
       <VStack className="px-4">
         <SearchBar
           fieldProps={{
-            placeholder: 'Rechercher une courbe...',
+            placeholder: 'Rechercher un patient...',
             onChangeText: (text: string) => modeles$.search_text.set(text),
             value: seachText,
           }}

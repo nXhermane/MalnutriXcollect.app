@@ -1,18 +1,10 @@
 import { QuantityField } from '@/utils/field';
-import { FieldErrors, Controller, Control } from 'react-hook-form';
-import {
-  FormControl,
-  FormControlError,
-  FormControlErrorIcon,
-  FormControlErrorText,
-  FormControlHelper,
-  FormControlHelperText,
-  FormControlLabel,
-  FormControlLabelAstrick,
-  FormControlLabelText,
-} from '../ui/form-control';
-import { AlertCircleIcon } from 'lucide-react-native';
-import React, { useCallback } from 'react';
+import { ChevronDown } from 'lucide-react-native';
+import React from 'react';
+import { Control, Controller, FieldErrors } from 'react-hook-form';
+import colors from 'tailwindcss/colors';
+import { HStack } from '../ui/hstack';
+import { Input, InputField, InputIcon, InputSlot } from '../ui/input';
 import {
   Select,
   SelectBackdrop,
@@ -24,9 +16,8 @@ import {
   SelectScrollView,
   SelectTrigger,
 } from '../ui/select';
-import { Input, InputField, InputIcon, InputSlot } from '../ui/input';
-import { HStack } from '../ui/hstack';
 import { Text } from '../ui/text';
+import { FieldWrapper } from './FieldWrapper';
 
 interface QuantityFieldComponentProps {
   field: QuantityField;
@@ -36,42 +27,8 @@ interface QuantityFieldComponentProps {
 
 export function QuantityFieldComponent({ field, control, errors }: QuantityFieldComponentProps) {
   const error = errors[field.name];
-
-  const parseNumberFromString = (str: string): number => {
-    return Number(str.replace(/,/g, '.'));
-  };
-
-  const formatNumberWithComma = (num: number): string => {
-    return num.toString().replace(/\./g, ',');
-  };
-
-  const handleNumberInput = useCallback(
-    (val: string) => {
-      const num = parseNumberFromString(val);
-      if (field.validation?.min !== undefined) {
-        if (num <= field.validation.min) {
-          return field.validation.min;
-        }
-      }
-      if (field.validation?.max !== undefined) {
-        if (num >= field.validation.max) {
-          return field.validation.max;
-        }
-      }
-      return num;
-    },
-    [field.validation],
-  );
   return (
-    <FormControl
-      className="mb-4"
-      isRequired={field.validation?.required}
-      isReadOnly={field.readonly}
-      isDisabled={field.disabled}>
-      <FormControlLabel className="mb-2 block text-gray-700">
-        <FormControlLabelText>{field.label}</FormControlLabelText>
-        {field.validation?.required && <FormControlLabelAstrick />}
-      </FormControlLabel>
+    <FieldWrapper field={field} error={error}>
       <Controller
         name={field.name}
         control={control}
@@ -80,24 +37,28 @@ export function QuantityFieldComponent({ field, control, errors }: QuantityField
           const quantityValue = value || field.default;
           return (
             <React.Fragment>
-              <Input className=" h-v-10 rounded-lg border border-primary-border/5 data-[focus=true]:border-primary-c">
+              <Input
+                className={`h-v-10  w-full rounded-lg border  border-gray-50  bg-background-100 p-0  transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500 dark:border-gray-600 dark:bg-background-100 dark:placeholder:text-gray-400`}>
                 <InputField
                   type={'text'}
-                  className=" font-body text-base font-normal"
-                  placeholderClassName={'text-base font-body '}
                   placeholder={field.placeholder}
                   keyboardType={'numeric'}
-                  value={formatNumberWithComma(quantityValue.value)}
+                  value={quantityValue.value}
                   onChangeText={(val) =>
                     onChange({
                       ...quantityValue,
-                      value: handleNumberInput(val),
+                      value: value,
                     })
                   }
                   onBlur={onBlur}
                   ref={ref}
+                  className={
+                    ' h-full px-4 py-3  font-body text-sm font-normal text-typography-800 dark:text-white'
+                  }
+                  placeholderClassName={'text-typography-600/60 font-body text-base  font-normal'}
+                  cursorColor={colors.green[500]}
                 />
-                <InputSlot className={'h-full w-20'}>
+                <InputSlot className={'h-full w-20 '}>
                   <Select
                     defaultValue={quantityValue.unit}
                     onValueChange={(val) =>
@@ -106,16 +67,22 @@ export function QuantityFieldComponent({ field, control, errors }: QuantityField
                         unit: val,
                       })
                     }
-                    className={'size-full border border-primary-border/5'}>
-                    <SelectTrigger className={'size-full border-0'}>
+                    className={'size-full '}>
+                    <SelectTrigger className={'size-full  border-0'}>
                       <HStack className={'size-full items-center justify-end gap-1 pr-2'}>
-                        <Text className={'font-light text-sm'}></Text>
-                        <InputIcon className={' size-4'} />
+                        <Text className={'font-light text-sm'}>
+                          {
+                            field.unitOptions.find((unit) => unit.value === quantityValue.unit)
+                              ?.label
+                          }
+                        </Text>
+                        <InputIcon as={ChevronDown} className={' size-4'} />
                       </HStack>
                     </SelectTrigger>
                     <SelectPortal>
                       <SelectBackdrop />
-                      <SelectContent className={' max-h-[85vh]'}>
+                      <SelectContent
+                        className={' max-h-[85vh] bg-background-0 dark:bg-background-50 '}>
                         <SelectDragIndicatorWrapper>
                           <SelectDragIndicator className={'h-v-1 w-5 rounded-sm border-0'} />
                         </SelectDragIndicatorWrapper>
@@ -127,7 +94,7 @@ export function QuantityFieldComponent({ field, control, errors }: QuantityField
                               value={item.value}
                               className={`rounded-lg`}
                               textStyle={{
-                                className: `font-body font-normal text-typography-primary`,
+                                className: `font-body font-normal `,
                               }}
                             />
                           ))}
@@ -141,21 +108,6 @@ export function QuantityFieldComponent({ field, control, errors }: QuantityField
           );
         }}
       />
-      {field.help && (
-        <FormControlHelper>
-          <FormControlHelperText className="mt-1 text-sm text-gray-500">
-            {field.help}
-          </FormControlHelperText>
-        </FormControlHelper>
-      )}
-      {error && (
-        <FormControlError>
-          <FormControlErrorIcon as={AlertCircleIcon} className="text-red-500" />
-          <FormControlErrorText className="text-red-500">
-            {error.message?.toString()}
-          </FormControlErrorText>
-        </FormControlError>
-      )}
-    </FormControl>
+    </FieldWrapper>
   );
 }
