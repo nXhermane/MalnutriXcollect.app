@@ -8,7 +8,6 @@ import { VStack } from '@/components/ui/vstack';
 import { router } from 'expo-router';
 import { Flashlight, FlashlightOff, X } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import { Dimensions, View } from 'react-native';
 import * as Hapatic from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 import { ImportPatientModal } from '@/components/dashboard/ImportPatientModal';
@@ -85,12 +84,10 @@ export default function ImportPatients() {
 
   return (
     <>
-      <VStack className="flex-1 pt-safe">
+      <VStack className="pt-safe flex-1">
         <Camera
           style={{
             flex: 1,
-            minHeight: Dimensions.get('screen').height,
-            minWidth: Dimensions.get('screen').width,
           }}
           device={device}
           isActive={!showImportPatientModal}
@@ -98,23 +95,23 @@ export default function ImportPatients() {
           format={format}
           torch={isLit ? 'on' : 'off'}
         />
-        <VStack className="flex-1 absolute  h-full w-full pt-safe">
-          <VStack className=" h-18 w-full   justify-center items-center">
-            <HStack className="px-4 items-center gap-4 w-full ">
+        <VStack className="pt-safe absolute  size-full flex-1">
+          <VStack className=" h-18 w-full   items-center justify-center">
+            <HStack className="w-full items-center gap-4 px-4 ">
               <Pressable onPress={onCancel} className=" overflow-hidden  rounded-full">
                 <BlurView
                   intensity={100}
                   experimentalBlurMethod="dimezisBlurView"
-                  className="items-center justify-center h-12 w-12 flex-1">
+                  className="size-12 flex-1 items-center justify-center">
                   <Icon as={X} className="" />
                 </BlurView>
               </Pressable>
-              <HStack className="flex-1 h-12 overflow-hidden rounded-3xl">
+              <HStack className="h-12 flex-1 overflow-hidden rounded-3xl">
                 <BlurView
                   intensity={100}
                   experimentalBlurMethod="dimezisBlurView"
-                  className="flex-1 h-full justify-center  items-center">
-                  <Text className="font-h4 text-typography-950 text-center ">
+                  className="h-full flex-1 items-center  justify-center">
+                  <Text className="text-center font-h4 text-typography-950 ">
                     Importer des patients
                   </Text>
                 </BlurView>
@@ -124,7 +121,7 @@ export default function ImportPatients() {
           <VStack className="flex-1 items-center justify-center">
             <VStack className="absolute  top-14 w-full  overflow-hidden ">
               <BlurView
-                className="flex-1 p-4 w-full justify-center items-center"
+                className="w-full flex-1 items-center justify-center p-4"
                 intensity={50}
                 experimentalBlurMethod="dimezisBlurView">
                 <Text className="font-h4 text-sm text-white">Scanner un Qr Code MalnutriX</Text>
@@ -134,8 +131,8 @@ export default function ImportPatients() {
             <Box className="absolute">
               <QRIndicator progress={progress} />
             </Box>
-            <HStack className="absolute bottom-10 justify-center px-10 w-full">
-              <Pressable className="  rounded-full overflow-hidden" onPress={onFlashToggle}>
+            <HStack className="absolute bottom-10 w-full justify-center px-10">
+              <Pressable className="  overflow-hidden rounded-full" onPress={onFlashToggle}>
                 <BlurView intensity={100} className="p-4">
                   <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
                 </BlurView>

@@ -79,7 +79,7 @@ export function BottomSheetModal({
           return (
             <VStack
               {...props}
-              className={`rounded-3xl bg-background-50 dark:background-0 ${bgClassName}`}
+              className={`rounded-3xl bg-background-50 dark:bg-background-0 ${bgClassName}`}
             />
           );
         }}

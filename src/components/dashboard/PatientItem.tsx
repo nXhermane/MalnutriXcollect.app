@@ -28,15 +28,15 @@ export function PatientItem(patient: Patient) {
       }>
       <HStack
         key={patient.id}
-        className={`elevation-sm h-v-14 items-center justify-between rounded-xl bg-background-0 dark:bg-background-50 px-2 py-2`}>
+        className={`elevation-sm h-v-14 items-center justify-between rounded-xl bg-background-0 p-2 dark:bg-background-50`}>
         <HStack className="items-center gap-2">
-          <Avatar className="h-10 w-10 rounded-full bg-green-500">
+          <Avatar className="size-10 rounded-full bg-green-500">
             <AvatarFallbackText className="font-h3 text-base font-semibold text-white">
               {patient.name}
             </AvatarFallbackText>
             {patient.isLocked && (
-              <AvatarBadge className=" border-transparent justify-center items-center h-4 w-4 bg-transparent">
-                <Icon as={LockKeyhole} className="h-3 w-3" />
+              <AvatarBadge className=" size-4 items-center justify-center border-transparent bg-transparent">
+                <Icon as={LockKeyhole} className="size-3" />
               </AvatarBadge>
             )}
           </Avatar>
@@ -54,7 +54,7 @@ export function PatientItem(patient: Patient) {
           </VStack>
         </HStack>
         <HStack>
-          <Badge className="bg-primary-c_light/10 rounded-xl">
+          <Badge className="rounded-xl bg-primary-c_light/10">
             <BadgeText className="font-light text-2xs font-normal text-primary-c_light">
               {HumanDateFormatter.formatAgeInMonths(patient.birthdate)}
             </BadgeText>

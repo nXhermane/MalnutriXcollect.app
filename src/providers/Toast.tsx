@@ -107,7 +107,7 @@ const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => 
       <HStack className="gap-3">
         <Icon
           as={InfoIcon}
-          className={`h-6 w-6 items-center justify-center rounded-full ${variant[type].icon}`}
+          className={`size-6 items-center justify-center rounded-full ${variant[type].icon}`}
         />
 
         <VStack className="w-[90%]">
@@ -117,8 +117,7 @@ const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => 
             </ToastTitle>
           )}
           {description && (
-            <ToastDescription
-              className={`mt-1 text-sm text-typography-primary_light dark:text-gray-300`}>
+            <ToastDescription className={`mt-1 text-sm text-typography-700 dark:text-gray-300`}>
               {description}
             </ToastDescription>
           )}

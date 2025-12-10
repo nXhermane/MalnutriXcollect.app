@@ -74,7 +74,6 @@ function Main() {
           presentation: 'formSheet',
           animation: 'slide_from_bottom',
           sheetElevation: 0,
-         
         }}
         name="[id]/index"
       />

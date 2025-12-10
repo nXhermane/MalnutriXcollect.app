@@ -52,14 +52,14 @@ export interface ChipItemProps {
 export const ChipItem: React.FC<ChipItemProps> = ({ state, onChange, title, isFirst, isLast }) => {
   return (
     <Pressable
-      className={`${isFirst ? 'ml-4' : isLast ? 'mr-4' : ''} ${state ? 'bg-primary-c_light' : 'bg-background-secondary'} rounded-full border-[0.5px] border-primary-border/10 px-4 py-v-1`}
+      className={`${isFirst ? 'ml-4' : isLast ? 'mr-4' : ''} ${state ? 'bg-green-500' : 'bg-background-0 dark:bg-background-50'} rounded-full border-[0.5px] border-primary-border/10 px-4 py-v-1`}
       onPress={() => {
         const _value = !state;
         if (state) return;
         onChange && onChange(_value);
       }}>
       <Text
-        className={`font-body text-sm font-normal ${state ? 'text-white' : 'text-typography-primary'}`}>
+        className={`font-body text-sm font-normal ${state ? 'text-white' : 'text-typography-950 dark:text-typography-0'}`}>
         {title}
       </Text>
     </Pressable>

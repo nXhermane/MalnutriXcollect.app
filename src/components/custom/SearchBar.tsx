@@ -20,7 +20,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ fieldProps, className, ...
         className={`h-v-10 rounded-xl border-[0.5px] border-primary-border/10 bg-background-100 data-[focus=true]:border-primary-c ${className}`}
         {...props}>
         <InputSlot className={'pl-3'}>
-          <InputIcon as={() => <Icon as={Search} className={'h-5 w-5 text-typography-600'} />} />
+          <InputIcon as={() => <Icon as={Search} className={'size-5 text-typography-600'} />} />
         </InputSlot>
         <InputField
           className={'font-body text-sm font-normal text-typography-800'}
@@ -33,7 +33,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ fieldProps, className, ...
             onPress={() => {
               fieldProps?.onChangeText && fieldProps.onChangeText('');
             }}>
-            <InputIcon as={XCircle} className={'h-5 w-5 text-typography-600'} />
+            <InputIcon as={XCircle} className={'size-5 text-typography-600'} />
           </InputSlot>
         )}
       </Input>

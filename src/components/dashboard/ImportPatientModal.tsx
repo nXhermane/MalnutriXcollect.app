@@ -38,11 +38,11 @@ export function ImportPatientModal({
       <VStack className="h-full flex-1">
         <Center className="flex-1 ">
           {isLoading ? (
-            <Spinner size={'large'} className="text-blue-500 h-18 w-18" />
+            <Spinner size={'large'} className="size-18 text-blue-500" />
           ) : (
             <Icon
               as={error === null ? AlertTriangle : Check}
-              className={`h-18 w-18 ${error === null ? 'text-warning-500' : 'text-green-500'}`}
+              className={`size-18 ${error === null ? 'text-warning-500' : 'text-green-500'}`}
             />
           )}
         </Center>

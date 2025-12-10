@@ -13,12 +13,10 @@ import { router } from 'expo-router';
 import { Center } from '@/components/ui/center';
 import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import * as Hapatic from 'expo-haptics';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ExportPatients() {
   const { exportPatient, data, confirmExport, confirmIsLoading, isConfirmed } =
     useExportPatientViewModel();
-  
 
   const [dataFrames, setDataFrames] = useState<string[]>([]);
 
@@ -37,71 +35,65 @@ export default function ExportPatients() {
     }
   }, [isConfirmed]);
   return (
-  
-      <VStack className="flex-1 bg-background-50 dark:bg-background-0 pt-safe">
-        <VStack className=" h-18 w-full   justify-center items-center">
-          <HStack className="px-4 items-center gap-4 w-full ">
-            <Pressable
-              onPress={() => {
-                router.back();
-                Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-              }}
-              className="h-12 w-12 items-center justify-center bg-background-0 dark:bg-background-50 rounded-full">
-              <Icon as={X} className="" />
-            </Pressable>
-            <HStack className="flex-1 h-12 justify-center bg-background-0 dark:bg-background-50 items-center rounded-3xl">
-              <Text className="font-h4 text-typography-950 text-center ">
-                Exporter vos patients
-              </Text>
-            </HStack>
-          </HStack>
-        </VStack>
-        <VStack className="w-full h-80 items-center justify-center">
-          <Center className="p-4 rounded-3xl bg-background-0 dark:bg-background-50">
-            {dataFrames.length !== 0 ? (
-              <QrCodeLoop frames={dataFrames} />
-            ) : (
-              <Spinner size={'large'} className="text-blue-500" />
-            )}
-          </Center>
-        </VStack>
-        <VStack className="h-60  px-4 items-center justify-center">
-          <VStack className="bg-blue-50 p-4 rounded-xl border-blue-200 dark:bg-background-50 dark:border-transparent border-[0.5px]">
-            <Text className="text-blue-900  dark:text-typography-800 font-h4 text-lg font-medium mb-2 text-center">
-              {"Étapes d'export"}
-            </Text>
-            <Text className="text-blue-800 dark:text-gray-400 font-body text-sm font-normal mb-1">
-              {'1. Le nutritionniste scanne le Qr Code'}
-            </Text>
-            <Text className="text-blue-800 dark:text-gray-400 font-body text-sm font-normal mb-1">
-              {'2. Vérifiez que toutes les données sont transférés'}
-            </Text>
-            <Text className="text-blue-800 dark:text-gray-400 font-body text-sm font-normal mb-1">
-              {`3. Cliquez sur "Confirmer l'export" ci-dessous`}
-            </Text>
-          </VStack>
-        </VStack>
-        <VStack className="w-full px-4 absolute bottom-18 py-4">
-          <Button
-            className="w-full  rounded-xl h-v-12 bg-green-500"
+    <VStack className="pt-safe flex-1 bg-background-50 dark:bg-background-0">
+      <VStack className=" h-18 w-full   items-center justify-center">
+        <HStack className="w-full items-center gap-4 px-4 ">
+          <Pressable
             onPress={() => {
-              confirmExport();
+              router.back();
               Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
             }}
-            disabled={dataFrames.length === 0 || confirmIsLoading}>
-            {confirmIsLoading ? (
-              <ButtonSpinner className="text-white" />
-            ) : (
-              <ButtonText className="text-white font-h4 text-base">
-                {"Confirmer l'export"}
-              </ButtonText>
-            )}
-          </Button>
-          <Text className="text-center text-xs text-gray-700 dark:text-gray-400 font-light pt-2">
-            Les patients seront marqués comme exportés après confirmation
+            className="size-12 items-center justify-center rounded-full bg-background-0 dark:bg-background-50">
+            <Icon as={X} className="" />
+          </Pressable>
+          <HStack className="h-12 flex-1 items-center justify-center rounded-3xl bg-background-0 dark:bg-background-50">
+            <Text className="text-center font-h4 text-typography-950 ">Exporter vos patients</Text>
+          </HStack>
+        </HStack>
+      </VStack>
+      <VStack className="h-80 w-full items-center justify-center">
+        <Center className="rounded-3xl bg-background-0 p-4 dark:bg-background-50">
+          {dataFrames.length !== 0 ? (
+            <QrCodeLoop frames={dataFrames} />
+          ) : (
+            <Spinner size={'large'} className="text-blue-500" />
+          )}
+        </Center>
+      </VStack>
+      <VStack className="h-60  items-center justify-center px-4">
+        <VStack className="rounded-xl border-[0.5px] border-blue-200 bg-blue-50 p-4 dark:border-transparent dark:bg-background-50">
+          <Text className="mb-2  text-center font-h4 text-lg font-medium text-blue-900 dark:text-typography-800">
+            {"Étapes d'export"}
+          </Text>
+          <Text className="mb-1 font-body text-sm font-normal text-blue-800 dark:text-gray-400">
+            {'1. Le nutritionniste scanne le Qr Code'}
+          </Text>
+          <Text className="mb-1 font-body text-sm font-normal text-blue-800 dark:text-gray-400">
+            {'2. Vérifiez que toutes les données sont transférés'}
+          </Text>
+          <Text className="mb-1 font-body text-sm font-normal text-blue-800 dark:text-gray-400">
+            {`3. Cliquez sur "Confirmer l'export" ci-dessous`}
           </Text>
         </VStack>
       </VStack>
-   
+      <VStack className="absolute bottom-18 w-full p-4">
+        <Button
+          className="h-v-12  w-full rounded-xl bg-green-500"
+          onPress={() => {
+            confirmExport();
+            Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+          }}
+          disabled={dataFrames.length === 0 || confirmIsLoading}>
+          {confirmIsLoading ? (
+            <ButtonSpinner className="text-white" />
+          ) : (
+            <ButtonText className="font-h4 text-base text-white">{"Confirmer l'export"}</ButtonText>
+          )}
+        </Button>
+        <Text className="pt-2 text-center font-light text-xs text-gray-700 dark:text-gray-400">
+          Les patients seront marqués comme exportés après confirmation
+        </Text>
+      </VStack>
+    </VStack>
   );
 }

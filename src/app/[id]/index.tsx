@@ -1,7 +1,6 @@
 import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Center } from '@/components/ui/center';
 import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
 import { Edit, Plus, X } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -19,19 +18,19 @@ export default function PatientScreen() {
   const [showAddMeasureToPatientModal, setShowAddMeasureToPatientModal] = useState<boolean>(false);
   return (
     <React.Fragment>
-      <VStack className="flex-1 bg-background-50 dark:bg-background-0 pt-safe">
-        <VStack className=" h-18 w-full   justify-center items-center">
-          <HStack className="px-4 items-center gap-4 w-full ">
+      <VStack className="pt-safe flex-1 bg-background-50 dark:bg-background-0">
+        <VStack className=" h-18 w-full   items-center justify-center">
+          <HStack className="w-full items-center gap-4 px-4 ">
             <Pressable
               onPress={() => {
                 router.back();
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               }}
-              className="h-12 w-12 items-center justify-center bg-background-0 dark:bg-background-50 rounded-full">
+              className="size-12 items-center justify-center rounded-full bg-background-0 dark:bg-background-50">
               <Icon as={X} className="" />
             </Pressable>
-            <HStack className="flex-1 h-12 justify-center bg-background-0 dark:bg-background-50 items-center rounded-3xl px-4">
-              <Text className="font-h4 text-typography-950 text-center " numberOfLines={1}>
+            <HStack className="h-12 flex-1 items-center justify-center rounded-3xl bg-background-0 px-4 dark:bg-background-50">
+              <Text className="text-center font-h4 text-typography-950 " numberOfLines={1}>
                 {id ? patients[id].name : 'patient not found'}
               </Text>
             </HStack>
@@ -41,19 +40,19 @@ export default function PatientScreen() {
                 router.back();
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               }}
-              className="h-12 w-12 items-center justify-center bg-green-600 hover:bg-green-700 rounded-full">
+              className="size-12 items-center justify-center rounded-full bg-green-600 hover:bg-green-700">
               <Icon as={Edit} className="text-white" />
             </Pressable>
           </HStack>
         </VStack>
         <Fab
-          className="bottom-8 h-14 w-14 bg-green-600 hover:bg-green-700"
+          className="bottom-8 size-14 bg-green-600 hover:bg-green-700"
           onPress={() => {
             setShowAddMeasureToPatientModal(true);
             Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
           }}>
           <FabIcon as={Plus} className="text-white" />
-          <FabLabel className="absolute -bottom-4 font-semibold font-light  text-gray-700 dark:text-gray-400 text-xs">
+          <FabLabel className="absolute -bottom-4 font-light text-xs  font-semibold text-gray-700 dark:text-gray-400">
             Nouvelle visite
           </FabLabel>
         </Fab>

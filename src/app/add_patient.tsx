@@ -9,19 +9,19 @@ import { X } from 'lucide-react-native';
 
 export default function AddPatient() {
   return (
-    <VStack className="flex-1 bg-background-50 dark:bg-background-0 pt-safe">
-      <VStack className=" h-18 w-full   justify-center items-center">
-        <HStack className="px-4 items-center gap-4 w-full ">
+    <VStack className="pt-safe flex-1 bg-background-50 dark:bg-background-0">
+      <VStack className=" h-18 w-full   items-center justify-center">
+        <HStack className="w-full items-center gap-4 px-4 ">
           <Pressable
             onPress={() => {
               router.back();
               Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
             }}
-            className="h-12 w-12 items-center justify-center bg-background-0 dark:bg-background-50 rounded-full">
+            className="size-12 items-center justify-center rounded-full bg-background-0 dark:bg-background-50">
             <Icon as={X} className="" />
           </Pressable>
-          <HStack className="flex-1 h-12 justify-center bg-background-0 dark:bg-background-50 items-center rounded-3xl">
-            <Text className="font-h4 text-typography-950 text-center ">Ajouter un patient</Text>
+          <HStack className="h-12 flex-1 items-center justify-center rounded-3xl bg-background-0 dark:bg-background-50">
+            <Text className="text-center font-h4 text-typography-950 ">Ajouter un patient</Text>
           </HStack>
         </HStack>
       </VStack>

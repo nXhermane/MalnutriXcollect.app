@@ -22,12 +22,12 @@ export const Header = ({
         className={
           'p-safe dark:elevation-md h-v-18 w-full items-center justify-between bg-background-0 dark:bg-background-50'
         }>
-        <HStack className={'items-center w-full justify-between px-4 pb-2'}>
+        <HStack className={'w-full items-center justify-between px-4 pb-2'}>
           <Box>
             <HStack className="items-center">
-              <Text className="font-h3 text-xl  font-semibold dark:text-white text-black">
+              <Text className="font-h3 text-xl  font-semibold text-black dark:text-white">
                 MalnutriX
-                <Text className="text-2xs font-light text-black dark:text-white">collect</Text>
+                <Text className="font-light text-2xs text-black dark:text-white">collect</Text>
               </Text>
             </HStack>
           </Box>
