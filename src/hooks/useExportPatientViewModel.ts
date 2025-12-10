@@ -14,6 +14,7 @@ export function useExportPatientViewModel() {
   const [exportedData, setExportedData] = useState<string>();
   const [exportIsLoading, setExportedIsLoading] = useState<boolean>(false);
   const [compiledPatientIds, setCompiledPatientIds] = useState<string[]>([]);
+  const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
   const patients = useValue(modeles$.patients);
   const patient_measures = useValue(modeles$.patient_measures);
 
@@ -28,7 +29,9 @@ export function useExportPatientViewModel() {
   }, [patients, patient_measures]);
 
   const confirmExport = useCallback(() => {
+    setIsConfirmed(false);
     markPatientAsExported(compiledPatientIds);
+    setIsConfirmed(true);
   }, [compiledPatientIds, markPatientAsExported]);
   return {
     exportPatient,
@@ -36,6 +39,7 @@ export function useExportPatientViewModel() {
     isLoading: exportIsLoading,
     confirmIsLoading: isLoading,
     data: useValue(exportedData),
+    isConfirmed,
   };
 }
 
