@@ -116,9 +116,7 @@ export default function ImportPatients() {
                   experimentalBlurMethod="dimezisBlurView"
                   tint={isDark ? 'dark' : 'light'}
                   className="h-full flex-1 items-center  justify-center">
-                  <Text className="text-center font-h4 text-white ">
-                    Importer des patients
-                  </Text>
+                  <Text className="text-center font-h4 text-white ">Importer des patients</Text>
                 </BlurView>
               </HStack>
             </HStack>

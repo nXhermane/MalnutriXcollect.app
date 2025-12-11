@@ -20,7 +20,7 @@ export function PatientList({
   onScrollStart?: () => void;
   onScrollEnd?: () => void;
 }) {
-  const isDark = useValue(isDark$)
+  const isDark = useValue(isDark$);
   const filteredPatients = useValue(() => modeles$.filtered_patients());
   const nonExportedPatientsCount = useValue(() => modeles$.non_exported_patients().length);
   const renderItem = useCallback(({ item }: ListRenderItemInfo<Patient>) => {
@@ -29,12 +29,12 @@ export function PatientList({
 
   return (
     <VStack className="flex-1 py-4">
-      <HStack className="absolute top-0 w-full z-30 mb-4 ">
+      <HStack className="absolute top-0 z-30 mb-4 w-full ">
         <BlurView
           intensity={100}
           experimentalBlurMethod={'dimezisBlurView'}
           tint={isDark ? 'dark' : 'light'}
-          className="px-4 py-3 flex-row w-full items-center justify-between ">
+          className="w-full flex-row items-center justify-between px-4 py-3 ">
           <Text className="font-h4 font-medium text-gray-700 dark:text-typography-800">
             {filteredPatients.length} patient{filteredPatients.length > 1 && 's'}
           </Text>
