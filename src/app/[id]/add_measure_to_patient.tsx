@@ -21,7 +21,7 @@ export default function AddMeasureToPatient() {
             <Icon as={X} className="" />
           </Pressable>
           <HStack className="h-12 flex-1 items-center justify-center rounded-3xl bg-background-0 dark:bg-background-50">
-            <Text className="text-center font-h4 text-typography-950 ">Nouvelle visite</Text>
+            <Text className="text-center font-h4 text-typography-950 ">Ajouter une visite</Text>
           </HStack>
         </HStack>
       </VStack>

@@ -249,7 +249,7 @@ src/
 ## 📅 Dates clés
 
 - **Kickoff** : 25 novembre 2025
-- **MVP** : 10 décembre 2025
+- **MVP** : 12 décembre 2025
 - **Déploiement** : 26 décembre 2025
 
 ## 🔗 Liens utiles

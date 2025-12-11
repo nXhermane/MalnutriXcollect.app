@@ -61,10 +61,8 @@ function Main() {
       />
       <Stack.Screen
         options={{
-          sheetCornerRadius: 30,
           presentation: 'modal',
           animation: 'slide_from_bottom',
-          sheetElevation: 0,
         }}
         name="add_patient"
       />
@@ -79,10 +77,8 @@ function Main() {
       />
       <Stack.Screen
         options={{
-          sheetCornerRadius: 30,
-          presentation: 'formSheet',
+          presentation: 'modal',
           animation: 'slide_from_bottom',
-          sheetElevation: 0,
         }}
         name="[id]/add_measure_to_patient"
       />
