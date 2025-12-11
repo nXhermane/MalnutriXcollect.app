@@ -22,7 +22,7 @@ export function DateFieldComponent({ field, control, errors }: DateFieldComponen
       <Controller
         name={field.name}
         control={control}
-        // defaultValue={field.default || ''}
+        defaultValue={field.default.toISOString().slice(0, 16)}
         render={({ field: { onChange, onBlur, value, ref } }) => {
           return (
             <React.Fragment>

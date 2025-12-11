@@ -115,11 +115,6 @@ export default function PatientScreen() {
                 {patientMeasures.length} visite{patientMeasures.length > 1 ? 's' : ''}
               </Text>
             )}
-            {/* {nonExportedCount > 0 && (
-              <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 dark:border-orange-100/20 dark:bg-orange-600/10 dark:text-orange-600">
-                {nonExportedCount} non exportée{nonExportedCount > 1 ? 's' : ''}
-              </Text>
-            )} */}
           </HStack>
           <FlatList
             data={patientMeasures.sort(

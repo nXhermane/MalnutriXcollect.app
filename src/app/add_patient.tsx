@@ -6,11 +6,9 @@ import { router } from 'expo-router';
 import * as Hapatic from 'expo-haptics';
 import { Icon } from '@/components/ui/icon';
 import { Check, X } from 'lucide-react-native';
-import { DynamicForm, DynamicFromMethods, FormSection } from '@/components/custom';
+import { DynamicForm, FormSection, useDynamicFormHelpers } from '@/components/custom';
 import { Button, ButtonIcon, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { BlurView } from 'expo-blur';
-import { useRef, useState } from 'react';
-import { useValue } from '@legendapp/state/react';
 import { isDark$ } from '@/store';
 import {
   CreatePatientDTO,
@@ -23,17 +21,14 @@ import * as v from 'valibot';
 import { useAddPatientViewModal } from '@/hooks/useAddPatientViewModel';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { verticalScale } from 'react-native-size-matters';
+import { useValue } from '@legendapp/state/react';
 
 export default function AddPatient() {
   const isDark = useValue(isDark$);
-  const dynamicFromRef = useRef<DynamicFromMethods>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>();
-  const [onSucess, setOnSucess] = useState<boolean>(false);
+  const { props, submit, loading, error, sucess, formReady, invalidInputCount } =
+    useDynamicFormHelpers();
   const { addPatient, isLoading: addPatientLoading } = useAddPatientViewModal();
-  const handleSubmit = () => {
-    dynamicFromRef.current?.submit();
-  };
+
   return (
     <VStack className="pt-safe flex-1 bg-bg">
       <VStack className=" absolute  z-30  w-full  items-center justify-center">
@@ -62,15 +57,9 @@ export default function AddPatient() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pt-18 pb-20">
         <DynamicForm
-          ref={dynamicFromRef}
+          {...props}
           sections={addPatientFormConfig}
           onSubmit={(data) => addPatient(data as any)}
-          onError={(error) => setError(error)}
-          onSucess={(state) => {
-            setOnSucess(state);
-            if (state) dynamicFromRef.current?.reset({});
-          }}
-          onLoading={(state) => setIsLoading(state)}
           transformData={transformData}
           outputSchema={createPatientSchema}
         />
@@ -83,18 +72,21 @@ export default function AddPatient() {
           className="w-full px-4 py-v-2">
           <Button
             className={`h-v-12 w-full rounded-xl ${error ? 'bg-red-500' : 'bg-green-600'}`}
-            onPress={handleSubmit}>
-            {isLoading || addPatientLoading ? (
+            isDisabled={formReady}
+            onPress={submit}>
+            {loading || addPatientLoading ? (
               <ButtonSpinner size={'small'} className="data-[active=true]:text-green-500" />
             ) : (
               <ButtonText className="font-h4 font-medium text-white data-[active=true]:text-green-500">
                 Ajouter un nouveau patient
               </ButtonText>
             )}
-
-            {onSucess && <ButtonIcon as={Check} className="text-white" />}
+            {sucess && <ButtonIcon as={Check} className="text-white" />}
             {error && <ButtonIcon as={X} className="text-white" />}
           </Button>
+          {error && (
+            <Text className="text-center font-h4 text-red-500">{`${invalidInputCount} champs invalides`}</Text>
+          )}
         </BlurView>
       </HStack>
     </VStack>

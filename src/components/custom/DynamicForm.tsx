@@ -10,7 +10,15 @@ import { CheckBoxFieldComponent } from './CheckBoxField';
 import { DateFieldComponent } from './DateField';
 import { QuantityFieldComponent } from './QuantityField';
 import { VStack } from '../ui/vstack';
-import { forwardRef, useMemo, useCallback, useImperativeHandle, useState } from 'react';
+import {
+  forwardRef,
+  useMemo,
+  useCallback,
+  useImperativeHandle,
+  useState,
+  useEffect,
+  useRef,
+} from 'react';
 import { HStack } from '../ui/hstack';
 import { Text } from '../ui/text';
 import { useToast } from '@/providers/Toast';
@@ -26,6 +34,8 @@ interface DynamicFormProps<TOutput = any> {
   onError?: (error?: string) => void;
   onSucess?: (state: boolean) => void;
   onSubmit?: (data: TOutput) => void;
+  onFormIsValid?: (state: boolean) => void;
+  onInvalidInputCount?: (counter: number) => void;
   outputSchema?: v.BaseSchema<any, TOutput, any>;
   transformData?: (data: any) => TOutput;
 }
@@ -113,6 +123,8 @@ function DynamicFormComponent<TOutput = any>(
     onSucess,
     onLoading,
     onSubmit,
+    onFormIsValid,
+    onInvalidInputCount,
     outputSchema,
     transformData,
   }: DynamicFormProps<TOutput>,
@@ -169,7 +181,7 @@ function DynamicFormComponent<TOutput = any>(
             Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
             onError && onError('Erreur de transformation des données');
             onLoading && onLoading(false);
-            toast.show('Error', 'Erreur de transformation des données', 'top');
+            toast.show('Error', 'Erreur de transformation des données', undefined, 'top');
             return;
           }
           finalData = result.output;
@@ -202,6 +214,67 @@ function DynamicFormComponent<TOutput = any>(
     },
     [onError, toast],
   );
+
+  useEffect(() => {
+    const visibleFields = filteredSections.flatMap(({ fields }) => fields);
+    onFormIsValid &&
+      onFormIsValid(
+        visibleFields.every((field) => {
+          if (errors[field.name]) return false;
+          if (field.validation?.required) {
+            const value = formData[field.name];
+            switch (field.type) {
+              case 'text':
+              case 'select':
+              case 'radio':
+              case 'date':
+                return value && value.length > 0;
+              case 'number':
+                return value !== undefined && value !== null && value !== '';
+              case 'checkbox':
+                return Array.isArray(value) && value.length > 0;
+              case 'quantity':
+                return (
+                  value && value.value !== undefined && value.value !== null && value.value !== ''
+                );
+              default:
+                return true;
+            }
+          }
+
+          return true;
+        }),
+      );
+    onInvalidInputCount &&
+      onInvalidInputCount(
+        visibleFields.filter((field) => {
+          if (errors[field.name] || outputErrors[field.name]) return true;
+          if (field.validation?.required) {
+            const value = formData[field.name];
+
+            switch (field.type) {
+              case 'text':
+              case 'select':
+              case 'radio':
+              case 'date':
+                return !value || value.length === 0;
+              case 'number':
+                return value === undefined || value === null || value === '';
+              case 'checkbox':
+                return !Array.isArray(value) || value.length === 0;
+              case 'quantity':
+                return (
+                  !value || value.value === undefined || value.value === null || value.value === ''
+                );
+              default:
+                return false;
+            }
+          }
+
+          return false;
+        }).length,
+      );
+  }, [filteredSections, errors, onFormIsValid, formData, outputErrors, onInvalidInputCount]);
   useImperativeHandle(
     ref,
     () => ({
@@ -302,3 +375,32 @@ function DynamicFormComponent<TOutput = any>(
 }
 
 export const DynamicForm = forwardRef(DynamicFormComponent);
+
+export function useDynamicFormHelpers() {
+  const dynamicFromRef = useRef<DynamicFromMethods>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>();
+  const [onSucess, setOnSucess] = useState<boolean>(false);
+  const [isFormValid, setIsFormValid] = useState<boolean>(false);
+  const [errorInputCounter, setErrorInputCounter] = useState<number>(0);
+  const props = {
+    ref: dynamicFromRef,
+    onError: (error: string | undefined) => setError(error),
+    onSucess: (state: boolean) => {
+      setOnSucess(state);
+      if (state) dynamicFromRef.current?.reset({});
+    },
+    onLoading: (state: boolean) => setIsLoading(state),
+    onFormIsValid: (state: boolean) => setIsFormValid(state),
+    onInvalidInputCount: (counter: number) => setErrorInputCounter(counter),
+  };
+  return {
+    props,
+    submit: dynamicFromRef.current?.submit,
+    loading: isLoading,
+    error,
+    sucess: onSucess,
+    formReady: !isFormValid,
+    invalidInputCount: errorInputCounter,
+  };
+}

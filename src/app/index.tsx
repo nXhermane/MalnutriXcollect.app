@@ -34,7 +34,7 @@ export default function Index() {
         {!hideFabs && (
           <HStack className="absolute bottom-0 w-full  justify-between gap-4 px-4">
             <Fab
-              className="fixed right-0 size-12 bg-green-500 hover:bg-green-600 "
+              className="fixed elevation-md right-0 size-12 bg-green-500 hover:bg-green-600 "
               onPress={() => {
                 if (!hasPermission) {
                   requestPermission();
@@ -47,7 +47,7 @@ export default function Index() {
               <FabIcon as={ScanQrCode} className="text-white" />
             </Fab>
             <Fab
-              className="fixed -top-8 right-0 size-14 bg-green-600 hover:bg-green-700"
+              className="fixed  elevation-lg -top-8 right-0 size-14 bg-green-600 hover:bg-green-700"
               onPress={() => {
                 router.navigate('/add_patient');
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
@@ -59,7 +59,7 @@ export default function Index() {
             </Fab>
             <Fab
               disabled={nonExportedPatientsCount === 0}
-              className="fixed right-0 size-12 bg-green-500 hover:bg-green-600 "
+              className="fixed  elevation-md  right-0 size-12 bg-green-500 hover:bg-green-600 "
               onPress={() => {
                 router.navigate('/export_patients');
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
