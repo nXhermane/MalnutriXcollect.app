@@ -305,7 +305,6 @@ const transformData = (data: any): CreatePatientDTO => {
       parents.push(parent2);
     }
   }
-  console.log(parents);
   return {
     name,
     birthdate,

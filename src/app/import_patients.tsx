@@ -25,9 +25,12 @@ import {
   useCameraFormat,
   useCodeScanner,
 } from 'react-native-vision-camera';
+import { useValue } from '@legendapp/state/react';
+import { isDark$ } from '@/store';
 
 export default function ImportPatients() {
   const [isLit, setLit] = useState<boolean>(false);
+  const isDark = useValue(isDark$);
   const [qrCodeData, setQrCodeData] = useState<string | undefined>('hello');
   const frames = useRef<State>(null);
   const [progress, setProgress] = useState(0);
@@ -102,16 +105,18 @@ export default function ImportPatients() {
                 <BlurView
                   intensity={100}
                   experimentalBlurMethod="dimezisBlurView"
+                  tint={isDark ? 'dark' : 'light'}
                   className="size-12 flex-1 items-center justify-center">
-                  <Icon as={X} className="" />
+                  <Icon as={X} className="text-white" />
                 </BlurView>
               </Pressable>
               <HStack className="h-12 flex-1 overflow-hidden rounded-3xl">
                 <BlurView
                   intensity={100}
                   experimentalBlurMethod="dimezisBlurView"
+                  tint={isDark ? 'dark' : 'light'}
                   className="h-full flex-1 items-center  justify-center">
-                  <Text className="text-center font-h4 text-typography-950 ">
+                  <Text className="text-center font-h4 text-white ">
                     Importer des patients
                   </Text>
                 </BlurView>
@@ -122,7 +127,8 @@ export default function ImportPatients() {
             <VStack className="absolute  top-14 w-full  overflow-hidden ">
               <BlurView
                 className="w-full flex-1 items-center justify-center p-4"
-                intensity={50}
+                intensity={100}
+                tint={isDark ? 'dark' : 'light'}
                 experimentalBlurMethod="dimezisBlurView">
                 <Text className="font-h4 text-sm text-white">Scanner un Qr Code MalnutriX</Text>
               </BlurView>
@@ -133,7 +139,11 @@ export default function ImportPatients() {
             </Box>
             <HStack className="absolute bottom-10 w-full justify-center px-10">
               <Pressable className="  overflow-hidden rounded-full" onPress={onFlashToggle}>
-                <BlurView intensity={100} className="p-4">
+                <BlurView
+                  intensity={100}
+                  className="p-4"
+                  tint={isDark ? 'dark' : 'light'}
+                  experimentalBlurMethod="dimezisBlurView">
                   <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
                 </BlurView>
               </Pressable>

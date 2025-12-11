@@ -1,15 +1,25 @@
 import { Patient, PatientMeasure } from '@/models/schemas';
 import { staticPatientMeasures, staticPatients } from '@/utils/staticData';
 import { observable } from '@legendapp/state';
-import { ObservablePersistMMKV } from '@legendapp/state/persist-plugins/mmkv';
-import { synced } from '@legendapp/state/sync';
-
+import { synced, configureObservableSync } from '@legendapp/state/sync';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ObservablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage';
+configureObservableSync({
+  persist: {
+    plugin: ObservablePersistAsyncStorage,
+    asyncStorage: {
+      AsyncStorage,
+    },
+  },
+  syncMode: 'auto',
+});
 export const modeles$ = observable({
   patients: synced<Record<string, Patient>>({
     persist: {
       name: 'patients',
-      plugin: ObservablePersistMMKV,
+      plugin: ObservablePersistAsyncStorage,
     },
+    syncMode: 'auto',
     initial: staticPatients.reduce(
       (acc, patient) => {
         acc[patient.id] = patient;
@@ -21,7 +31,7 @@ export const modeles$ = observable({
   patient_measures: synced<Record<string, PatientMeasure[]>>({
     persist: {
       name: 'patient_measures',
-      plugin: ObservablePersistMMKV,
+      plugin: ObservablePersistAsyncStorage,
     },
     initial: staticPatientMeasures,
   }),
