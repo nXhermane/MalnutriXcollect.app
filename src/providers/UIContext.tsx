@@ -19,6 +19,7 @@ import {
 import { theme$ } from '@/store';
 import { useValue } from '@legendapp/state/react';
 import { ToastProvider } from './Toast';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 export interface UIContextType {
   loaded: boolean;
@@ -59,17 +60,19 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
   return (
     <React.Fragment>
       <StatusBar style="auto" />
-      <UIContext.Provider value={{ loaded, error }}>
-        <View style={[{ flex: 1, height: '100%', width: '100%' }, generatedVars]}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <GluestackUIProvider mode={theme}>
-              <ToastProvider>
-                <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
-              </ToastProvider>
-            </GluestackUIProvider>
-          </GestureHandlerRootView>
-        </View>
-      </UIContext.Provider>
+      <KeyboardProvider>
+        <UIContext.Provider value={{ loaded, error }}>
+          <View style={[{ flex: 1, height: '100%', width: '100%' }, generatedVars]}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <GluestackUIProvider mode={theme}>
+                <ToastProvider>
+                  <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+                </ToastProvider>
+              </GluestackUIProvider>
+            </GestureHandlerRootView>
+          </View>
+        </UIContext.Provider>
+      </KeyboardProvider>
     </React.Fragment>
   );
 };

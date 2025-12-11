@@ -51,7 +51,7 @@ export function FieldWrapper({
             className="size-4 text-red-500 dark:text-red-400"
           />
           <FormControlErrorText className="font-body text-sm font-normal text-red-500 dark:text-red-400 ">
-            {error.message?.toString()}
+            {Array.isArray(error) ? error[0] : error?.message}
           </FormControlErrorText>
         </FormControlError>
       )}

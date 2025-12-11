@@ -21,10 +21,12 @@ export function RadioFieldComponent({ field, control, errors }: RadioFieldCompon
         control={control}
         defaultValue={field.default || ''}
         render={({ field: { onChange, onBlur, value, ref } }) => {
+          const isVertical =
+            field.options.length > 2 || field.options.some((opt) => opt.label.length > 10);
           return (
             <RadioGroup
               value={(value as string) || field.default}
-              className={`flex flex-col gap-2 pt-3`}
+              className={`${isVertical ? 'flex flex-col ' : 'flex-row justify-between gap-5'}`}
               onChange={onChange}
               onBlur={onBlur}
               ref={ref}>
@@ -32,7 +34,7 @@ export function RadioFieldComponent({ field, control, errors }: RadioFieldCompon
                 <Radio
                   key={index}
                   value={item.value}
-                  className={`flex h-v-10 cursor-pointer items-center rounded-lg border border-gray-300 p-3 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-background-100 dark:hover:bg-gray-700`}>
+                  className={`h-v-10 flex-1 cursor-pointer items-center rounded-lg border border-gray-300 p-3 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-background-100 dark:hover:bg-gray-700`}>
                   <RadioIndicator className={`size-5 text-green-500   focus:ring-green-500`}>
                     <RadioIcon as={Circle} className="" />
                   </RadioIndicator>

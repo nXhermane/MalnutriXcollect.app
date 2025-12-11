@@ -10,13 +10,13 @@ import { CheckBoxFieldComponent } from './CheckBoxField';
 import { DateFieldComponent } from './DateField';
 import { QuantityFieldComponent } from './QuantityField';
 import { VStack } from '../ui/vstack';
-import { forwardRef, useMemo, useCallback, useImperativeHandle } from 'react';
+import { forwardRef, useMemo, useCallback, useImperativeHandle, useState } from 'react';
 import { HStack } from '../ui/hstack';
 import { Text } from '../ui/text';
 import { useToast } from '@/providers/Toast';
 import * as Hapatic from 'expo-haptics';
 
-type FormSection = {
+export type FormSection = {
   name?: string;
   fields: FormField[];
 };
@@ -120,6 +120,7 @@ function DynamicFormComponent<TOutput = any>(
 ) {
   const toast = useToast();
   const schema = buildValibotSchema(sections.flatMap((section) => section.fields));
+  const [outputErrors, setOutputErrors] = useState<any>({});
   const {
     watch,
     control,
@@ -152,6 +153,7 @@ function DynamicFormComponent<TOutput = any>(
         onError && onError(undefined);
         onLoading && onLoading(true);
         onSucess && onSucess(false);
+        setOutputErrors({});
         let finalData = data;
         if (transformData) {
           finalData = transformData(data);
@@ -159,11 +161,15 @@ function DynamicFormComponent<TOutput = any>(
         if (outputSchema) {
           const result = v.safeParse(outputSchema, finalData);
           if (!result.success) {
-            console.error('Erreur de validation du schéma de sortie:', result.issues);
+            console.error(
+              'Erreur de validation du schéma de sortie:',
+              v.flatten(result.issues).nested,
+            );
+            setOutputErrors(v.flatten(result.issues).nested);
             Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
             onError && onError('Erreur de transformation des données');
             onLoading && onLoading(false);
-            toast.show('Error', 'Erreur de transformation des données', undefined, 'top');
+            toast.show('Error', 'Erreur de transformation des données', 'top');
             return;
           }
           finalData = result.output;
@@ -209,19 +215,39 @@ function DynamicFormComponent<TOutput = any>(
     switch (field.type) {
       case 'text':
         return (
-          <TextFieldComponent key={field.name} field={field} control={control} errors={errors} />
+          <TextFieldComponent
+            key={field.name}
+            field={field}
+            control={control}
+            errors={{ ...errors, ...outputErrors }}
+          />
         );
       case 'number':
         return (
-          <NumberFieldComponent key={field.name} field={field} control={control} errors={errors} />
+          <NumberFieldComponent
+            key={field.name}
+            field={field}
+            control={control}
+            errors={{ ...errors, ...outputErrors }}
+          />
         );
       case 'select':
         return (
-          <SelectFieldComponent key={field.name} field={field} control={control} errors={errors} />
+          <SelectFieldComponent
+            key={field.name}
+            field={field}
+            control={control}
+            errors={{ ...errors, ...outputErrors }}
+          />
         );
       case 'radio':
         return (
-          <RadioFieldComponent key={field.name} field={field} control={control} errors={errors} />
+          <RadioFieldComponent
+            key={field.name}
+            field={field}
+            control={control}
+            errors={{ ...errors, ...outputErrors }}
+          />
         );
       case 'checkbox':
         return (
@@ -229,12 +255,17 @@ function DynamicFormComponent<TOutput = any>(
             key={field.name}
             field={field}
             control={control}
-            errors={errors}
+            errors={{ ...errors, ...outputErrors }}
           />
         );
       case 'date':
         return (
-          <DateFieldComponent key={field.name} field={field} control={control} errors={errors} />
+          <DateFieldComponent
+            key={field.name}
+            field={field}
+            control={control}
+            errors={{ ...errors, ...outputErrors }}
+          />
         );
       case 'quantity':
         return (
@@ -242,7 +273,7 @@ function DynamicFormComponent<TOutput = any>(
             key={field.name}
             field={field}
             control={control}
-            errors={errors}
+            errors={{ ...errors, ...outputErrors }}
           />
         );
       default:
@@ -251,7 +282,7 @@ function DynamicFormComponent<TOutput = any>(
   };
 
   return (
-    <VStack className="flex-1 px-2">
+    <VStack className="flex-1 gap-v-3 px-2">
       {filteredSections.map(({ fields, name }, index) => {
         return (
           <VStack key={name || index.toString()} className="gap-v-2">

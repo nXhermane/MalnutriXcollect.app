@@ -6,103 +6,31 @@ import { router } from 'expo-router';
 import * as Hapatic from 'expo-haptics';
 import { Icon } from '@/components/ui/icon';
 import { Check, X } from 'lucide-react-native';
-import { DynamicForm, DynamicFromMethods } from '@/components/custom';
-import { FormField } from '@/utils/field';
-import { ScrollView } from 'react-native';
+import { DynamicForm, DynamicFromMethods, FormSection } from '@/components/custom';
 import { Button, ButtonIcon, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { BlurView } from 'expo-blur';
 import { useRef, useState } from 'react';
 import { useValue } from '@legendapp/state/react';
 import { isDark$ } from '@/store';
-const simpleFormFields: FormField[] = [
-  {
-    type: 'text',
-    name: 'nom',
-    label: 'Nom complet',
-    placeholder: 'Entrez votre nom',
-    mode: 'input',
-    validation: { required: true },
-    alwaysShow: true,
-  },
-  {
-    type: 'text',
-    name: 'email',
-    label: 'Email',
-    placeholder: 'example@email.com',
-    mode: 'input',
-    validation: { required: true },
-    alwaysShow: true,
-  },
-  {
-    type: 'quantity',
-    name: 'age',
-    label: 'Age',
-    placeholder: 'ex. 30 ans',
-    unitOptions: [
-      {
-        value: 'm',
-        label: 'Mois',
-      },
-      {
-        value: 'y',
-        label: 'Année',
-      },
-    ],
-    default: {
-      unit: 'y',
-      value: 0,
-    },
-    validation: { required: true },
-    alwaysShow: true,
-  },
-  {
-    type: 'select',
-    name: 'typeUtilisateur',
-    label: "Type d'utilisateur",
-    options: [
-      { value: 'particulier', label: 'Particulier' },
-      { value: 'entreprise', label: 'Entreprise' },
-      { value: 'etudiant', label: 'Étudiant' },
-    ],
-    default: 'particulier',
-    validation: { required: true },
-    alwaysShow: true,
-  },
-  {
-    type: 'date',
-    mode: 'date',
-    default: new Date(),
-    label: 'date ',
-    name: 'date',
-  },
-  {
-    type: 'text',
-    name: 'nomEntreprise',
-    label: "Nom de l'entreprise",
-    placeholder: 'Nom de votre entreprise',
-    mode: 'input',
-    validation: { required: true },
-    condition: (data) => data.typeUtilisateur === 'entreprise',
-  },
-  {
-    type: 'checkbox',
-    name: 'interets',
-    label: "Centres d'intérêt",
-    options: [
-      { value: 'sport', label: 'Sport' },
-      { value: 'musique', label: 'Musique' },
-      { value: 'lecture', label: 'Lecture' },
-      { value: 'voyage', label: 'Voyage' },
-    ],
-    default: [],
-  },
-];
+import {
+  CreatePatientDTO,
+  createPatientSchema,
+  ParentRelation,
+  parentSchema,
+  Sex,
+} from '@/models/schemas';
+import * as v from 'valibot';
+import { useAddPatientViewModal } from '@/hooks/useAddPatientViewModel';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { verticalScale } from 'react-native-size-matters';
+
 export default function AddPatient() {
   const isDark = useValue(isDark$);
   const dynamicFromRef = useRef<DynamicFromMethods>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>();
   const [onSucess, setOnSucess] = useState<boolean>(false);
+  const { addPatient, isLoading: addPatientLoading } = useAddPatientViewModal();
   const handleSubmit = () => {
     dynamicFromRef.current?.submit();
   };
@@ -129,16 +57,24 @@ export default function AddPatient() {
           </HStack>
         </BlurView>
       </VStack>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pt-18 pb-20">
+      <KeyboardAwareScrollView
+        bottomOffset={verticalScale(40)}
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pt-18 pb-20">
         <DynamicForm
           ref={dynamicFromRef}
-          sections={[{ fields: simpleFormFields, name: 'General' }]}
-          onSubmit={(data) => console.log(data)}
+          sections={addPatientFormConfig}
+          onSubmit={(data) => addPatient(data as any)}
           onError={(error) => setError(error)}
-          onSucess={(state) => setOnSucess(state)}
+          onSucess={(state) => {
+            setOnSucess(state);
+            if (state) dynamicFromRef.current?.reset({});
+          }}
           onLoading={(state) => setIsLoading(state)}
+          transformData={transformData}
+          outputSchema={createPatientSchema}
         />
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <HStack className=" absolute bottom-0 w-full overflow-hidden rounded-xl">
         <BlurView
           tint={isDark ? 'dark' : 'light'}
@@ -148,7 +84,7 @@ export default function AddPatient() {
           <Button
             className={`h-v-12 w-full rounded-xl ${error ? 'bg-red-500' : 'bg-green-600'}`}
             onPress={handleSubmit}>
-            {isLoading ? (
+            {isLoading || addPatientLoading ? (
               <ButtonSpinner size={'small'} className="data-[active=true]:text-green-500" />
             ) : (
               <ButtonText className="font-h4 font-medium text-white data-[active=true]:text-green-500">
@@ -164,3 +100,218 @@ export default function AddPatient() {
     </VStack>
   );
 }
+
+const addPatientFormConfig: FormSection[] = [
+  {
+    name: 'Informations de base',
+    fields: [
+      {
+        type: 'text',
+        label: 'Nom complet',
+        name: 'name',
+        mode: 'input',
+        default: '',
+        alwaysShow: true,
+        placeholder: 'Ex. John Doe',
+        validation: { required: true },
+      },
+      {
+        type: 'date',
+        label: 'Date de naissance',
+        name: 'birthdate',
+        mode: 'date',
+        default: new Date(),
+        alwaysShow: true,
+      },
+      {
+        type: 'radio',
+        label: 'Sexe',
+        name: 'sex',
+        options: [
+          { value: Sex.MALE, label: 'Homme' },
+          { value: Sex.FEMALE, label: 'Femme' },
+        ],
+        default: Sex.MALE,
+        alwaysShow: true,
+      },
+    ],
+  },
+  {
+    name: 'Informations de contact',
+    fields: [
+      {
+        type: 'text',
+        label: 'Numéro de téléphone',
+        name: 'tel',
+        mode: 'input',
+        default: '',
+        alwaysShow: true,
+        placeholder: 'Ex. +229 80 1234 5678',
+        validation: { required: false },
+      },
+      {
+        type: 'text',
+        label: 'Email',
+        name: 'email',
+        mode: 'input',
+        default: '',
+        alwaysShow: true,
+        placeholder: 'Ex. john.doe@example.com',
+        validation: { required: false },
+      },
+    ],
+  },
+  {
+    name: 'Adresse',
+    fields: [
+      {
+        type: 'text',
+        label: 'Adresse Complete',
+        name: 'fullAddress',
+        mode: 'input',
+        default: '',
+        alwaysShow: true,
+        placeholder: 'Ex. 123 Main St',
+        validation: { required: true },
+      },
+      {
+        type: 'text',
+        label: 'Ville',
+        name: 'city',
+        mode: 'input',
+        default: '',
+        alwaysShow: true,
+        placeholder: 'Ex. Cotonou',
+        validation: { required: false },
+      },
+    ],
+  },
+  {
+    name: 'Parents',
+    fields: [
+      {
+        type: 'text',
+        label: 'Nom',
+        name: 'parent1Nom',
+        mode: 'input',
+        default: '',
+        alwaysShow: true,
+        placeholder: 'Ex. John Doe',
+        validation: { required: false },
+      },
+      {
+        type: 'text',
+        label: 'Numéro de téléphone',
+        name: 'parent1Tel',
+        mode: 'input',
+        default: '',
+        alwaysShow: true,
+        placeholder: 'Ex. +229 80 1234 5678',
+        validation: { required: false },
+      },
+      {
+        type: 'select',
+        label: 'Relation',
+        name: 'parent1Relation',
+        options: [
+          { value: ParentRelation.FATHER, label: 'Père' },
+          { value: ParentRelation.MOTHER, label: 'Mère' },
+          { value: ParentRelation.GUARDIAN, label: 'Autre' },
+        ],
+        default: ParentRelation.GUARDIAN,
+        alwaysShow: true,
+      },
+      {
+        type: 'radio',
+        name: 'hasParent2',
+        label: 'Y a-t-il un deuxième parent ?',
+        options: [
+          { value: 'oui', label: 'Oui' },
+          { value: 'non', label: 'Non' },
+        ],
+        default: 'non',
+        validation: { required: false },
+        alwaysShow: true,
+      },
+      {
+        type: 'text',
+        name: 'parent2Nom',
+        label: 'Nom du parent 2',
+        placeholder: 'Nom complet',
+        mode: 'input',
+        alwaysShow: false,
+        validation: { required: false },
+        condition: (data) => data.hasParent2 === 'oui',
+      },
+      {
+        type: 'text',
+        label: 'Numéro de téléphone',
+        name: 'parent2Tel',
+        mode: 'input',
+        default: '',
+        alwaysShow: false,
+        placeholder: 'Ex. +229 80 1234 5678',
+        validation: { required: false },
+        condition: (data) => data.hasParent2 === 'oui',
+      },
+      {
+        type: 'select',
+        label: 'Relation',
+        name: 'parent2Relation',
+        options: [
+          { value: ParentRelation.FATHER, label: 'Père' },
+          { value: ParentRelation.MOTHER, label: 'Mère' },
+          { value: ParentRelation.GUARDIAN, label: 'Autre' },
+        ],
+        default: ParentRelation.GUARDIAN,
+        alwaysShow: false,
+        condition: (data) => data.hasParent2 === 'oui',
+      },
+    ],
+  },
+];
+
+const transformData = (data: any): CreatePatientDTO => {
+  const contact = {
+    email: data?.email,
+    tel: data?.tel,
+  };
+  const address = {
+    fullAddress: data?.fullAddress,
+    city: data?.city,
+  };
+  const name = data.name;
+  const birthdate = data.birthdate;
+  const sex = data.sex;
+  const parents = [];
+  const parent1 = {
+    name: data?.parent1Nom,
+    tel: data?.parent1Tel,
+    relation: data?.parent1Relation,
+  };
+  const parentValidationResult = v.safeParse(parentSchema, parent1);
+  if (parentValidationResult.success) {
+    parents.push(parent1);
+  }
+  // Ajouter le parent 2 s'il existe
+  if (data.hasParent2 === 'oui' && data.parent2Nom) {
+    const parent2 = {
+      name: data?.parent2Nom,
+      tel: data?.parent2Tel,
+      relation: data?.parent2Relation,
+    };
+    const parent2ValidationResult = v.safeParse(parentSchema, parent2);
+    if (parent2ValidationResult.success) {
+      parents.push(parent2);
+    }
+  }
+  console.log(parents);
+  return {
+    name,
+    birthdate,
+    sex,
+    contact,
+    address,
+    parents,
+  };
+};

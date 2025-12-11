@@ -12,8 +12,20 @@ export enum Sex {
 }
 
 export const contactSchema = v.object({
-  email: v.optional(v.pipe(v.string(), v.email('Veuillez entrer un email valide'))),
-  tel: v.optional(v.pipe(v.string(), v.regex(/^[+]?[\d\s-()]+$/, 'Numéro de téléphone invalide'))),
+  email: v.optional(
+    v.pipe(
+      v.string(),
+      v.transform((input) => (input === '' ? undefined : input)),
+      v.optional(v.pipe(v.string(), v.email('Veuillez entrer un email valide'))),
+    ),
+  ),
+  tel: v.optional(
+    v.pipe(
+      v.string(),
+      v.transform((input) => (input === '' ? undefined : input)),
+      v.optional(v.pipe(v.string(), v.regex(/^[+]?[\d\s-()]+$/, 'Numéro de téléphone invalide'))),
+    ),
+  ),
 });
 
 export const parentSchema = v.object({
@@ -27,8 +39,8 @@ export const parentSchema = v.object({
 });
 
 export const addressSchema = v.object({
-  fullAddress: v.optional(v.pipe(v.string(), v.nonEmpty("L'adresse complète est requise"))),
-  city: v.optional(v.string()),
+  fullAddress: v.optional(v.pipe(v.string(), v.nonEmpty("L'adresse complète est requise")), ''),
+  city: v.optional(v.string(), ''),
 });
 export const patientSchema = v.object({
   id: v.pipe(v.string(), v.nanoid('ID invalide')),
@@ -39,7 +51,7 @@ export const patientSchema = v.object({
   ),
   birthdate: v.pipe(
     v.string(),
-    v.isoDate(),
+    v.isoDateTime(),
     v.check(
       (date) => new Date(date) <= new Date(),
       'La date de naissance ne peut pas être dans le futur',
@@ -48,19 +60,29 @@ export const patientSchema = v.object({
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
   isLocked: v.optional(v.boolean(), false),
   contact: v.optional(contactSchema),
-  parents: v.pipe(
-    v.array(parentSchema),
-    v.check((parents) => {
-      const obj: { [key in ParentRelation]: boolean } = {} as any;
-      for (const parent of parents) {
-        if (obj[parent.relation]) {
-          return false;
-        }
-        obj[parent.relation] = true;
-      }
-      return true;
-    }, 'Plusieurs parents du même type sont présents'),
-    // v.nonEmpty('Au moins un parent est requis'),
+  parents: v.optional(
+    v.pipe(
+      v.array(v.object({})),
+      v.transform((input) => (input.length === 0 ? undefined : input)),
+      v.optional(
+        v.pipe(
+          v.array(parentSchema),
+          v.check((parents) => {
+            const obj: { [key in ParentRelation]: boolean } = {} as any;
+            for (const parent of parents) {
+              if (obj[parent.relation]) {
+                return false;
+              }
+              obj[parent.relation] = true;
+            }
+            return true;
+          }, 'Plusieurs parents du même type sont présents'),
+        ),
+      ),
+
+      // v.nonEmpty('Au moins un parent est requis'),
+    ),
+    [],
   ),
   address: addressSchema,
   createdAt: v.pipe(v.string(), v.isoTimestamp()),
@@ -75,7 +97,7 @@ export const createPatientSchema = v.object({
   ),
   birthdate: v.pipe(
     v.string(),
-    v.isoDate(),
+    v.isoDateTime(),
     v.check(
       (date) => new Date(date) <= new Date(),
       'La date de naissance ne peut pas être dans le futur',
@@ -105,7 +127,7 @@ export const updatePatientSchema = v.object({
   birthdate: v.optional(
     v.pipe(
       v.string(),
-      v.isoDate(),
+      v.isoDateTime(),
       v.check(
         (date) => new Date(date) <= new Date(),
         'La date de naissance ne peut pas être dans le futur',

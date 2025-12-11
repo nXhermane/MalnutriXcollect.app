@@ -62,7 +62,7 @@ function Main() {
       <Stack.Screen
         options={{
           sheetCornerRadius: 30,
-          presentation: 'formSheet',
+          presentation: 'modal',
           animation: 'slide_from_bottom',
           sheetElevation: 0,
         }}

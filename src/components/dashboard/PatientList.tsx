@@ -12,7 +12,13 @@ import { Center } from '../ui/center';
 import { Icon } from '../ui/icon';
 import { User } from 'lucide-react-native';
 
-export function PatientList() {
+export function PatientList({
+  onScrollEnd,
+  onScrollStart,
+}: {
+  onScrollStart?: () => void;
+  onScrollEnd?: () => void;
+}) {
   const filteredPatients = useValue(() => modeles$.filtered_patients());
   const nonExportedPatientsCount = useValue(() => modeles$.non_exported_patients().length);
   const renderItem = useCallback(({ item }: ListRenderItemInfo<Patient>) => {
@@ -33,10 +39,13 @@ export function PatientList() {
       </HStack>
 
       <FlatList
-        contentContainerClassName="px-4 gap-4 "
+        contentContainerClassName="px-4 gap-4 pb-20"
         data={filteredPatients}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        onScrollBeginDrag={onScrollStart}
+        onScrollEndDrag={onScrollEnd}
         ListEmptyComponent={() => (
           <VStack className="rounded-xl border-gray-100 bg-background-0 p-8 text-center shadow-sm dark:bg-background-50">
             <Center className="gap-4">
