@@ -42,3 +42,4 @@ app-example
 /ios
 /android
 .qoder
+.env.production
