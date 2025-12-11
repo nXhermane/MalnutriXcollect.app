@@ -40,11 +40,11 @@ export function CheckBoxFieldComponent({ field, control, errors }: CheckBoxField
                 <Checkbox
                   key={index}
                   value={item.value}
-                  className={`flex h-v-10 cursor-pointer items-center rounded-lg border border-gray-300 p-3 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-background-100 dark:hover:bg-gray-700`}>
+                  className={`flex h-v-10 cursor-pointer items-center rounded-lg border border-border  bg-input p-3 transition-colors hover:bg-gray-50 `}>
                   <CheckboxIndicator className={' size-5 text-green-500 focus:ring-green-500'}>
-                    <CheckboxIcon as={CheckIcon} />
+                    <CheckboxIcon as={CheckIcon} className="text-foreground" />
                   </CheckboxIndicator>
-                  <CheckboxLabel className="font-body text-sm  text-gray-700 dark:text-gray-200">
+                  <CheckboxLabel className="font-body text-sm text-foreground">
                     {item.label}
                   </CheckboxLabel>
                 </Checkbox>

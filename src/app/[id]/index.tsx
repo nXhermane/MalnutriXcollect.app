@@ -30,9 +30,6 @@ import { FlatList, ListRenderItemInfo } from 'react-native';
 export default function PatientScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const patients = useValue(() => modeles$.patients);
-  const nonExportedCount = useValue(
-    () => modeles$.patient_measures[id].get().filter((m) => !m.isExported).length,
-  );
   const patientMeasures = useValue(() => modeles$.patient_measures[id].get());
   const formatShortDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -45,29 +42,29 @@ export default function PatientScreen() {
   const renderPatientMeasure = useCallback(
     ({ item, index }: ListRenderItemInfo<PatientMeasure>) => {
       return (
-        <HStack className="items-center justify-between gap-3 rounded-xl border-gray-100 bg-background-0 p-4 shadow-sm dark:bg-background-50">
+        <HStack className="items-center justify-between gap-3 rounded-xl border border-border bg-card  p-4 shadow-sm  transition-all ">
           <HStack className="gap-3">
-            <Avatar className="flex size-10 items-center justify-center rounded-full border border-green-200 bg-green-50 dark:border-green-500/20 dark:bg-green-500/20">
-              <AvatarFallbackText className="font-h4 font-medium text-green-600 dark:text-green-50">
+            <Avatar className="flex size-10 items-center justify-center rounded-full border border-green-200 bg-green-50 ">
+              <AvatarFallbackText className="font-h4 font-medium text-green-600">
                 {(patientMeasures.length - index).toString()}
               </AvatarFallbackText>
             </Avatar>
-            <VStack>
-              <Text className="font-h4 text-sm font-medium text-gray-900 dark:text-typography-900">
+            <VStack className="gap-2">
+              <Text className="font-h4 text-sm font-medium text-foreground">
                 Visite {patientMeasures.length - index}
               </Text>
-              <Text className="font-body text-xs font-normal text-gray-500 dark:text-typography-500">
+              <Text className="font-body text-xs font-normal text-muted-foreground">
                 {formatShortDate(item.createdAt)}
               </Text>
             </VStack>
           </HStack>
 
           {item.isExported ? (
-            <Text className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 font-body text-xs text-green-600 dark:border-green-100/20 dark:bg-green-600/10 dark:text-green-600">
+            <Text className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 font-body text-xs text-green-600 ">
               ✓ Exporté
             </Text>
           ) : (
-            <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 dark:border-orange-100/20 dark:bg-orange-600/10 dark:text-orange-600">
+            <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 ">
               À exporter
             </Text>
           )}
@@ -79,7 +76,7 @@ export default function PatientScreen() {
   );
   return (
     <React.Fragment>
-      <VStack className="pt-safe flex-1 bg-background-50 dark:bg-background-0">
+      <VStack className="pt-safe flex-1 bg-bg">
         <VStack className=" h-18 w-full   items-center justify-center">
           <HStack className="w-full items-center gap-4 px-4 ">
             <Pressable
@@ -87,11 +84,11 @@ export default function PatientScreen() {
                 router.back();
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               }}
-              className="size-12 items-center justify-center rounded-full bg-background-0 dark:bg-background-50">
-              <Icon as={X} className="" />
+              className="elevation-sm size-12 items-center justify-center rounded-full bg-card">
+              <Icon as={X} className="text-muted-foreground" />
             </Pressable>
-            <HStack className="h-12 flex-1 items-center justify-center rounded-3xl bg-background-0 px-4 dark:bg-background-50">
-              <Text className="text-center font-h4 text-typography-950 " numberOfLines={1}>
+            <HStack className="elevation-sm h-12 flex-1 items-center justify-center rounded-3xl bg-card px-4">
+              <Text className="text-center font-h4 text-foreground " numberOfLines={1}>
                 {id ? patients[id].name : 'patient not found'}
               </Text>
             </HStack>
@@ -113,12 +110,16 @@ export default function PatientScreen() {
             <Text className="font-h4 font-medium text-gray-700 dark:text-typography-800">
               Visites & Mesures
             </Text>
-
-            {nonExportedCount > 0 && (
+            {patientMeasures.length > 0 && (
+              <Text className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-sm text-green-600 dark:border-green-800 dark:bg-green-950 dark:text-green-400">
+                {patientMeasures.length} visite{patientMeasures.length > 1 ? 's' : ''}
+              </Text>
+            )}
+            {/* {nonExportedCount > 0 && (
               <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 dark:border-orange-100/20 dark:bg-orange-600/10 dark:text-orange-600">
                 {nonExportedCount} non exportée{nonExportedCount > 1 ? 's' : ''}
               </Text>
-            )}
+            )} */}
           </HStack>
           <FlatList
             data={patientMeasures.sort(
@@ -129,16 +130,16 @@ export default function PatientScreen() {
             keyExtractor={(item) => item.id}
             contentContainerClassName="mt-5 mx-4 gap-4 "
             ListEmptyComponent={() => (
-              <VStack className="rounded-xl border-gray-100 bg-background-0 p-8 text-center shadow-sm dark:bg-background-50">
+              <VStack className="rounded-xl border border-border bg-card  p-8 text-center shadow-sm ">
                 <Center className="gap-4">
                   <Box className="flex size-14 items-center justify-center rounded-full bg-background-100">
-                    <Icon as={Calendar} className="size-7 text-gray-400" />
+                    <Icon as={Calendar} className="size-7 text-muted-foreground" />
                   </Box>
                   <VStack className="">
-                    <Text className="mb-1 text-center font-body text-gray-600 dark:text-typography-600">
+                    <Text className="mb-1 text-center font-body text-foreground">
                       Aucune visite enregistrée
                     </Text>
-                    <Text className="text-center font-light text-sm text-gray-400 dark:text-typography-400">
+                    <Text className="text-center font-light text-sm text-muted-foreground">
                       Ajoutez une première visite pour ce patient
                     </Text>
                   </VStack>
@@ -159,7 +160,7 @@ export default function PatientScreen() {
             Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
           }}>
           <FabIcon as={Plus} className="text-white" />
-          <FabLabel className="absolute -bottom-4 font-light text-xs  font-semibold text-gray-700 dark:text-gray-400">
+          <FabLabel className="absolute -bottom-4 font-light text-xs  font-semibold text-foreground">
             Nouvelle visite
           </FabLabel>
         </Fab>
@@ -177,38 +178,53 @@ function PatientHero({ patient }: { patient: Patient }) {
       year: 'numeric',
     });
   };
+  const getAvatarColor = (nom: string) => {
+    const colors = [
+      'bg-blue-500',
+      'bg-green-500',
+      'bg-purple-500',
+      'bg-pink-500',
+      'bg-indigo-500',
+      'bg-teal-500',
+    ];
+    const index = nom.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
   return (
     <HStack
-      className={`elevation-sm  items-center justify-between rounded-xl bg-background-0 p-4 dark:bg-background-50`}>
+      className={`elevation-sm items-center justify-between rounded-xl border border-border bg-card p-4 shadow-sm`}>
       <HStack className="flex-1 items-center gap-3">
-        <Avatar className="size-10 rounded-full bg-green-500">
-          <AvatarFallbackText className="font-h3 text-base font-semibold text-white">
+        <Avatar
+          className={`flex size-11 items-center   justify-center rounded-full  bg-green-500 text-white ${getAvatarColor(
+            patient.name,
+          )} `}>
+          <AvatarFallbackText className="font-h4 text-base font-medium text-white">
             {patient.name}
           </AvatarFallbackText>
           {patient.isLocked && (
             <AvatarBadge className=" size-4 items-center justify-center border-transparent bg-transparent">
-              <Icon as={LockKeyhole} className="size-3" />
+              <Icon as={LockKeyhole} className=" size-3.5 text-amber-600 dark:text-amber-500" />
             </AvatarBadge>
           )}
         </Avatar>
         <VStack className="flex-1 pr-5">
-          <Text className="font-h4 text-base font-medium text-typography-950" numberOfLines={1}>
+          <Text className="font-h4 text-base font-medium text-foreground" numberOfLines={1}>
             {patient.name}
           </Text>
           <VStack>
             <HStack className="items-center gap-2 ">
-              <Icon as={Calendar} className="text-gray-600 dark:text-typography-600 " size="xs" />
+              <Icon as={Calendar} className="text-muted-foreground " size="xs" />
               <Text
-                className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
+                className="truncate font-light text-xs font-normal text-muted-foreground"
                 numberOfLines={1}>
                 {HumanDateFormatter.formatAgeInMonths(patient.birthdate)} •{' '}
                 {patient.sex === 'M' ? 'Masculin' : 'Féminin'}
               </Text>
             </HStack>
             <HStack className="items-center gap-2 ">
-              <Icon as={User} className="text-gray-600 dark:text-typography-600 " size="xs" />
+              <Icon as={User} className="text-muted-foreground " size="xs" />
               <Text
-                className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
+                className="truncate font-light text-xs font-normal text-muted-foreground"
                 numberOfLines={1}>
                 {`Né${patient.sex === 'F' ? 'e' : ''}`} le {formatDate(patient.birthdate)}
               </Text>
@@ -217,9 +233,9 @@ function PatientHero({ patient }: { patient: Patient }) {
           <VStack>
             {patient.contact?.tel && (
               <HStack className="items-center gap-2 ">
-                <Icon as={Phone} className="text-gray-600 dark:text-typography-600 " size="xs" />
+                <Icon as={Phone} className="text-muted-foreground " size="xs" />
                 <Text
-                  className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
+                  className="truncate font-light text-xs font-normal text-muted-foreground"
                   numberOfLines={1}>
                   {patient.contact.tel}
                 </Text>
@@ -227,9 +243,9 @@ function PatientHero({ patient }: { patient: Patient }) {
             )}
             {patient.contact?.email && (
               <HStack className="items-center gap-2 ">
-                <Icon as={Mail} className="text-gray-600 dark:text-typography-600" size="xs" />
+                <Icon as={Mail} className="text-muted-foreground" size="xs" />
                 <Text
-                  className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
+                  className="truncate font-light text-xs font-normal text-muted-foreground"
                   numberOfLines={1}>
                   {patient.contact.email}
                 </Text>
@@ -238,9 +254,9 @@ function PatientHero({ patient }: { patient: Patient }) {
           </VStack>
           {patient.address && (
             <HStack className="items-center gap-2 ">
-              <Icon as={MapPin} className="text-gray-600 dark:text-typography-600 " size="xs" />
+              <Icon as={MapPin} className="text-muted-foreground " size="xs" />
               <Text
-                className="truncate font-light text-xs font-normal text-gray-600 dark:text-typography-600"
+                className="truncate font-light text-xs font-normal text-muted-foreground"
                 numberOfLines={1}>
                 {patient.address.fullAddress || patient.address.city}
               </Text>

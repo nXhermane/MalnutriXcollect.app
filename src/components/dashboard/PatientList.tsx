@@ -28,14 +28,14 @@ export function PatientList({
   }, []);
 
   return (
-    <VStack className="flex-1 py-4">
+    <VStack className="flex-1 overflow-y-auto  bg-bg  py-4">
       <HStack className="absolute top-0 z-30 mb-4 w-full ">
         <BlurView
           intensity={100}
           experimentalBlurMethod={'dimezisBlurView'}
           tint={isDark ? 'dark' : 'light'}
           className="w-full flex-row items-center justify-between px-4 py-3 ">
-          <Text className="font-h4 font-medium text-gray-700 dark:text-typography-800">
+          <Text className="font-h4 font-medium text-muted-foreground">
             {filteredPatients.length} patient{filteredPatients.length > 1 && 's'}
           </Text>
           {nonExportedPatientsCount > 0 && (
@@ -47,7 +47,7 @@ export function PatientList({
       </HStack>
 
       <FlatList
-        contentContainerClassName="px-4 gap-4 pb-20 pt-10"
+        contentContainerClassName="px-4 gap-4 pb-20 pt-10 "
         data={filteredPatients}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -55,13 +55,13 @@ export function PatientList({
         onScrollBeginDrag={onScrollStart}
         onScrollEndDrag={onScrollEnd}
         ListEmptyComponent={() => (
-          <VStack className="rounded-xl border-gray-100 bg-background-0 p-8 text-center shadow-sm dark:bg-background-50">
+          <VStack className="elevation-sm mt-12 rounded-xl border-border bg-card p-8 text-center shadow-sm ">
             <Center className="gap-4">
               <Box className="flex size-14 items-center justify-center rounded-full bg-background-100">
-                <Icon as={User} className="size-7 text-gray-400" />
+                <Icon as={User} className="size-7 text-muted-foreground" />
               </Box>
               <VStack className="">
-                <Text className="mb-1 text-center font-body text-gray-600 dark:text-typography-600">
+                <Text className="mb-1 text-center font-body text-muted-foreground">
                   Aucun patient enregistré
                 </Text>
               </VStack>

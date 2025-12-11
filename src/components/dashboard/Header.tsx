@@ -18,25 +18,30 @@ export const Header = ({
   const theme = useValue(theme$);
   return (
     <React.Fragment>
-      <HStack
-        className={
-          'p-safe dark:elevation-md h-v-18 w-full items-center justify-between bg-background-0 dark:bg-background-50'
-        }>
+      <HStack className={'p-safe h-v-18 w-full items-center justify-between bg-card shadow-sm'}>
         <HStack className={'w-full items-center justify-between px-4 pb-2'}>
           <Box>
             <HStack className="items-center">
-              <Text className="font-h3 text-xl  font-semibold text-black dark:text-white">
+              <Text className="font-h3 text-xl  font-semibold text-foreground">
                 MalnutriX
-                <Text className="font-light text-2xs text-black dark:text-white">collect</Text>
+                <Text className="font-light text-2xs text-muted-foreground">collect</Text>
               </Text>
             </HStack>
           </Box>
           <HStack className="gap-4">
-            <Pressable onPress={toggleSearchBar}>
+            <Pressable
+              onPress={toggleSearchBar}
+              className={`size-9 items-center justify-center rounded-lg transition-colors ${
+                searchBarIsVisible ? 'bg-green-50 dark:bg-green-950 ' : ''
+              }`}>
               <Icon
                 as={searchBarIsVisible ? SearchX : Search}
                 size="lg"
-                className="text-typography-600"
+                className={`${
+                  searchBarIsVisible
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-muted-foreground'
+                }`}
               />
             </Pressable>
             <Pressable
@@ -45,8 +50,13 @@ export const Header = ({
                   if (prev === 'dark') return 'light';
                   else return 'dark';
                 })
-              }>
-              <Icon as={theme === 'dark' ? Sun : Moon} size="lg" className="text-typography-600" />
+              }
+              className="size-9 items-center justify-center rounded-lg">
+              <Icon
+                as={theme === 'dark' ? Sun : Moon}
+                size="lg"
+                className="text-muted-foreground"
+              />
             </Pressable>
           </HStack>
         </HStack>

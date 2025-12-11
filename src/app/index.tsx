@@ -21,7 +21,7 @@ export default function Index() {
   const [hideFabs, setHidsFabs] = useState<boolean>(false);
   return (
     <React.Fragment>
-      <VStack className="flex-1 bg-background-50 dark:bg-background-0">
+      <VStack className="flex-1 bg-bg">
         <Header
           searchBarIsVisible={showSearchBar}
           toggleSearchBar={() => setShowSeachBar((prev) => !prev)}

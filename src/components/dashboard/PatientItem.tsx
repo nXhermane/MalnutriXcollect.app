@@ -11,6 +11,18 @@ import { Icon } from '../ui/icon';
 import { Badge, BadgeText } from '../ui/badge';
 
 export function PatientItem(patient: Patient) {
+  const getAvatarColor = (nom: string) => {
+    const colors = [
+      'bg-blue-500',
+      'bg-green-500',
+      'bg-purple-500',
+      'bg-pink-500',
+      'bg-indigo-500',
+      'bg-teal-500',
+    ];
+    const index = nom.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
   return (
     <Pressable
       onPress={() =>
@@ -22,24 +34,24 @@ export function PatientItem(patient: Patient) {
         })
       }>
       <HStack
-        key={patient.id}
-        className={`elevation-sm items-center justify-between rounded-xl bg-background-0 p-4  dark:bg-background-50`}>
+        className={`elevation-sm items-center justify-between rounded-xl border border-border bg-card p-4 `}>
         <HStack className="items-center gap-3">
-          <Avatar className="size-10 rounded-full bg-green-500">
-            <AvatarFallbackText className="font-h3 text-base font-semibold text-white">
+          <Avatar
+            className={`flex size-11 items-center   justify-center rounded-full  bg-green-500 text-white ${getAvatarColor(
+              patient.name,
+            )} `}>
+            <AvatarFallbackText className="font-h4 text-base font-medium text-white">
               {patient.name}
             </AvatarFallbackText>
             {patient.isLocked && (
               <AvatarBadge className=" size-4 items-center justify-center border-transparent bg-transparent">
-                <Icon as={LockKeyhole} className="size-3" />
+                <Icon as={LockKeyhole} className=" size-3.5 text-amber-600 dark:text-amber-500" />
               </AvatarBadge>
             )}
           </Avatar>
           <VStack className="">
-            <Text className="font-h4 text-base font-medium text-typography-950">
-              {patient.name}
-            </Text>
-            <Text className="font-light text-xs font-normal text-typography-500">
+            <Text className="font-h4 text-base font-medium text-foreground">{patient.name}</Text>
+            <Text className="font-light text-xs font-normal text-muted-foreground">
               {new Date(patient.updatedAt).toLocaleString('fr-FR', {
                 day: '2-digit',
                 month: '2-digit',
@@ -49,8 +61,8 @@ export function PatientItem(patient: Patient) {
           </VStack>
         </HStack>
         <HStack>
-          <Badge className="rounded-xl bg-primary-c_light/10">
-            <BadgeText className="font-light text-2xs font-normal text-primary-c_light">
+          <Badge className="rounded-xl bg-green-500/10">
+            <BadgeText className="font-light text-2xs font-normal text-green-500">
               {HumanDateFormatter.formatAgeInMonths(patient.birthdate)}
             </BadgeText>
           </Badge>

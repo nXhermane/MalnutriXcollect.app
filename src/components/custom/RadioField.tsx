@@ -34,11 +34,11 @@ export function RadioFieldComponent({ field, control, errors }: RadioFieldCompon
                 <Radio
                   key={index}
                   value={item.value}
-                  className={`h-v-10 flex-1 cursor-pointer items-center rounded-lg border border-gray-300 p-3 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-background-100 dark:hover:bg-gray-700`}>
+                  className={`h-v-10 flex-1 cursor-pointer items-center rounded-lg border border-border bg-input  p-3 transition-colors hover:bg-gray-50 `}>
                   <RadioIndicator className={`size-5 text-green-500   focus:ring-green-500`}>
-                    <RadioIcon as={Circle} className="" />
+                    <RadioIcon as={Circle} className="text-foreground" />
                   </RadioIndicator>
-                  <RadioLabel className={'font-body text-sm  text-gray-700 dark:text-gray-200'}>
+                  <RadioLabel className={'font-body text-sm text-foreground'}>
                     {item.label}
                   </RadioLabel>
                 </Radio>

@@ -11,6 +11,7 @@ import {
   FormControlLabelAstrick,
   FormControlLabelText,
 } from '../ui/form-control';
+import { Text } from '../ui/text';
 import { AlertCircleIcon } from 'lucide-react-native';
 import { FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 
@@ -31,15 +32,19 @@ export function FieldWrapper({
       isDisabled={field.disabled}
       isInvalid={!!error}>
       <FormControlLabel className="">
-        <FormControlLabelText className="  font-body text-base  font-normal  text-gray-700 dark:text-gray-200 ">
+        <FormControlLabelText className="  font-body text-base  font-normal text-foreground ">
           {field.label}
         </FormControlLabelText>
-        {field.validation?.required && <FormControlLabelAstrick className="text-red-500" />}
+        {field.validation?.required && (
+          <FormControlLabelAstrick>
+            <Text className="text-red-500">*</Text>
+          </FormControlLabelAstrick>
+        )}
       </FormControlLabel>
       {children}
       {field.help && (
         <FormControlHelper className="">
-          <FormControlHelperText className="font-body  text-sm font-normal text-gray-500 dark:text-gray-400  ">
+          <FormControlHelperText className="font-body  text-sm font-normal text-muted-foreground  ">
             {field.help}
           </FormControlHelperText>
         </FormControlHelper>

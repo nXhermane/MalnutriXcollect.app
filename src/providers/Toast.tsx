@@ -94,9 +94,7 @@ const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => 
       style={{
         alignSelf: 'center',
       }}
-      className={
-        'elevation-sm w-[95%] overflow-hidden rounded-2xl border border-primary-border/5 bg-background-0 p-4'
-      }>
+      className={'elevation-sm w-[95%] overflow-hidden rounded-2xl border-border bg-card p-4'}>
       {/* <Pressable
         onPress={() => {
           toast.closeAll();
@@ -117,7 +115,7 @@ const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => 
             </ToastTitle>
           )}
           {description && (
-            <ToastDescription className={`mt-1 text-sm text-typography-700 dark:text-gray-300`}>
+            <ToastDescription className={`mt-1 text-sm text-muted-foreground`}>
               {description}
             </ToastDescription>
           )}

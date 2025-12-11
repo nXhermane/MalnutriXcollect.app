@@ -37,7 +37,7 @@ export function QrCodeLoop({ frames }: { frames: string[] }) {
             currentIndex={currentIndex}
             index={index}
             value={data}
-            size={200}
+            size={220}
             key={index}
           />
         );

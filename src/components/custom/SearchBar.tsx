@@ -17,14 +17,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({ fieldProps, className, ...
   return (
     <Box>
       <Input
-        className={`h-v-10 rounded-xl border-[0.5px] border-primary-border/10 bg-background-100 data-[focus=true]:border-primary-c ${className}`}
+        className={`h-11 rounded-xl border border-border bg-card data-[focus=true]:border-green-400 data-[focus=true]:ring-green-400   ${className}`}
         {...props}>
         <InputSlot className={'pl-3'}>
-          <InputIcon as={() => <Icon as={Search} className={'size-5 text-typography-600'} />} />
+          <InputIcon as={() => <Icon as={Search} className={'size-5 text-muted-foreground'} />} />
         </InputSlot>
         <InputField
-          className={'font-body text-sm font-normal text-typography-800'}
-          placeholderClassName={'text-typography-600/60 font-body text-base  font-normal'}
+          className={'font-body text-sm font-normal text-foreground'}
+          placeholderClassName={'text-muted-foreground font-body text-base  font-normal'}
           {...fieldProps}
         />
         {fieldProps?.value?.trim() !== '' && (
@@ -33,7 +33,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ fieldProps, className, ...
             onPress={() => {
               fieldProps?.onChangeText && fieldProps.onChangeText('');
             }}>
-            <InputIcon as={XCircle} className={'size-5 text-typography-600'} />
+            <InputIcon as={XCircle} className={'size-5 text-muted-foreground'} />
           </InputSlot>
         )}
       </Input>

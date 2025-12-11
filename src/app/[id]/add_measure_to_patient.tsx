@@ -9,7 +9,7 @@ import * as Hapatic from 'expo-haptics';
 
 export default function AddMeasureToPatient() {
   return (
-    <VStack className="pt-safe flex-1 bg-background-50 dark:bg-background-0">
+    <VStack className="pt-safe flex-1  bg-foreground">
       <VStack className=" h-18 w-full   items-center justify-center">
         <HStack className="w-full items-center gap-4 px-4 ">
           <Pressable

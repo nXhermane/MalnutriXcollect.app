@@ -4,6 +4,7 @@ import { observable } from '@legendapp/state';
 import { synced, configureObservableSync } from '@legendapp/state/sync';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ObservablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage';
+// TODO: MOVE TO MMKV AFTER THE NEXT DEVELOPMENT BUILD
 configureObservableSync({
   persist: {
     plugin: ObservablePersistAsyncStorage,

@@ -76,12 +76,7 @@ export function BottomSheetModal({
         }}
         handleComponent={(props) => <BottomSheetDragIndicator {...props} className="py-3" />}
         backgroundComponent={(props) => {
-          return (
-            <VStack
-              {...props}
-              className={`rounded-3xl bg-background-50 dark:bg-background-0 ${bgClassName}`}
-            />
-          );
+          return <VStack {...props} className={`rounded-3xl bg-background-muted ${bgClassName}`} />;
         }}
         backdropComponent={(props) => (
           <BottomSheetBackdrop {...props} opacity={0.5} appearsOnIndex={0} disappearsOnIndex={-1} />

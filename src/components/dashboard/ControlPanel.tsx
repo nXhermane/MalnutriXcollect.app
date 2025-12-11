@@ -8,7 +8,7 @@ export function ControlPanel({ showSearchBar = false }: { showSearchBar?: boolea
 
   if (!showSearchBar) return null;
   return (
-    <VStack className="gap-3 border-t border-primary-border/5 bg-background-0 py-4 dark:bg-background-50">
+    <VStack className="gap-3 border-b border-border bg-card py-4">
       <VStack className="px-4">
         <SearchBar
           fieldProps={{

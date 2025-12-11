@@ -107,7 +107,7 @@ export default function ImportPatients() {
                   experimentalBlurMethod="dimezisBlurView"
                   tint={isDark ? 'dark' : 'light'}
                   className="size-12 flex-1 items-center justify-center">
-                  <Icon as={X} className="text-white" />
+                  <Icon as={X} className="text-muted-foreground" />
                 </BlurView>
               </Pressable>
               <HStack className="h-12 flex-1 overflow-hidden rounded-3xl">
@@ -116,7 +116,9 @@ export default function ImportPatients() {
                   experimentalBlurMethod="dimezisBlurView"
                   tint={isDark ? 'dark' : 'light'}
                   className="h-full flex-1 items-center  justify-center">
-                  <Text className="text-center font-h4 text-white ">Importer des patients</Text>
+                  <Text className="text-center font-h4 text-foreground ">
+                    Importer des patients
+                  </Text>
                 </BlurView>
               </HStack>
             </HStack>
@@ -128,7 +130,9 @@ export default function ImportPatients() {
                 intensity={100}
                 tint={isDark ? 'dark' : 'light'}
                 experimentalBlurMethod="dimezisBlurView">
-                <Text className="font-h4 text-sm text-white">Scanner un Qr Code MalnutriX</Text>
+                <Text className="font-h4 text-sm text-foreground">
+                  Scanner un Qr Code MalnutriX
+                </Text>
               </BlurView>
             </VStack>
 
@@ -142,7 +146,11 @@ export default function ImportPatients() {
                   className="p-4"
                   tint={isDark ? 'dark' : 'light'}
                   experimentalBlurMethod="dimezisBlurView">
-                  <Icon as={isLit ? Flashlight : FlashlightOff} className="text-white" size="lg" />
+                  <Icon
+                    as={isLit ? Flashlight : FlashlightOff}
+                    className="text-muted-foreground"
+                    size="lg"
+                  />
                 </BlurView>
               </Pressable>
             </HStack>

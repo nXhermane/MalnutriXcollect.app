@@ -35,7 +35,7 @@ export default function AddPatient() {
     dynamicFromRef.current?.submit();
   };
   return (
-    <VStack className="pt-safe flex-1 bg-background-50 dark:bg-background-0">
+    <VStack className="pt-safe flex-1 bg-bg">
       <VStack className=" absolute  z-30  w-full  items-center justify-center">
         <BlurView
           tint={isDark ? 'dark' : 'light'}
@@ -48,11 +48,11 @@ export default function AddPatient() {
                 router.back();
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               }}
-              className="size-12 items-center justify-center rounded-full bg-background-0 dark:bg-background-50">
-              <Icon as={X} className="" />
+              className="elevation-sm size-12 items-center justify-center rounded-full bg-card ">
+              <Icon as={X} className="text-muted-foreground" />
             </Pressable>
-            <HStack className="h-12 flex-1 items-center justify-center rounded-3xl bg-background-0 dark:bg-background-50">
-              <Text className="text-center font-h4 text-typography-950 ">Ajouter un patient</Text>
+            <HStack className="elevation-sm h-12 flex-1 items-center justify-center rounded-3xl bg-card">
+              <Text className="text-center font-h4 text-foreground">Ajouter un patient</Text>
             </HStack>
           </HStack>
         </BlurView>

@@ -288,12 +288,10 @@ function DynamicFormComponent<TOutput = any>(
           <VStack key={name || index.toString()} className="gap-v-2">
             {name && (
               <HStack className={'items-center justify-between px-4'}>
-                <Text className="font-h4 text-lg font-medium text-gray-700 dark:text-typography-800">
-                  {name}
-                </Text>
+                <Text className="font-h4 text-lg font-medium text-foreground">{name}</Text>
               </HStack>
             )}
-            <VStack className="gap-v-3 rounded-xl bg-background-0 p-4 dark:bg-background-50 ">
+            <VStack className="gap-v-3 rounded-xl border border-border bg-card  p-4 ">
               {fields.map(renderField)}
             </VStack>
           </VStack>
