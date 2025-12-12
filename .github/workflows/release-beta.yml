@@ -1,0 +1,58 @@
+name: Publish Beta Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'  # Matches tags like v1.0.0-beta.1
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # To create GitHub releases
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for changelog generation
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Extract tag
+        id: tag
+        run: |
+          TAG=$(echo ${GITHUB_REF#refs/tags/})
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Update version in package.json
+        run: |
+          sed -i "s|\"version\": \".*\"|\"version\": \"$TAG\"|" package.json
+          bun install --lockfile-only  # Update lockfile
+
+      - name: Update version in app.config.ts
+        run: |
+          sed -i "s|version: '[^\']*'|version: '$TAG'|" app.config.ts
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add package.json app.config.ts
+          git commit -m "chore: bump version to $TAG" || exit 0
+          git push origin beta
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Pre-release ${{ env.TAG }}
+          body: |
+            ## Beta Release
+
+            This is a beta version. Please test carefully.
+          draft: false
+          prerelease: true
