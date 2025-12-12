@@ -1,0 +1,67 @@
+name: EAS Build & Release APK
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'  # Matches tags like v1.0.0-beta.1
+
+env:
+  EAS_GITHUB_APP_NAME: ${{ github.event.repository.name }}
+  EAS_GITHUB_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}  # Optional, if needed
+
+jobs:
+  build-and-release:
+    name: Build and Release APK
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # To create GitHub releases
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for changelog generation
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build EAS preview (Android only)
+        run: |
+          eas build --profile preview --platform android --non-interactive --wait
+
+      - name: Download built APK
+        run: |
+          # Find the latest build artifact (APK)
+          BUILD_PATH=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts[0].url')
+          curl -L -o app-preview.apk "$BUILD_PATH"
+
+      - name: Generate changelog
+        run: |
+          # Generate changelog between last tag and current
+          git log --pretty=format:"%h - %s (%an)" $(git describe --tags --abbrev=0 HEAD^)..HEAD > RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Pre-release ${{ github.ref_name }}
+          body: |
+            ## What's Changed
+
+            $(cat RELEASE_NOTES.md)
+
+          draft: false
+          prerelease: true
+          files: |
+            app-preview.apk
