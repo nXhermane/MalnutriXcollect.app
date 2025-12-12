@@ -37,12 +37,15 @@ jobs:
         run: |
           sed -i "s|version: '[^\']*'|version: '$TAG'|" app.config.ts
 
+      - name: Generate changelog
+        run: bun run scripts/generate-changelog.mjs
+
       - name: Commit and push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add package.json app.config.ts
-          git commit -m "chore: bump version to $TAG" || exit 0
+          git add package.json app.config.ts CHANGELOG.md
+          git commit -m "chore: bump version to $TAG and update changelog" || exit 0
           git push origin beta
 
       - name: Create GitHub Release
