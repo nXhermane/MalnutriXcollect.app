@@ -38,6 +38,10 @@ jobs:
 
       - name: Build EAS production (AAB)
         run: |
+          # Inject public environment variables
+          echo "EXPO_PUBLIC_QRCODE_SENDER_APP_ID=${{ vars.EXPO_PUBLIC_QRCODE_SENDER_APP_ID }}" >> .env
+          echo "EXPO_PUBLIC_QRCODE_RECEIVER_APP_ID=${{ vars.EXPO_PUBLIC_QRCODE_RECEIVER_APP_ID }}" >> .env
+          echo "EXPO_SECRET_KEY=${{ secrets.EXPO_SECRET_KEY }}" >> .env
           eas build --profile production --platform android --non-interactive --wait
 
       - name: Download built AAB
