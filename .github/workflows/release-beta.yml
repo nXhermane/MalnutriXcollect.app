@@ -3,17 +3,18 @@ name: Publish Beta Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'  # Matches tags like v1.0.0-beta.1
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # To create GitHub releases
+      contents: write
+    
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for changelog generation
+          fetch-depth: 0  
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -31,12 +32,11 @@ jobs:
       - name: Update version in package.json
         run: |
           sed -i "s|\"version\": \".*\"|\"version\": \"$TAG\"|" package.json
-          bun install --lockfile-only  # Update lockfile
+          bun install --lockfile-only
 
       - name: Update version in app.config.ts
         run: |
           sed -i "s|version: '[^\']*'|version: '$TAG'|" app.config.ts
-
 
       - name: Generate changelog
         run: bun run scripts/generate-changelog.mjs
@@ -60,10 +60,7 @@ jobs:
         with:
           tag_name: ${{ env.TAG }}
           name: Pre-release ${{ env.TAG }}
-          body: |
-            ## Beta Release
-
-            This is a beta version. Please test carefully.
+          body_path: CHANGELOG.md  
           draft: false
           prerelease: true
           files: |
