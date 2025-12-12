@@ -48,8 +48,8 @@ const AnimatedQRItemComponent = ({
         }}
         logoAreaSize={70}
         logo={
-          <VStack className="h-14 w-14 justify-center items-center rounded-full bg-card">
-            <Text className="text-2xl font-body text-foreground">X</Text>
+          <VStack className="h-14 w-14 items-center justify-center rounded-full bg-card">
+            <Text className="font-body text-2xl text-foreground">X</Text>
           </VStack>
         }>
         <SweepGradient
