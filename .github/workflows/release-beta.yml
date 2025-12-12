@@ -41,7 +41,7 @@ jobs:
       - name: Generate changelog
         run: bun run scripts/generate-changelog.mjs
 
-      - name: Commit and push changes
+      - name: Commit changes locally
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -49,10 +49,10 @@ jobs:
           
           # Commit seulement s'il y a des changements
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "✅ No changes to commit"
           else
             git commit -m "chore: bump version to $TAG and update changelog"
-            git push origin HEAD:beta 
+            echo "✅ Changes committed locally (not pushed due to branch protection)"
           fi
 
       - name: Create GitHub Release
@@ -63,3 +63,7 @@ jobs:
           body_path: CHANGELOG.md  
           draft: false
           prerelease: true
+          files: |
+            package.json
+            app.config.ts
+            CHANGELOG.md
