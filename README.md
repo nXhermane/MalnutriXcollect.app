@@ -26,50 +26,47 @@ Application mobile pour les aides-soignants qui permet de :
 
 ## 🚀 Fonctionnalités principales
 
-- 🔄 Navigation entre les écrans principaux (Dashboard, Ajout de patient, Import/Export via QR code)
-- 👤 Visualisation de la liste des patients avec leurs informations de base
-- 🔍 Recherche de patients par nom
-- 📋 Affichage détaillé d'un patient avec ses mesures
-- ➕ Ajout de nouvelles mesures à un patient existant
+- 🔄 Navigation entre les écrans principaux (Dashboard, Ajout/Édition de patient, Import/Export via QR code)
+- 👤 Visualisation de la liste des patients avec recherche
+- 📋 Formulaire complet pour créer/mettre à jour un patient (nom, sexe, adresse, parents, contact)
+- 📏 Formulaire de mesure (poids, taille, etc.) pour chaque patient
+- 📲 Import de patients via scan de QR code (`MalnutriX URI`)
+- 📤 Export des patients via séquence de QR codes animés
+- 💾 Stockage local hors ligne (MMKV/LegendState)
 - 🔐 Verrouillage/déverrouillage des patients
-- 📱 Interface responsive avec composants UI modernes
-- 📲 Transmission sécurisée des données vers MalnutriX via QR code
+- 📱 Interface responsive avec composants Gluestack UI
+- ✅ Validation des formulaires via `valibot`
+- 📊 Historique des mesures par patient (déjà implémenté)
+- 📏 Scan de codes-barres (déjà implémenté)
 
-## 🚧 Statut du développement
+## ✅ Statut du développement
 
-⚠️ **Projet en cours de développement - MVP non terminé**
+🎉 **Version bêta – Fonctionnalités de base implémentées**
 
 ### Fonctionnalités implémentées
 
-✅ Navigation de base entre les écrans  
-✅ Affichage de la liste des patients (avec données statiques de démonstration)  
-✅ Affichage détaillé d'un patient  
-✅ Ajout de mesures à un patient (interface partielle)  
-✅ Scan de QR code pour import de données  
-✅ Interface utilisateur avec composants Gluestack UI  
+✅ Navigation de base entre les écrans
+✅ Affichage de la liste des patients
+✅ Formulaire de création/mise à jour des patients
+✅ Scan de QR code pour import de patients (via `MalnutriX URI`)
+✅ Export des patients via QR codes séquencés (animés)
+✅ Gestion des informations complètes (parents, contact, adresse, etc.)
+✅ Formulaire de mesure pour les patients (`[id]/patient_measure_form`)
+✅ Stockage local hors ligne via LegendState/MMKV
+✅ UI Gluestack UI + animations
+✅ Validation des formulaires via `valibot`
 
 ### Fonctionnalités à implémenter
 
-⬜ Enregistrement de nouveaux patients  
-⬜ Saisie complète des mesures anthropométriques  
-⬜ Partage de patients avec le nutritionniste via QR code  
-⬜ Nettoyage des données des patients  
-⬜ Scan de codes-barres  
-⬜ Historique des mesures par patient  
+⬜ Scan de codes-barres
+⬜ Historique des mesures par patient (à affiner)
+⬜ Synchronisation avec serveur distant (à définir)
+⬜ Gestion multi-utilisateurs (rôles)
+⬜ Tests unitaires/intégration
 
 ## 🗺️ Roadmap
 
-### Phase 1 - MVP (En cours)
-
-- [ ] Enregistrement d'un nouveau patient
-- [ ] Saisie des mesures anthropométriques (poids, taille, MUAC)
-- [ ] Partage de patient avec le nutritionniste via QR code
-- [ ] Scanner le code QR pour importer des patients
-
-### Phase 2 - Features avancées
-
-- [ ] Scan de codes-barres
-- [ ] Historique des mesures par patient
+Pour une vue détaillée de la roadmap, voir le fichier [ROADMAP.md](./ROADMAP.md).
 
 ## 🏗️ Architecture technique
 

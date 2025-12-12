@@ -43,3 +43,4 @@ app-example
 /android
 .qoder
 .env.production
+RELEASE_NOTES.md
