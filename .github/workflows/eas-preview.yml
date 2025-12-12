@@ -38,6 +38,12 @@ jobs:
 
       - name: Build EAS preview (Android only)
         run: |
+
+          # Inject public environment variables
+          echo "EXPO_PUBLIC_QRCODE_SENDER_APP_ID=${{ vars.EXPO_PUBLIC_QRCODE_SENDER_APP_ID }}" >> .env
+          echo "EXPO_PUBLIC_QRCODE_RECEIVER_APP_ID=${{ vars.EXPO_PUBLIC_QRCODE_RECEIVER_APP_ID }}" >> .env
+          echo "EXPO_SECRET_KEY=${{ secrets.EXPO_SECRET_KEY }}" >> .env
+
           eas build --profile preview --platform android --non-interactive --wait
 
       - name: Download built APK
