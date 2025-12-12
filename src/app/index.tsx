@@ -10,7 +10,7 @@ import { useValue } from '@legendapp/state/react';
 import { useCameraPermission } from 'react-native-vision-camera';
 import { router } from 'expo-router';
 import { Plus, QrCode, ScanQrCode } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as Hapatic from 'expo-haptics';
 import { export_patient$ } from '@/store/export_patient';
 import { compileUnExportedPatient, exportCompiledPatient } from '@/utils/export_patient_utils';
@@ -26,7 +26,7 @@ observe(() => {
       const patients_measures = modeles$.patient_measures.get();
       const data = compileUnExportedPatient(Object.values(patients), patients_measures);
       const formated_data = exportCompiledPatient(JSON.stringify(data.data));
-      const frames = dataToFrames(formated_data, 150, 5);
+      const frames = dataToFrames(formated_data, 50, 5);
       export_patient$.compiled_patient_ids.set(data.exported_patient_ids);
       export_patient$.data_frames.set(frames);
       export_patient$.isRunning.set(false);
@@ -52,6 +52,9 @@ export default function Index() {
 
   const nonExportedPatientsCount = useValue(() => modeles$.non_exported_patients().length);
   const [hideFabs, setHidsFabs] = useState<boolean>(false);
+  useEffect(() => {
+    router.prefetch('/export_patients');
+  }, []);
   return (
     <React.Fragment>
       <VStack className="flex-1 bg-bg">

@@ -12,16 +12,15 @@ import { BottomSheetDragIndicator } from '@/components/ui/bottomsheet';
 import { VStack } from '../ui/vstack';
 import { useValue } from '@legendapp/state/react';
 
-interface BottomSheetModalProps
-  extends Omit<
-    GHBottomSheetModalProps,
-    | 'children'
-    | 'handleIndicatorStyle'
-    | 'ref'
-    | 'handleComponent'
-    | 'backgroundComponent'
-    | 'backdropComponent'
-  > {
+interface BottomSheetModalProps extends Omit<
+  GHBottomSheetModalProps,
+  | 'children'
+  | 'handleIndicatorStyle'
+  | 'ref'
+  | 'handleComponent'
+  | 'backgroundComponent'
+  | 'backdropComponent'
+> {
   isVisible: boolean;
   onClose?: () => void;
   bgClassName?: string;

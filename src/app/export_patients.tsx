@@ -1,8 +1,8 @@
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { useMarkPatientAsExportedViewModel } from '@/hooks';
-import { useState } from 'react';
-// import { QrCodeLoop } from '@/components/dashboard/QRCodeLoop';
+import { useEffect, useState } from 'react';
+import { QrCodeLoop } from '@/components/dashboard/QRCodeLoop';
 import { Spinner } from '@/components/ui/spinner';
 import { HStack } from '@/components/ui/hstack';
 import { Pressable } from '@/components/ui/pressable';
@@ -14,12 +14,19 @@ import { Button, ButtonIcon, ButtonSpinner, ButtonText } from '@/components/ui/b
 import * as Hapatic from 'expo-haptics';
 import { useValue } from '@legendapp/state/react';
 import { export_patient$ } from '@/store/export_patient';
+import { InteractionManager } from 'react-native';
 
 export default function ExportPatients() {
   const export_patient_info = useValue(() => export_patient$.get());
   const { isLoading, markPatientAsExported } = useMarkPatientAsExportedViewModel();
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
-
+  const [shouldRenderQr, setShouldRenderQr] = useState(false);
+  useEffect(() => {
+    const interactionPromise = InteractionManager.runAfterInteractions(() => {
+      setShouldRenderQr(true);
+    });
+    return () => interactionPromise.cancel();
+  }, []);
   return (
     <VStack className="pt-safe flex-1 bg-bg">
       <VStack className=" h-18 w-full  items-center justify-center">
@@ -38,13 +45,16 @@ export default function ExportPatients() {
         </HStack>
       </VStack>
       <VStack className="w-full flex-1 items-center justify-center px-4">
-        <HStack className="rounded-xl  border border-border bg-card">
-          <Center className="min-h-64 min-w-64 rounded-xl border-2 border-border bg-card p-6 shadow-md ">
-            {!export_patient_info.isRunning ? null : ( // <QrCodeLoop frames={export_patient_info.data_frames || []} /> !!Attention : Use React Native QR Code Skia insider for beast performance
-              <Spinner size={'large'} className="text-blue-500" />
-            )}
+        {shouldRenderQr ? (
+          <QrCodeContent
+            frames={export_patient_info.data_frames || []}
+            isRunning={export_patient_info.isRunning}
+          />
+        ) : (
+          <Center className="min-h-64 min-w-64">
+            <Spinner size={'large'} className="text-blue-500" />
           </Center>
-        </HStack>
+        )}
       </VStack>
       <VStack className=" bottom-0  w-full p-4">
         <Button
@@ -54,7 +64,7 @@ export default function ExportPatients() {
             setIsConfirmed(true);
             Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
           }}
-          disabled={export_patient_info.isRunning || isLoading}>
+          isDisabled={!shouldRenderQr || export_patient_info.isRunning || isLoading}>
           {isLoading ? (
             <ButtonSpinner className="text-white" />
           ) : (
@@ -69,3 +79,19 @@ export default function ExportPatients() {
     </VStack>
   );
 }
+
+const QrCodeContent = ({ frames, isRunning }: { frames: string[]; isRunning: boolean }) => {
+  return (
+    <>
+      <HStack className="rounded-xl  border border-border bg-card">
+        <Center className="min-h-64 min-w-64 rounded-xl border-2 border-border bg-card p-6 shadow-md ">
+          {!isRunning ? (
+            <QrCodeLoop frames={frames || []} />
+          ) : (
+            <Spinner size={'large'} className="text-blue-500" />
+          )}
+        </Center>
+      </HStack>
+    </>
+  );
+};

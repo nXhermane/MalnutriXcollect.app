@@ -20,7 +20,7 @@ export function ImportPatientModal({
   const toast = useToast();
   const { error, importPatient, isLoading } = useImportPatientViewModel();
   useEffect(() => {
-    if (error) {
+    if (error !== null) {
       toast.show('Error', "Une erreur est survenue lors de l'importation.", error, 'top');
       onClose && onClose();
     }
@@ -38,11 +38,11 @@ export function ImportPatientModal({
       <VStack className="h-full flex-1">
         <Center className="flex-1 ">
           {isLoading ? (
-            <Spinner size={'large'} className="size-18 text-blue-500" />
+            <Spinner size={'large'} className="h-12 w-12 text-blue-500" />
           ) : (
             <Icon
               as={error === null ? AlertTriangle : Check}
-              className={`size-18 ${error === null ? 'text-warning-500' : 'text-green-500'}`}
+              className={`h-12 w-12 ${error === null ? 'text-warning-500' : 'text-green-500'}`}
             />
           )}
         </Center>

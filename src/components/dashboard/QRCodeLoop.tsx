@@ -1,11 +1,11 @@
 import { VStack } from '../ui/vstack';
-import { useEffect } from 'react';
+import { memo, useEffect } from 'react';
 import { Easing, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnUI } from 'react-native-worklets';
 import { AnimatedQRItem } from './AnimatedQRItem';
 
 const INTERVAL_MS = 1000;
-export function QrCodeLoop({ frames }: { frames: string[] }) {
+const QrLoopComponent = ({ frames }: { frames: string[] }) => {
   const currentIndex = useSharedValue(0);
   function animateLoop() {
     'worklet';
@@ -44,4 +44,8 @@ export function QrCodeLoop({ frames }: { frames: string[] }) {
       })}
     </VStack>
   );
-}
+};
+
+const QrCodeLoop = memo(QrLoopComponent);
+QrCodeLoop.displayName = 'QrCodeLoop';
+export { QrCodeLoop };

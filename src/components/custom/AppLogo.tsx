@@ -1,10 +1,9 @@
 import React from 'react';
 import { UIImage, UIImageProps } from './Image';
-interface AppLogoProps
-  extends Omit<
-    UIImageProps,
-    'source' | 'src' | 'alt' | 'resizeMode' | 'sourceDark' | 'sourceLight'
-  > {
+interface AppLogoProps extends Omit<
+  UIImageProps,
+  'source' | 'src' | 'alt' | 'resizeMode' | 'sourceDark' | 'sourceLight'
+> {
   mode?: 'light' | 'dark';
 }
 const AppLogo: React.NamedExoticComponent<AppLogoProps> = React.memo(function ({ mode, ...props }) {

@@ -23,6 +23,7 @@ module.exports = defineConfig([
           whitelist: ['pt-safe', 'p-safe', 'elevation-sm', 'elevation-md', 'dark:elevation-md'],
         },
       ],
+      'tailwindcss/enforces-shorthand': 'off',
     },
   },
 ]);
