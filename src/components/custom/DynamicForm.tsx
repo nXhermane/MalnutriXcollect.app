@@ -23,6 +23,7 @@ import { HStack } from '../ui/hstack';
 import { Text } from '../ui/text';
 import { useToast } from '@/providers/Toast';
 import * as Hapatic from 'expo-haptics';
+import { numberInputSchema } from '@/utils/shared';
 
 export type FormSection = {
   name?: string;
@@ -38,6 +39,8 @@ interface DynamicFormProps<TOutput = any> {
   onInvalidInputCount?: (counter: number) => void;
   outputSchema?: v.BaseSchema<any, TOutput, any>;
   transformData?: (data: any) => TOutput;
+  initialValues?: TOutput;
+  readonly?: boolean;
 }
 export interface DynamicFromMethods {
   submit: () => void;
@@ -49,7 +52,7 @@ function buildValibotSchema(fields: FormField[]) {
 
   fields.forEach((field) => {
     if (field.schema) {
-      schemaObject[field.name] = field.schema;
+      schemaObject[field.name] = field.schema as any;
     } else {
       switch (field.type) {
         case 'text':
@@ -58,16 +61,7 @@ function buildValibotSchema(fields: FormField[]) {
             : v.optional(v.string());
           break;
         case 'number':
-          let numberSchema: any = v.pipe(
-            v.string(),
-            v.regex(/d*([.,])?\d*$/, 'Format numérique invalide.'),
-
-            v.transform((input) => {
-              const cleanedString = input.replace(',', '.');
-              return parseFloat(cleanedString);
-            }),
-            v.number('Veuillez entrer une valeur numérique valide.'),
-          );
+          let numberSchema: any = numberInputSchema;
 
           if (field.validation?.min !== undefined) {
             numberSchema = v.pipe(
@@ -102,10 +96,25 @@ function buildValibotSchema(fields: FormField[]) {
             : v.optional(v.string());
           break;
         case 'quantity':
-          schemaObject[field.name] = v.object({
-            value: field.validation?.required ? v.number() : v.optional(v.number()),
-            unit: v.string(),
-          }) as any;
+          {
+            let numberSchema: any = numberInputSchema;
+            if (field.validation?.min !== undefined) {
+              numberSchema = v.pipe(
+                numberSchema,
+                v.minValue(field.validation.min, `Valeur minimale: ${field.validation.min}`),
+              );
+            }
+            if (field.validation?.max !== undefined) {
+              numberSchema = v.pipe(
+                numberSchema,
+                v.maxValue(field.validation.max, `Valeur maximale: ${field.validation.max}`),
+              );
+            }
+            schemaObject[field.name] = v.object({
+              value: numberSchema,
+              unit: v.string(),
+            }) as any;
+          }
           break;
         default:
           console.warn('unexpected case.');
@@ -127,6 +136,8 @@ function DynamicFormComponent<TOutput = any>(
     onInvalidInputCount,
     outputSchema,
     transformData,
+    initialValues,
+    readonly,
   }: DynamicFormProps<TOutput>,
   ref: React.Ref<DynamicFromMethods>,
 ) {
@@ -141,6 +152,7 @@ function DynamicFormComponent<TOutput = any>(
     reset,
   } = useForm({
     resolver: valibotResolver(schema),
+    defaultValues: { ...initialValues },
     mode: 'onChange',
   });
 
@@ -203,6 +215,7 @@ function DynamicFormComponent<TOutput = any>(
   );
   const handleOnInvalidData = useCallback(
     (data: any) => {
+      console.log('Erreur de validation des données:', data);
       Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
       onError && onError('Erreur de validation des données');
       toast.show(
@@ -293,6 +306,7 @@ function DynamicFormComponent<TOutput = any>(
             field={field}
             control={control}
             errors={{ ...errors, ...outputErrors }}
+            readonly={readonly}
           />
         );
       case 'number':
@@ -302,6 +316,7 @@ function DynamicFormComponent<TOutput = any>(
             field={field}
             control={control}
             errors={{ ...errors, ...outputErrors }}
+            readonly={readonly}
           />
         );
       case 'select':
@@ -311,6 +326,7 @@ function DynamicFormComponent<TOutput = any>(
             field={field}
             control={control}
             errors={{ ...errors, ...outputErrors }}
+            readonly={readonly}
           />
         );
       case 'radio':
@@ -320,6 +336,7 @@ function DynamicFormComponent<TOutput = any>(
             field={field}
             control={control}
             errors={{ ...errors, ...outputErrors }}
+            readonly={readonly}
           />
         );
       case 'checkbox':
@@ -329,6 +346,7 @@ function DynamicFormComponent<TOutput = any>(
             field={field}
             control={control}
             errors={{ ...errors, ...outputErrors }}
+            readonly={readonly}
           />
         );
       case 'date':
@@ -338,6 +356,7 @@ function DynamicFormComponent<TOutput = any>(
             field={field}
             control={control}
             errors={{ ...errors, ...outputErrors }}
+            readonly={readonly}
           />
         );
       case 'quantity':
@@ -347,16 +366,31 @@ function DynamicFormComponent<TOutput = any>(
             field={field}
             control={control}
             errors={{ ...errors, ...outputErrors }}
+            readonly={readonly}
           />
         );
       default:
         return null;
     }
   };
+  const structuredData = (data: FormSection[]) => {
+    const structured: (FormSection & { rowFields: FormField[] })[] = [];
+    let currentParent: (FormSection & { rowFields: FormField[] }) | null = null;
+
+    data.forEach((item) => {
+      if (item.name) {
+        currentParent = { ...item, rowFields: [] };
+        structured.push(currentParent);
+      } else {
+        currentParent && currentParent.rowFields.push(...item.fields);
+      }
+    });
+    return structured;
+  };
 
   return (
     <VStack className="flex-1 gap-v-3 px-2">
-      {filteredSections.map(({ fields, name }, index) => {
+      {structuredData(filteredSections).map(({ fields, name, rowFields }, index) => {
         return (
           <VStack key={name || index.toString()} className="gap-v-2">
             {name && (
@@ -366,6 +400,9 @@ function DynamicFormComponent<TOutput = any>(
             )}
             <VStack className="gap-v-3 rounded-xl border border-border bg-card  p-4 ">
               {fields.map(renderField)}
+              {rowFields.length > 0 && (
+                <HStack className="justify-between gap-3">{rowFields.map(renderField)}</HStack>
+              )}
             </VStack>
           </VStack>
         );
@@ -397,6 +434,7 @@ export function useDynamicFormHelpers() {
   return {
     props,
     submit: dynamicFromRef.current?.submit,
+    reset: dynamicFromRef.current?.reset,
     loading: isLoading,
     error,
     sucess: onSucess,

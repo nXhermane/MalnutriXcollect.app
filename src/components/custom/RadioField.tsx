@@ -9,13 +9,19 @@ interface RadioFieldComponentProps {
   field: RadioField;
   control: Control;
   errors: FieldErrors;
+  readonly?: boolean;
 }
 
-export function RadioFieldComponent({ field, control, errors }: RadioFieldComponentProps) {
+export function RadioFieldComponent({
+  field,
+  control,
+  errors,
+  readonly,
+}: RadioFieldComponentProps) {
   const error = errors[field.name];
 
   return (
-    <FieldWrapper error={error} field={field}>
+    <FieldWrapper error={error} field={field} readonly={readonly}>
       <Controller
         name={field.name}
         control={control}

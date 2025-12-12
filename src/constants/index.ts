@@ -7,7 +7,10 @@ export enum AnthroSystemCodes {
   TSF = 'tsf',
   SSF = 'ssf',
 }
-
+export enum SystemCodes {
+  AGE_IN_DAY = 'age_in_day',
+  AGE_IN_MONTH = 'age_in_month',
+}
 /**
  * Nombre moyen de jours dans un mois (approximé à 30.4375 jours).
  * @constant
@@ -138,6 +141,31 @@ export enum AnthroUnit {
   KG = 'kg',
   CM = 'cm',
   MM = 'mm',
+}
+export enum DataFieldConditionOperator {
+  EQ = 'eq',
+  NEQ = 'neq',
+  GT = 'gt',
+  LT = 'lt',
+  GTE = 'gte',
+  LTE = 'lte',
+  IN = 'in',
+  NIN = 'nin',
+}
+export enum WeightUnit {
+  kg = 'kg',
+  g = 'g',
+}
+export enum HeightUnit {
+  cm = 'cm',
+  m = 'm',
+}
+export enum MUACUnit {
+  cm = 'cm',
+  mm = 'mm',
+}
+export enum TSFUnit {
+  mm = 'mm',
 }
 
 export const MALNUTRIX_QRCODE_REGEX = /^malnutrix::data::.*/;

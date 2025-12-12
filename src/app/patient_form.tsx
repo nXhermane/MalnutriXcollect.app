@@ -2,14 +2,14 @@ import { HStack } from '@/components/ui/hstack';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Hapatic from 'expo-haptics';
 import { Icon } from '@/components/ui/icon';
 import { Check, X } from 'lucide-react-native';
 import { DynamicForm, FormSection, useDynamicFormHelpers } from '@/components/custom';
 import { Button, ButtonIcon, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { BlurView } from 'expo-blur';
-import { isDark$ } from '@/store';
+import { isDark$, modeles$ } from '@/store';
 import {
   CreatePatientDTO,
   createPatientSchema,
@@ -22,13 +22,26 @@ import { useAddPatientViewModal } from '@/hooks/useAddPatientViewModel';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { verticalScale } from 'react-native-size-matters';
 import { useValue } from '@legendapp/state/react';
+import { useUpdatePatientViewModel } from '@/hooks';
+import { useEffect } from 'react';
 
-export default function AddPatient() {
+export default function AddOrUpdatePatient() {
+  const { id, readonly } = useLocalSearchParams<{ id: string; readonly: string }>();
   const isDark = useValue(isDark$);
-  const { props, submit, loading, error, sucess, formReady, invalidInputCount } =
+  const { props, submit, reset, loading, error, sucess, formReady, invalidInputCount } =
     useDynamicFormHelpers();
   const { addPatient, isLoading: addPatientLoading } = useAddPatientViewModal();
+  const { updatePatient, isLoading: updatePatientLoading } = useUpdatePatientViewModel();
+  const isUpdate = !!id;
+  const isReadOnly = Number(readonly) === 1;
+  const patients = useValue(() => modeles$.patients.get());
+  const isLoading = loading || addPatientLoading || updatePatientLoading;
 
+  useEffect(() => {
+    if (isUpdate) {
+      reset && reset(transformDataBack(patients[id] as CreatePatientDTO));
+    }
+  }, [patients, reset, isUpdate, id]);
   return (
     <VStack className="pt-safe flex-1 bg-bg">
       <VStack className=" absolute  z-30  w-full  items-center justify-center">
@@ -47,7 +60,13 @@ export default function AddPatient() {
               <Icon as={X} className="text-muted-foreground" />
             </Pressable>
             <HStack className="elevation-sm h-12 flex-1 items-center justify-center rounded-3xl bg-card">
-              <Text className="text-center font-h4 text-foreground">Ajouter un patient</Text>
+              <Text className="text-center font-h4 text-foreground">
+                {isUpdate
+                  ? isReadOnly
+                    ? patients[id].name
+                    : 'Mettre à jour'
+                  : 'Ajouter un patient'}
+              </Text>
             </HStack>
           </HStack>
         </BlurView>
@@ -55,40 +74,48 @@ export default function AddPatient() {
       <KeyboardAwareScrollView
         bottomOffset={verticalScale(40)}
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="pt-18 pb-20">
+        contentContainerClassName={`pt-18 ${isReadOnly ? 'pb-10' : 'pb-20'}`}>
         <DynamicForm
           {...props}
           sections={addPatientFormConfig}
-          onSubmit={(data) => addPatient(data as any)}
+          onSubmit={(data) => (isUpdate ? updatePatient(id, data as any) : addPatient(data as any))}
           transformData={transformData}
           outputSchema={createPatientSchema}
+          {...{
+            initialValues: isUpdate
+              ? transformDataBack(patients[id] as CreatePatientDTO)
+              : undefined,
+          }}
+          readonly={isReadOnly}
         />
       </KeyboardAwareScrollView>
-      <HStack className=" absolute bottom-0 w-full overflow-hidden rounded-xl">
-        <BlurView
-          tint={isDark ? 'dark' : 'light'}
-          intensity={100}
-          experimentalBlurMethod={'dimezisBlurView'}
-          className="w-full px-4 py-v-2">
-          <Button
-            className={`h-v-12 w-full rounded-xl ${error ? 'bg-red-500' : 'bg-green-600'}`}
-            isDisabled={formReady}
-            onPress={submit}>
-            {loading || addPatientLoading ? (
-              <ButtonSpinner size={'small'} className="data-[active=true]:text-green-500" />
-            ) : (
-              <ButtonText className="font-h4 font-medium text-white data-[active=true]:text-green-500">
-                Ajouter un nouveau patient
-              </ButtonText>
+      {!isReadOnly && (
+        <HStack className=" absolute bottom-0 w-full overflow-hidden rounded-xl">
+          <BlurView
+            tint={isDark ? 'dark' : 'light'}
+            intensity={100}
+            experimentalBlurMethod={'dimezisBlurView'}
+            className="w-full px-4 py-v-2">
+            <Button
+              className={`h-v-12 w-full rounded-xl ${error ? 'bg-red-500' : 'bg-green-600'}`}
+              isDisabled={formReady}
+              onPress={submit}>
+              {isLoading ? (
+                <ButtonSpinner size={'small'} className="data-[active=true]:text-green-500" />
+              ) : (
+                <ButtonText className="font-h4 font-medium text-white data-[active=true]:text-green-500">
+                  {isUpdate ? 'Mettre à jour' : 'Ajouter un nouveau patient'}
+                </ButtonText>
+              )}
+              {sucess && <ButtonIcon as={Check} className="text-white" />}
+              {error && <ButtonIcon as={X} className="text-white" />}
+            </Button>
+            {error && (
+              <Text className="text-center font-h4 text-red-500">{`${invalidInputCount} champs invalides`}</Text>
             )}
-            {sucess && <ButtonIcon as={Check} className="text-white" />}
-            {error && <ButtonIcon as={X} className="text-white" />}
-          </Button>
-          {error && (
-            <Text className="text-center font-h4 text-red-500">{`${invalidInputCount} champs invalides`}</Text>
-          )}
-        </BlurView>
-      </HStack>
+          </BlurView>
+        </HStack>
+      )}
     </VStack>
   );
 }
@@ -184,7 +211,7 @@ const addPatientFormConfig: FormSection[] = [
       {
         type: 'text',
         label: 'Nom',
-        name: 'parent1Nom',
+        name: 'parent_1_name',
         mode: 'input',
         default: '',
         alwaysShow: true,
@@ -194,7 +221,7 @@ const addPatientFormConfig: FormSection[] = [
       {
         type: 'text',
         label: 'Numéro de téléphone',
-        name: 'parent1Tel',
+        name: 'parent_1_tel',
         mode: 'input',
         default: '',
         alwaysShow: true,
@@ -204,7 +231,7 @@ const addPatientFormConfig: FormSection[] = [
       {
         type: 'select',
         label: 'Relation',
-        name: 'parent1Relation',
+        name: 'parent_1_relation',
         options: [
           { value: ParentRelation.FATHER, label: 'Père' },
           { value: ParentRelation.MOTHER, label: 'Mère' },
@@ -215,7 +242,7 @@ const addPatientFormConfig: FormSection[] = [
       },
       {
         type: 'radio',
-        name: 'hasParent2',
+        name: 'has_parent_2',
         label: 'Y a-t-il un deuxième parent ?',
         options: [
           { value: 'oui', label: 'Oui' },
@@ -227,7 +254,7 @@ const addPatientFormConfig: FormSection[] = [
       },
       {
         type: 'text',
-        name: 'parent2Nom',
+        name: 'parent_2_name',
         label: 'Nom du parent 2',
         placeholder: 'Nom complet',
         mode: 'input',
@@ -238,7 +265,7 @@ const addPatientFormConfig: FormSection[] = [
       {
         type: 'text',
         label: 'Numéro de téléphone',
-        name: 'parent2Tel',
+        name: 'parent_2_tel',
         mode: 'input',
         default: '',
         alwaysShow: false,
@@ -249,7 +276,7 @@ const addPatientFormConfig: FormSection[] = [
       {
         type: 'select',
         label: 'Relation',
-        name: 'parent2Relation',
+        name: 'parent_2_relation',
         options: [
           { value: ParentRelation.FATHER, label: 'Père' },
           { value: ParentRelation.MOTHER, label: 'Mère' },
@@ -277,20 +304,20 @@ const transformData = (data: any): CreatePatientDTO => {
   const sex = data.sex;
   const parents = [];
   const parent1 = {
-    name: data?.parent1Nom,
-    tel: data?.parent1Tel,
-    relation: data?.parent1Relation,
+    name: data?.parent_1_name,
+    tel: data?.parent_1_tel,
+    relation: data?.parent_1_relation,
   };
   const parentValidationResult = v.safeParse(parentSchema, parent1);
   if (parentValidationResult.success) {
     parents.push(parent1);
   }
   // Ajouter le parent 2 s'il existe
-  if (data.hasParent2 === 'oui' && data.parent2Nom) {
+  if (data.has_parent_2 === 'oui' && data.parent_2_name) {
     const parent2 = {
-      name: data?.parent2Nom,
-      tel: data?.parent2Tel,
-      relation: data?.parent2Relation,
+      name: data?.parent_2_name,
+      tel: data?.parent_2_tel,
+      relation: data?.parent_2_relation,
     };
     const parent2ValidationResult = v.safeParse(parentSchema, parent2);
     if (parent2ValidationResult.success) {
@@ -304,5 +331,32 @@ const transformData = (data: any): CreatePatientDTO => {
     contact,
     address,
     parents,
+  };
+};
+const transformDataBack = (data: CreatePatientDTO): any => {
+  const name = data.name || '';
+  const birthdate = data.birthdate || '';
+  const sex = data.sex || '';
+  const contact = {
+    email: data.contact?.email || '',
+    tel: data.contact?.tel || '',
+  };
+  const address = {
+    fullAddress: data.address?.fullAddress || '',
+    city: data.address?.city || '',
+  };
+
+  const parents = data.parents.map((parent, index) => ({
+    [`parent_${index + 1}_name`]: parent.name || '',
+    [`parent_${index + 1}_tel`]: parent.tel || '',
+    [`parent_${index + 1}_relation`]: parent.relation || '',
+  }));
+  return {
+    name,
+    birthdate,
+    sex,
+    ...contact,
+    ...address,
+    ...parents,
   };
 };

@@ -1,5 +1,4 @@
 import { Patient, PatientMeasure } from '@/models/schemas';
-import { staticPatientMeasures, staticPatients } from '@/utils/staticData';
 import { observable } from '@legendapp/state';
 import { synced, configureObservableSync } from '@legendapp/state/sync';
 import { ObservablePersistMMKV } from './mmkv';
@@ -16,20 +15,14 @@ export const modeles$ = observable({
       name: 'patients',
       plugin: ObservablePersistMMKV,
     },
-    initial: staticPatients.reduce(
-      (acc, patient) => {
-        acc[patient.id] = patient;
-        return acc;
-      },
-      {} as Record<string, Patient>,
-    ),
+    initial: {},
   }),
   patient_measures: synced<Record<string, PatientMeasure[]>>({
     persist: {
       name: 'patient_measures',
       plugin: ObservablePersistMMKV,
     },
-    initial: staticPatientMeasures,
+    initial: {},
   }),
   search_text: '',
   filtered_patients: () => {

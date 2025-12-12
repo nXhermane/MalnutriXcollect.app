@@ -1,7 +1,14 @@
 import { QuantityField } from '@/utils/field';
 import { ChevronDown } from 'lucide-react-native';
 import React from 'react';
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldError,
+  FieldErrors,
+  FieldErrorsImpl,
+  Merge,
+} from 'react-hook-form';
 import colors from 'tailwindcss/colors';
 import { HStack } from '../ui/hstack';
 import { Input, InputField, InputIcon, InputSlot } from '../ui/input';
@@ -23,12 +30,21 @@ interface QuantityFieldComponentProps {
   field: QuantityField;
   control: Control;
   errors: FieldErrors;
+  readonly?: boolean;
 }
 
-export function QuantityFieldComponent({ field, control, errors }: QuantityFieldComponentProps) {
-  const error = errors[field.name];
+export function QuantityFieldComponent({
+  field,
+  control,
+  errors,
+  readonly,
+}: QuantityFieldComponentProps) {
+  const error = errors[field.name] as unknown as {
+    value: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
+    unit: FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
+  };
   return (
-    <FieldWrapper field={field} error={error}>
+    <FieldWrapper field={field} error={error?.value || error?.unit || error || undefined}>
       <Controller
         name={field.name}
         control={control}
@@ -38,16 +54,18 @@ export function QuantityFieldComponent({ field, control, errors }: QuantityField
           return (
             <React.Fragment>
               <Input
+                isReadOnly={readonly}
                 className={`h-v-10  w-full rounded-lg border border-border    bg-input p-0  transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500`}>
                 <InputField
                   type={'text'}
                   placeholder={field.placeholder}
                   keyboardType={'numeric'}
-                  value={quantityValue.value}
+                  defaultValue={quantityValue.value.toString()}
+                  value={quantityValue.value.toString()}
                   onChangeText={(val) =>
                     onChange({
                       ...quantityValue,
-                      value: value,
+                      value: val,
                     })
                   }
                   onBlur={onBlur}

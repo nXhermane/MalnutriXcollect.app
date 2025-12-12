@@ -11,14 +11,15 @@ interface DateFieldComponentProps {
   field: DateField;
   control: Control;
   errors: FieldErrors;
+  readonly?: boolean;
 }
 
-export function DateFieldComponent({ field, control, errors }: DateFieldComponentProps) {
+export function DateFieldComponent({ field, control, errors, readonly }: DateFieldComponentProps) {
   const error = errors[field.name];
   const isDark = useValue(isDark$);
   const [visible, setVisible] = useState<boolean>(false);
   return (
-    <FieldWrapper error={error} field={field}>
+    <FieldWrapper error={error} field={field} readonly={readonly}>
       <Controller
         name={field.name}
         control={control}

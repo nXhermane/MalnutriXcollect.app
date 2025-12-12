@@ -12,6 +12,39 @@ import { router } from 'expo-router';
 import { Plus, QrCode, ScanQrCode } from 'lucide-react-native';
 import React, { useState } from 'react';
 import * as Hapatic from 'expo-haptics';
+import { export_patient$ } from '@/store/export_patient';
+import { compileUnExportedPatient, exportCompiledPatient } from '@/utils/export_patient_utils';
+import { dataToFrames } from 'qrloop';
+import { observe } from '@legendapp/state';
+
+observe(() => {
+  const unExportedPatients = modeles$.non_exported_patients.get();
+  if (unExportedPatients.length > 0) {
+    const process = async () => {
+      export_patient$.isRunning.set(true);
+      const patients = Object.values(modeles$.patients.get());
+      const patients_measures = modeles$.patient_measures.get();
+      const data = compileUnExportedPatient(Object.values(patients), patients_measures);
+      const formated_data = exportCompiledPatient(JSON.stringify(data.data));
+      const frames = dataToFrames(formated_data, 150, 5);
+      export_patient$.compiled_patient_ids.set(data.exported_patient_ids);
+      export_patient$.data_frames.set(frames);
+      export_patient$.isRunning.set(false);
+      console.log('changed');
+    };
+    process()
+      .then(() => {})
+      .catch((e) => {
+        console.warn(`Error in data compilation => `, e);
+      });
+  } else {
+    export_patient$.set({
+      compiled_patient_ids: [],
+      isRunning: false,
+      data_frames: null,
+    });
+  }
+});
 
 export default function Index() {
   const [showSearchBar, setShowSeachBar] = useState<boolean>(false);
@@ -49,7 +82,7 @@ export default function Index() {
             <Fab
               className="elevation-md  fixed -top-8 right-0 size-14 bg-green-600 hover:bg-green-700"
               onPress={() => {
-                router.navigate('/add_patient');
+                router.navigate('/patient_form');
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               }}>
               <FabIcon as={Plus} className="text-white" />

@@ -22,13 +22,19 @@ interface SelectFieldComponentProps {
   field: SelectField;
   control: Control;
   errors: FieldErrors;
+  readonly?: boolean;
 }
 
-export function SelectFieldComponent({ field, control, errors }: SelectFieldComponentProps) {
+export function SelectFieldComponent({
+  field,
+  control,
+  errors,
+  readonly,
+}: SelectFieldComponentProps) {
   const error = errors[field.name];
 
   return (
-    <FieldWrapper field={field} error={error}>
+    <FieldWrapper field={field} error={error} readonly={readonly}>
       <Controller
         name={field.name}
         control={control}

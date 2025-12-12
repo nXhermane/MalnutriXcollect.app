@@ -4,7 +4,23 @@ export type Data<T> = {
   showMode: T;
 };
 
-export type Field<T extends ShowMode = 'auto', U extends Data<T> = any> = {
+// Define the structure of a data field reference
+export interface DataFieldReference {
+  category: string;
+  code: string;
+  label: string;
+  question: string;
+  type: string;
+  defaultValue: any;
+  enumValue?: { value: string; label: string }[];
+  dataRange?: [number, number];
+  units?: {
+    available: string[];
+    default: string;
+  };
+}
+
+export type Field<T extends ShowMode = 'auto', U extends Data<T> = any, TSchema = any> = {
   name: string;
   label: string;
   placeholder?: string;
@@ -16,7 +32,7 @@ export type Field<T extends ShowMode = 'auto', U extends Data<T> = any> = {
     required?: boolean;
   };
   condition?: (data: U) => boolean;
-  schema?: v.AnySchema;
+  schema?: v.BaseSchema<TSchema, U[keyof U], any> | v.BaseSchemaAsync<TSchema, U[keyof U], any>;
 };
 export type NumberField = Omit<Field, 'validation'> & {
   type: 'number';

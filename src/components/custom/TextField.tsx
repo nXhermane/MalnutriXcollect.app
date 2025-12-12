@@ -9,12 +9,13 @@ interface TextFieldComponentProps {
   field: TextField;
   control: Control;
   errors: FieldErrors;
+  readonly?: boolean;
 }
 
-export function TextFieldComponent({ field, control, errors }: TextFieldComponentProps) {
+export function TextFieldComponent({ field, control, errors, readonly }: TextFieldComponentProps) {
   const error = errors[field.name];
   return (
-    <FieldWrapper field={field} error={error}>
+    <FieldWrapper field={field} error={error} readonly={readonly}>
       <Controller
         name={field.name}
         control={control}

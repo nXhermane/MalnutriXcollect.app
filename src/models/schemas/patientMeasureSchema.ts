@@ -3,7 +3,7 @@ import * as v from 'valibot';
 
 export const anthropometricSchema = v.object({
   code: v.enum(AnthroSystemCodes),
-  value: v.pipe(v.number(), v.minValue(0, 'La valeur anthropométrique ne peut être négative.')),
+  value: v.pipe(v.number(), v.minValue(0, 'La valeur anthropométrique ne peut être négative.')),
   unit: v.enum(AnthroUnit),
 });
 
@@ -104,6 +104,7 @@ export const patientMeasureSchema = v.object({
 
 export type PatientMeasure = v.InferOutput<typeof patientMeasureSchema>;
 export type CreatePatientMeasureDTO = v.InferOutput<typeof createPatientMeasureSchema>;
+
 export type UpdatePatientMeasureDTO = v.InferOutput<typeof updatePatientMeasureSchema>;
 export type AnthropometricDTO = v.InferOutput<typeof anthropometricSchema>;
 export type DataFieldDTO = v.InferOutput<typeof dataFieldValueSchema>;

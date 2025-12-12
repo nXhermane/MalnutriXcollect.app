@@ -163,3 +163,11 @@ export function formatAgeWithConversion(
 
   return `${days} jours (${conversion})`;
 }
+
+export function getAgeInDays(birthDateString: string) {
+  const birthDate = new Date(birthDateString);
+  const now = new Date();
+  const timeDifference = now.getTime() - birthDate.getTime();
+  const ageInDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+  return ageInDays;
+}

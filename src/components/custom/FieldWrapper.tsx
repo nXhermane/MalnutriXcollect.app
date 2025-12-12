@@ -19,16 +19,18 @@ export function FieldWrapper({
   children,
   field,
   error,
+  readonly,
 }: {
   field: Field;
   children: React.ReactNode;
   error: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
+  readonly?: boolean;
 }) {
   return (
     <FormControl
       className=" "
       isRequired={field.validation?.required}
-      isReadOnly={field.readonly}
+      isReadOnly={field.readonly || readonly}
       isDisabled={field.disabled}
       isInvalid={!!error}>
       <FormControlLabel className="">

@@ -15,20 +15,28 @@ interface CheckBoxFieldComponentProps {
   field: CheckBoxField;
   control: Control;
   errors: FieldErrors;
+  readonly?: boolean;
 }
 
-export function CheckBoxFieldComponent({ field, control, errors }: CheckBoxFieldComponentProps) {
+export function CheckBoxFieldComponent({
+  field,
+  control,
+  errors,
+  readonly,
+}: CheckBoxFieldComponentProps) {
   const error = errors[field.name];
 
   return (
-    <FieldWrapper error={error} field={field}>
+    <FieldWrapper error={error} field={field} readonly={readonly}>
       <Controller
         name={field.name}
         control={control}
         defaultValue={field.default || ''}
         render={({ field: { onChange, onBlur, value, ref } }) => {
           const isVertical =
-            field.options.length > 2 || field.options.some((opt) => opt.label.length > 10);
+            field.options.length > 2 ||
+            field.options.length === 1 ||
+            field.options.some((opt) => opt.label.length > 10);
           return (
             <CheckboxGroup
               onBlur={onBlur}

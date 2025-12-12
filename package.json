@@ -57,6 +57,7 @@
     "react-native-keyboard-controller": "1.18.5",
     "react-native-mmkv": "^4.0.1",
     "react-native-nitro-modules": "^0.31.10",
+    "react-native-qrcode-skia": "^0.3.1",
     "react-native-qrcode-svg": "^6.3.20",
     "react-native-quick-crypto": "^1.0.3",
     "react-native-reanimated": "~4.1.0",

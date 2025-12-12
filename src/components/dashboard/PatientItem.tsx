@@ -9,8 +9,11 @@ import { HumanDateFormatter } from '@/utils/human-date-formatter';
 import { LockKeyhole } from 'lucide-react-native';
 import { Icon } from '../ui/icon';
 import { Badge, BadgeText } from '../ui/badge';
+import { useDeletePatientViewModel } from '@/hooks';
+import { Spinner } from '../ui/spinner';
 
 export function PatientItem(patient: Patient) {
+  const { isLoading, deletePatient } = useDeletePatientViewModel();
   const getAvatarColor = (nom: string) => {
     const colors = [
       'bg-blue-500',
@@ -23,8 +26,12 @@ export function PatientItem(patient: Patient) {
     const index = nom.charCodeAt(0) % colors.length;
     return colors[index];
   };
+  if (isLoading) return <Spinner size={'large'} className="text-blue-500" />;
   return (
     <Pressable
+      onLongPress={() => {
+        deletePatient(patient.id);
+      }}
       onPress={() =>
         router.navigate({
           pathname: '/[id]',
