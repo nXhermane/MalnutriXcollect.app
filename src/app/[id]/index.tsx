@@ -98,7 +98,8 @@ export default function PatientScreen() {
               disableScrollViewPanResponder={false}
               extraData={patientMeasures.length}
               renderItem={renderPatientMeasure}
-              // keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
               contentContainerClassName="mt-5 mx-4 gap-4 "
               ListEmptyComponent={() => (
                 <VStack className="rounded-xl border border-border bg-card  p-8 text-center shadow-sm ">
