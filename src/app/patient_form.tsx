@@ -284,7 +284,7 @@ const addPatientFormConfig: FormSection[] = [
         ],
         default: ParentRelation.GUARDIAN,
         alwaysShow: false,
-        condition: (data) => data.hasParent2 === 'oui',
+        condition: (data) => data.has_parent_2 === 'oui',
       },
     ],
   },
