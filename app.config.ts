@@ -22,7 +22,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
-    permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
+    permissions: [
+      'android.permission.CAMERA',
+      'android.permission.RECORD_AUDIO',
+      'android.permission.ACCESS_NETWORK_STATE',
+      'android.permission.ACCESS_WIFI_STATE',
+      'android.permission.CHANGE_WIFI_STATE',
+      'android.permission.ACCESS_FINE_LOCATION',
+      'android.permission.ACCESS_COARSE_LOCATION',
+    ],
     package: 'com.nxhermano.malnutrixcollect',
   },
   web: {
@@ -48,10 +56,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-font',
     'expo-web-browser',
-    ["react-native-vision-camera",{
+    [
+      'react-native-vision-camera',
+      {
         cameraPermissionText: 'Allow $(PRODUCT_NAME) to access your camera',
-        enableCodeScanner: true 
-    }]
+        enableCodeScanner: true,
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,
