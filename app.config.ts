@@ -2,8 +2,8 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'MalnutriX collect',
-  slug: 'Malnutrix_collect',
+  name: 'MalnutriX ollect',
+  slug: 'malnutrix_collect',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/malnutrix.ic.launcher.dark.png',
@@ -22,15 +22,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
-    permissions: [
-      'android.permission.CAMERA',
-      'android.permission.RECORD_AUDIO',
-      'android.permission.ACCESS_NETWORK_STATE',
-      'android.permission.ACCESS_WIFI_STATE',
-      'android.permission.CHANGE_WIFI_STATE',
-      'android.permission.ACCESS_FINE_LOCATION',
-      'android.permission.ACCESS_COARSE_LOCATION',
-    ],
+    permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
     package: 'com.nxhermano.malnutrixcollect',
   },
   web: {
@@ -63,16 +55,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         enableCodeScanner: true,
       },
     ],
+    'react-native-wifi-reborn',
   ],
   experiments: {
     typedRoutes: true,
     reactCompiler: true,
   },
   extra: {
-    router: {},
     eas: {
-      projectId: 'd6e4f647-b746-4d5e-98b5-fd4af11b424f',
+      projectId: '7ced4a34-682d-4b00-91d2-24243d8d2663',
     },
   },
-  owner: 'nxhermano',
 });
