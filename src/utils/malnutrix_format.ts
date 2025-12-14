@@ -41,11 +41,14 @@ export function getMalnutriXPayloadContent(paylaod: string) {
     ssid: v.pipe(v.string(), v.nonEmpty()),
     password: v.pipe(v.string(), v.nonEmpty()),
   });
-  const data = JSON.parse(decode(paylaod, process.env.EXPO_PUBLIC_SECRET_KEY!));
-  if (data === null) throw new Error('Contenue du qrcode corrompue.');
+  const decoded_data = decode(paylaod, process.env.EXPO_PUBLIC_SECRET_KEY!);
+  if (decoded_data === null) {
+    throw new Error('Erreur de déchiffrement');
+  }
+  const data = JSON.parse(decoded_data);
   const validateData = v.safeParse(schema, data);
   if (!validateData.success) {
-    throw new Error('Contenue du qrcode corrompue.');
+    throw new Error('Contenu du qrcode corrompu.');
   }
   return validateData.output;
 }

@@ -6,6 +6,7 @@ import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { useToast } from '@/providers/Toast';
 import { isDark$ } from '@/store';
 import {
   getMalnutriXPayload,
@@ -26,6 +27,7 @@ import {
 } from 'react-native-vision-camera';
 
 export default function SyncScreen() {
+  const toast = useToast();
   const [isLit, setLit] = useState<boolean>(false);
   const isDark = useValue(isDark$);
   const [qrCodeData, setQrCodeData] = useState<{
@@ -47,27 +49,37 @@ export default function SyncScreen() {
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: (codes) => {
-      for (const code of codes) {
-        if (isScanning.current) return;
-        if (!code.value || code.type !== 'qr') return;
+      try {
+        for (const code of codes) {
+          if (isScanning.current) return;
+          if (!code.value || code.type !== 'qr') return;
 
-        if (isMalnutriXUri(code.value)) {
-          const payload = getMalnutriXPayload(code.value);
-          console.log(payload);
-          if (payload === null) {
+          if (isMalnutriXUri(code.value)) {
+            const payload = getMalnutriXPayload(code.value);
+            if (payload === null) {
+              Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
+              return;
+            }
+            const data = getMalnutriXPayloadContent(payload);
+            setQrCodeData(data);
+            setTimeout(() => {
+              setShowSyncModal(true);
+              isScanning.current = true;
+              Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+            }, 500);
+          } else {
             Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
-            return;
           }
-          const data = getMalnutriXPayloadContent(payload);
-          setQrCodeData(data);
-          setTimeout(() => {
-            setShowSyncModal(true);
-            isScanning.current = true;
-            Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-          }, 500);
-        } else {
-          Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
         }
+      } catch (e) {
+        console.warn(e);
+        toast.show(
+          'Error',
+          "Erreur lors du traitement de l'QR code",
+          undefined,
+          'top',
+          'scan_error',
+        );
       }
     },
   });

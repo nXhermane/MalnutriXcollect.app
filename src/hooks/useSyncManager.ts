@@ -8,6 +8,7 @@ import { randomUUID } from '@/utils/crypto';
 import { modeles$ } from '@/store';
 import { patientSchema } from '@/models/schemas';
 import * as v from 'valibot';
+import { useCallback } from 'react';
 
 export enum SyncClientMessageType {
   SYNC_START_REQUEST, // DECLENCHE LE PROCESSUR AUPRÈS DU SERVER
@@ -62,7 +63,7 @@ export type SyncProcessCompletedPayload = {
 };
 
 export function useSyncManager() {
-  const startSync = (): StartSyncPayload => {
+  const startSync = useCallback((): StartSyncPayload => {
     let client_id = app_info$.client_id.get();
     if (client_id === null) {
       client_id = randomUUID();
@@ -72,27 +73,28 @@ export function useSyncManager() {
       type: SyncClientMessageType.SYNC_START_REQUEST,
       content: { client_id },
     };
-  };
-  const processServerReady = (
-    data: SyncReadyForClientDataPayload,
-  ): ClientPatientStartExportPayload => {
-    // const timestamp = data.content.lastSyncTimestamp;
-    console.log(data); // Plutard implementer la logique pour ne envoiyer que les update a partir de ce moments
-    const patients = Object.values(modeles$.patients.get());
-    const patients_measures = modeles$.patient_measures.get();
-    const { data: unexported_patients } = compileUnExportedPatient(
-      Object.values(patients),
-      patients_measures,
-    );
+  }, []);
+  const processServerReady = useCallback(
+    (data: SyncReadyForClientDataPayload): ClientPatientStartExportPayload => {
+      // const timestamp = data.content.lastSyncTimestamp;
+      console.log(data); // Plutard implementer la logique pour ne envoiyer que les update a partir de ce moments
+      const patients = Object.values(modeles$.patients.get());
+      const patients_measures = modeles$.patient_measures.get();
+      const { data: unexported_patients } = compileUnExportedPatient(
+        Object.values(patients),
+        patients_measures,
+      );
 
-    return {
-      type: SyncClientMessageType.CLIENT_PATIENT_EXPORT,
-      content: {
-        data: unexported_patients,
-      },
-    };
-  };
-  const processClientExportCompleted = (data: SyncClientExportCompletedPayload) => {
+      return {
+        type: SyncClientMessageType.CLIENT_PATIENT_EXPORT,
+        content: {
+          data: unexported_patients,
+        },
+      };
+    },
+    [],
+  );
+  const processClientExportCompleted = useCallback((data: SyncClientExportCompletedPayload) => {
     for (const patientId of data.content.data) {
       if (!modeles$.patients[patientId].peek()) {
         return null;
@@ -112,30 +114,33 @@ export function useSyncManager() {
       }
     }
     return null;
-  };
-  const processClientImport = (data: SyncServerImportPayload): ClientAckServerPatientPayload => {
-    const validatedPatients = v.safeParse(v.array(patientSchema), data.content.data);
-    if (!validatedPatients.success) {
-      console.warn('Ceci ne devrais par arrivé : ', JSON.stringify(validatedPatients));
+  }, []);
+  const processClientImport = useCallback(
+    (data: SyncServerImportPayload): ClientAckServerPatientPayload => {
+      const validatedPatients = v.safeParse(v.array(patientSchema), data.content.data);
+      if (!validatedPatients.success) {
+        console.warn('Ceci ne devrais par arrivé : ', JSON.stringify(validatedPatients));
+        return {
+          content: { timestamp: null },
+          type: SyncClientMessageType.CLIENT_ACK_SERVER_PATIENT,
+        };
+      }
+      const lockedPatients = validatedPatients.output.map((patient) => ({
+        ...patient,
+        isLocked: true,
+      }));
+      for (const patient of lockedPatients) {
+        if (!modeles$.patients[patient.id]) {
+          modeles$.patients[patient.id].set(patient);
+        }
+      }
       return {
-        content: { timestamp: null },
+        content: { timestamp: Date.now() },
         type: SyncClientMessageType.CLIENT_ACK_SERVER_PATIENT,
       };
-    }
-    const lockedPatients = validatedPatients.output.map((patient) => ({
-      ...patient,
-      isLocked: true,
-    }));
-    for (const patient of lockedPatients) {
-      if (!modeles$.patients[patient.id]) {
-        modeles$.patients[patient.id].set(patient);
-      }
-    }
-    return {
-      content: { timestamp: Date.now() },
-      type: SyncClientMessageType.CLIENT_ACK_SERVER_PATIENT,
-    };
-  };
+    },
+    [],
+  );
 
   return {
     startSync,
