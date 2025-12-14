@@ -72,6 +72,7 @@ export function BottomSheetModal({
         snapPoints={snapPoints ?? ['50%']}
         handleIndicatorStyle={{
           backgroundColor: isDark ? colors.gray['500'] : colors.gray['300'],
+          width: 50,
         }}
         handleComponent={(props) => <BottomSheetDragIndicator {...props} className="py-3" />}
         backgroundComponent={(props) => {

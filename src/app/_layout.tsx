@@ -47,16 +47,7 @@ function Main() {
           animation: 'slide_from_bottom',
           sheetElevation: 0,
         }}
-        name="import_patients"
-      />
-      <Stack.Screen
-        options={{
-          sheetCornerRadius: 30,
-          presentation: 'formSheet',
-          animation: 'slide_from_bottom',
-          sheetElevation: 0,
-        }}
-        name="export_patients"
+        name="sync"
       />
       <Stack.Screen
         options={{

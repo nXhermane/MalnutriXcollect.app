@@ -1,5 +1,5 @@
-import QuickCrypto from 'react-native-quick-crypto';
-
+import QuickCrypto, { randomUUID } from 'react-native-quick-crypto';
+import { Buffer } from 'buffer';
 export function encode(data: string, secret: string) {
   const iv = QuickCrypto.randomBytes(16);
 
@@ -20,3 +20,4 @@ export function decode(encryptedData: string, secret: string) {
   decrypted += decipher.final('utf8');
   return decrypted;
 }
+export { randomUUID };

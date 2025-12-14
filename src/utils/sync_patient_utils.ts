@@ -1,9 +1,8 @@
 import { Patient, PatientMeasure } from '@/models/schemas';
-import { formatForMalnutriX } from './malnutrix_formt';
-import { encode } from './crypto';
 export type ExportedPatient = Omit<Patient, 'isLocked'> & {
   measures: Omit<PatientMeasure, 'patientId' | 'isExported'>[];
 };
+export type ImportPatient = Omit<Patient, 'isLocked'>;
 export function compileUnExportedPatient(
   patients: Patient[],
   patient_measures: Record<string, PatientMeasure[]>,
@@ -23,8 +22,4 @@ export function compileUnExportedPatient(
     }
   }
   return { data, exported_patient_ids };
-}
-export function exportCompiledPatient(data: string): string {
-  const cryptedData = encode(data, process.env.EXPO_PUBLIC_SECRET_KEY!);
-  return formatForMalnutriX(cryptedData);
 }

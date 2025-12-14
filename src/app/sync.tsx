@@ -1,40 +1,41 @@
 import { QRIndicator } from '@/components/custom';
+import { SyncModal } from '@/components/dashboard/SyncModal';
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
 import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { isDark$ } from '@/store';
+import {
+  getMalnutriXPayload,
+  getMalnutriXPayloadContent,
+  isMalnutriXUri,
+} from '@/utils/malnutrix_format';
+import { useValue } from '@legendapp/state/react';
+import { BlurView } from 'expo-blur';
+import * as Hapatic from 'expo-haptics';
 import { router } from 'expo-router';
 import { Flashlight, FlashlightOff, X } from 'lucide-react-native';
 import { useCallback, useRef, useState } from 'react';
-import * as Hapatic from 'expo-haptics';
-import { BlurView } from 'expo-blur';
-import { ImportPatientModal } from '@/components/dashboard/ImportPatientModal';
-import {
-  areFramesComplete,
-  framesToData,
-  parseFramesReducer,
-  progressOfFrames,
-  State,
-} from 'qrloop';
-import { isMalnutriXUri } from '@/utils/malnutrix_formt';
 import {
   Camera,
   useCameraDevice,
   useCameraFormat,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import { useValue } from '@legendapp/state/react';
-import { isDark$ } from '@/store';
 
-export default function ImportPatients() {
+export default function SyncScreen() {
   const [isLit, setLit] = useState<boolean>(false);
   const isDark = useValue(isDark$);
-  const [qrCodeData, setQrCodeData] = useState<string | undefined>('hello');
-  const frames = useRef<State>(null);
-  const [progress, setProgress] = useState(0);
-  const [showImportPatientModal, setShowImportPatientModal] = useState<boolean>(false);
+  const [qrCodeData, setQrCodeData] = useState<{
+    host: string;
+    port: number;
+    ssid: string;
+    password: string;
+  } | null>(null);
+  const isScanning = useRef(false);
+  const [showSyncModal, setShowSyncModal] = useState<boolean>(false);
   const device = useCameraDevice('back');
   const format = useCameraFormat(device, [
     {
@@ -42,30 +43,30 @@ export default function ImportPatients() {
       photoResolution: 'max',
     },
   ]);
+
   const codeScanner = useCodeScanner({
     codeTypes: ['qr'],
     onCodeScanned: (codes) => {
       for (const code of codes) {
-        if (!code.value) return;
-        try {
-          frames.current = parseFramesReducer(frames.current, code.value);
-          if (areFramesComplete(frames.current)) {
-            const uri = framesToData(frames.current).toString();
-            setProgress(progressOfFrames(frames.current));
-            if (isMalnutriXUri(uri)) {
-              setQrCodeData(uri);
-              setTimeout(() => {
-                setShowImportPatientModal(true);
-                Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-              }, 500);
-            } else {
-              Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
-            }
-          } else {
-            setProgress(progressOfFrames(frames.current));
+        if (isScanning.current) return;
+        if (!code.value || code.type !== 'qr') return;
+
+        if (isMalnutriXUri(code.value)) {
+          const payload = getMalnutriXPayload(code.value);
+          console.log(payload);
+          if (payload === null) {
+            Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
+            return;
           }
-        } catch (e) {
-          console.warn(e);
+          const data = getMalnutriXPayloadContent(payload);
+          setQrCodeData(data);
+          setTimeout(() => {
+            setShowSyncModal(true);
+            isScanning.current = true;
+            Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+          }, 500);
+        } else {
+          Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
         }
       }
     },
@@ -93,7 +94,7 @@ export default function ImportPatients() {
             flex: 1,
           }}
           device={device}
-          isActive={!showImportPatientModal}
+          isActive={!showSyncModal}
           codeScanner={codeScanner}
           format={format}
           torch={isLit ? 'on' : 'off'}
@@ -116,28 +117,26 @@ export default function ImportPatients() {
                   experimentalBlurMethod="dimezisBlurView"
                   tint={isDark ? 'dark' : 'light'}
                   className="h-full flex-1 items-center  justify-center">
-                  <Text className="text-center font-h4 text-foreground ">
-                    Importer des patients
-                  </Text>
+                  <Text className="text-center font-h4 text-foreground ">Synchronisation</Text>
                 </BlurView>
               </HStack>
             </HStack>
           </VStack>
-          <VStack className="flex-1 items-center justify-center">
-            <VStack className="absolute  top-14 w-full  overflow-hidden ">
+          <VStack className="flex-1 items-center justify-center px-4">
+            <VStack className="absolute top-14 w-full  overflow-hidden rounded-xl ">
               <BlurView
                 className="w-full flex-1 items-center justify-center p-4"
                 intensity={100}
                 tint={isDark ? 'dark' : 'light'}
                 experimentalBlurMethod="dimezisBlurView">
                 <Text className="font-h4 text-sm text-foreground">
-                  Scanner un Qr Code MalnutriX
+                  Scanner le QR du nutritionniste
                 </Text>
               </BlurView>
             </VStack>
 
             <Box className="absolute">
-              <QRIndicator progress={progress} />
+              <QRIndicator />
             </Box>
             <HStack className="absolute bottom-10 w-full justify-center px-10">
               <Pressable className="  overflow-hidden rounded-full" onPress={onFlashToggle}>
@@ -157,14 +156,14 @@ export default function ImportPatients() {
           </VStack>
         </VStack>
       </VStack>
-
-      {showImportPatientModal && (
-        <ImportPatientModal
-          isVisible={showImportPatientModal}
-          data={qrCodeData}
+      {showSyncModal && (
+        <SyncModal
+          isVisible={showSyncModal}
+          data={qrCodeData!}
           onClose={() => {
-            setShowImportPatientModal(false);
-            setQrCodeData(undefined);
+            setShowSyncModal(false);
+            isScanning.current = false;
+            setQrCodeData(null);
           }}
         />
       )}

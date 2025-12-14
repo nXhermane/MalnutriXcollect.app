@@ -4,5 +4,4 @@ export * from './useUpdatePatientMeasureViewModel';
 export * from './useUpdatePatientViewModel';
 export * from './useDeletePatient';
 export * from './useDeletePatientMeasure';
-export * from './useMarkPatientAsExportedViewModel';
-export * from './useImportPatientViewModel';
+export * from './useSyncManager';

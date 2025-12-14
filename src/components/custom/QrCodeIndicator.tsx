@@ -2,10 +2,9 @@ import React from 'react';
 import { Animated, Easing, StyleSheet } from 'react-native';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 import { VStack } from '../ui/vstack';
-import { MotiProgressBar } from 'moti';
 import { Box } from '../ui/box';
 
-export function QRIndicator({ progress }: { progress: number }) {
+export function QRIndicator() {
   const scale = React.useRef(new Animated.Value(1));
   const duration = 500;
   React.useEffect(() => {
@@ -40,6 +39,7 @@ export function QRIndicator({ progress }: { progress: number }) {
   return (
     <VStack className="items-center justify-center">
       <AnimatedScanner
+        color={'red'}
         style={[
           styles.scanner,
           {
@@ -51,9 +51,8 @@ export function QRIndicator({ progress }: { progress: number }) {
         className="absolute w-full "
         style={{
           transform: [{ scale: scale.current }],
-        }}>
-        <MotiProgressBar progress={progress} color="white" />
-      </AnimatedBox>
+        }}
+      />
     </VStack>
   );
 }
