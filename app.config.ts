@@ -2,7 +2,7 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'MalnutriX ollect',
+  name: 'MalnutriX collect',
   slug: 'malnutrix_collect',
   version: '1.0.0',
   orientation: 'portrait',
