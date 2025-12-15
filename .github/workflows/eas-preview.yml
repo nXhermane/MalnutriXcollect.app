@@ -35,9 +35,16 @@ jobs:
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
-
+  
       - name: Install dependencies
-        run: bun install
+        run: bun install 
+
+      - name: Generate PEM file
+        run: |
+          echo "${{ secrets.MALNUTRIX_SERVER_CERT }}" > ./temp_cert.pem 
+          mkdir -p assets/crypto
+          mv ./temp_cert.pem assets/crypto/server-cert.pem
+
 
       - name: Create .env file
         run: |
