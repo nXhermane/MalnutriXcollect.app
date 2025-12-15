@@ -14,7 +14,13 @@ import { VStack } from '@/components/ui/vstack';
 
 type ToastType = 'Success' | 'Error' | 'Info';
 export interface ToastContextType {
-  show: (type: ToastType, title: string, desc?: string, placement?: ToastPlacement) => void;
+  show: (
+    type: ToastType,
+    title: string,
+    desc?: string,
+    placement?: ToastPlacement,
+    id?: string,
+  ) => void;
 }
 export const ToastContext = createContext<ToastContextType>({} as ToastContextType);
 
@@ -27,8 +33,14 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toastId, setToastId] = React.useState('0');
 
   const show = useCallback(
-    (type: ToastType, title: string, desc?: string, placement: ToastPlacement = 'bottom') => {
-      const newId = `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    (
+      type: ToastType,
+      title: string,
+      desc?: string,
+      placement: ToastPlacement = 'bottom',
+      id?: string,
+    ) => {
+      const newId = id || `toast_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setToastId(newId);
 
       console.log(`[ToastContext] Showing ${type} toast with id: ${newId}`);
