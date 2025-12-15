@@ -23,7 +23,7 @@ export function TextFieldComponent({ field, control, errors, readonly }: TextFie
         render={({ field: { onChange, onBlur, value, ref } }) =>
           field.mode === 'textarea' ? (
             <Textarea
-              className={`min-h-[120px] w-full resize-y  rounded-lg  border-border bg-input p-2 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500 `}>
+              className={`min-h-[120px] w-full resize-y  rounded-lg  border-border bg-input p-2 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-emerald-500 `}>
               <TextareaInput
                 id={field.name}
                 ref={ref}
@@ -39,7 +39,7 @@ export function TextFieldComponent({ field, control, errors, readonly }: TextFie
             </Textarea>
           ) : (
             <Input
-              className={`h-v-10 w-full rounded-lg border  border-border bg-input  px-2 py-3 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500   `}>
+              className={`h-v-10 w-full rounded-lg border  border-border bg-input  px-2 py-3 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-emerald-500   `}>
               <InputField
                 id={field.name}
                 ref={ref}

@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/text';
 import { Box } from '@/components/ui/box';
 import { Pressable } from '../ui/pressable';
 import { Icon } from '../ui/icon';
-import { Search, SearchX, Sun, Moon } from 'lucide-react-native';
+import { Search, Sun, Moon, X } from 'lucide-react-native';
 import { theme$ } from '@/store';
 import { useValue } from '@legendapp/state/react';
 
@@ -22,9 +22,9 @@ export const Header = ({
         <HStack className={'w-full items-center justify-between px-4 pb-2'}>
           <Box>
             <HStack className="items-center">
-              <Text className="font-h3 text-xl  font-semibold text-foreground">
+              <Text className="font-h3 text-xl  font-semibold text-emerald-600 dark:text-emerald-400">
                 MalnutriX
-                <Text className="font-light text-2xs text-muted-foreground">collect</Text>
+                <Text className="font-light text-xs text-muted-foreground">collect</Text>
               </Text>
             </HStack>
           </Box>
@@ -35,7 +35,7 @@ export const Header = ({
                 searchBarIsVisible ? 'bg-green-50 dark:bg-green-950 ' : ''
               }`}>
               <Icon
-                as={searchBarIsVisible ? SearchX : Search}
+                as={searchBarIsVisible ? X : Search}
                 size="lg"
                 className={`${
                   searchBarIsVisible

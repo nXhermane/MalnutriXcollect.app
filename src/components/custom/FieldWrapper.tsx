@@ -11,7 +11,6 @@ import {
   FormControlLabelAstrick,
   FormControlLabelText,
 } from '../ui/form-control';
-import { Text } from '../ui/text';
 import { AlertCircleIcon } from 'lucide-react-native';
 import { FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 
@@ -38,9 +37,7 @@ export function FieldWrapper({
           {field.label}
         </FormControlLabelText>
         {field.validation?.required && (
-          <FormControlLabelAstrick>
-            <Text className="text-red-500">*</Text>
-          </FormControlLabelAstrick>
+          <FormControlLabelAstrick className="ml-1 text-destructive" />
         )}
       </FormControlLabel>
       {children}

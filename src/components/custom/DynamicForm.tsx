@@ -144,6 +144,7 @@ function DynamicFormComponent<TOutput = any>(
   const toast = useToast();
   const schema = buildValibotSchema(sections.flatMap((section) => section.fields));
   const [outputErrors, setOutputErrors] = useState<any>({});
+
   const {
     watch,
     control,
@@ -193,7 +194,13 @@ function DynamicFormComponent<TOutput = any>(
             Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
             onError && onError('Erreur de transformation des données');
             onLoading && onLoading(false);
-            toast.show('Error', 'Erreur de transformation des données', undefined, 'top');
+            toast.show(
+              'Error',
+              'Erreur de transformation des données',
+              Object.values(v.flatten(result.issues).nested as any).join(',\n '),
+              'top',
+              'form_submission',
+            );
             return;
           }
           finalData = result.output;
@@ -206,7 +213,13 @@ function DynamicFormComponent<TOutput = any>(
         console.error('Erreur lors de la soumission:', error);
         Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
         onError && onError('Erreur lors de la soumission du formulaire');
-        toast.show('Error', 'Erreur lors de la soumission du formulaire', undefined, 'top');
+        toast.show(
+          'Error',
+          'Erreur lors de la soumission du formulaire',
+          undefined,
+          'top',
+          'form_submission',
+        );
       } finally {
         onLoading && onLoading(false);
       }
@@ -395,7 +408,9 @@ function DynamicFormComponent<TOutput = any>(
           <VStack key={name || index.toString()} className="gap-v-2">
             {name && (
               <HStack className={'items-center justify-between px-4'}>
-                <Text className="font-h4 text-lg font-medium text-foreground">{name}</Text>
+                <Text className="font-h4 text-lg font-medium text-emerald-600 dark:text-emerald-400">
+                  {name}
+                </Text>
               </HStack>
             )}
             <VStack className="gap-v-3 rounded-xl border border-border bg-card  p-4 ">
