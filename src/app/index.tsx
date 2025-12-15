@@ -5,6 +5,7 @@ import { Badge, BadgeText } from '@/components/ui/badge';
 import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
+import { useWifiCheck } from '@/hooks';
 import { modeles$ } from '@/store';
 import { useValue } from '@legendapp/state/react';
 import * as Hapatic from 'expo-haptics';
@@ -19,6 +20,8 @@ export default function Index() {
 
   const nonExportedPatientsCount = useValue(() => modeles$.non_exported_patients().length);
   const [hideFabs, setHidsFabs] = useState<boolean>(false);
+  const { checkAndEnableWifi } = useWifiCheck();
+
   return (
     <React.Fragment>
       <VStack className="flex-1 bg-bg">
@@ -35,13 +38,17 @@ export default function Index() {
           <HStack className="absolute bottom-0 w-full  justify-between gap-4 px-4">
             <Fab
               className="elevation-md fixed right-0 size-12 bg-green-500 hover:bg-green-600 "
-              onPress={() => {
+              onPress={async () => {
                 if (!hasPermission) {
                   requestPermission();
                   return;
                 } else {
-                  router.navigate('/sync');
-                  Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+                  if (await checkAndEnableWifi()) {
+                    router.navigate('/sync');
+                    Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+                  } else {
+                    Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
+                  }
                 }
               }}>
               {nonExportedPatientsCount > 0 && (

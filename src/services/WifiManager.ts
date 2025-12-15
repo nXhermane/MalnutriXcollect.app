@@ -24,6 +24,8 @@ class WifiManager {
       console.log('Déjà déconnecté du Wifi', e);
     }
   }
+  isEnabled = Wifi.isEnabled;
+  setEnabled = Wifi.setEnabled;
 }
 
 export default new WifiManager();

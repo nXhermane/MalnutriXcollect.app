@@ -4,8 +4,24 @@ import { SplashScreen, Stack } from 'expo-router';
 import { UIProvider, useUI } from '@/providers';
 import React, { useState } from 'react';
 import { SplashScreen as TemporalyOverlay } from '@/components/dashboard/SplashScreen';
+import { isCryptoAvailable } from '@/utils/crypto';
+import { View, Text } from 'react-native';
 
 export default function RootLayout() {
+  if (!isCryptoAvailable()) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+        <Text style={{ fontSize: 18, color: 'red', textAlign: 'center' }}>
+          ❌ Configuration Error
+        </Text>
+        <Text style={{ marginTop: 10, textAlign: 'center' }}>
+          {__DEV__
+            ? 'Please set EXPO_PUBLIC_SECRET_KEY in your .env file'
+            : 'Please contact support'}
+        </Text>
+      </View>
+    );
+  }
   return (
     <UIProvider>
       <Main />

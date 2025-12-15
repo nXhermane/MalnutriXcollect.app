@@ -41,7 +41,7 @@ export function getMalnutriXPayloadContent(paylaod: string) {
     ssid: v.pipe(v.string(), v.nonEmpty()),
     password: v.pipe(v.string(), v.nonEmpty()),
   });
-  const decoded_data = decode(paylaod, process.env.EXPO_PUBLIC_SECRET_KEY!);
+  const decoded_data = decode(paylaod);
   if (decoded_data === null) {
     throw new Error('Erreur de déchiffrement');
   }

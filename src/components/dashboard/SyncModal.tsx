@@ -1,6 +1,6 @@
 import TcpClient from '@/services/TcpClient';
 import WifiManager from '@/services/WifiManager';
-import { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import { BottomSheetModal } from '../custom';
 import { Text } from '../ui/text';
 import { VStack } from '../ui/vstack';
@@ -16,9 +16,18 @@ import {
 import { Box } from '../ui/box';
 import { useToast } from '@/providers/Toast';
 import { Icon } from '../ui/icon';
-import { CheckCircle } from 'lucide-react-native';
-import { Button, ButtonText } from '../ui/button';
+import {
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  Network,
+  RefreshCw,
+  Wifi,
+  WifiOff,
+} from 'lucide-react-native';
+import { Button, ButtonIcon, ButtonText } from '../ui/button';
 import { router } from 'expo-router';
+import { HStack } from '../ui/hstack';
 
 type CommunicationDataType =
   | SyncClientExportCompletedPayload
@@ -56,15 +65,19 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
   const [syncStatus, setSyncStatus] = useState<'NONE' | 'IMPORT' | 'EXPORT' | 'FINISHED'>('NONE');
   const { processClientExportCompleted, processClientImport, processServerReady, startSync } =
     useSyncManager();
-
+  const [error, setError] = useState<string | null>(null);
   const handleDone = useCallback(() => {
+    onClose();
     router.navigate('/');
-  }, []);
-  useEffect(() => {
+  }, [onClose]);
+
+  const handleConnection = useCallback(() => {
     TcpClient.subscribe({
       onError: (error) => {
         setConnectionStatus('ERROR_TCP');
+        setSyncStatus('NONE');
         console.error(error);
+        setError('Error connecting to TCP server : ' + error.message);
       },
       onReceived: (data) => {
         const _data = data as CommunicationDataType;
@@ -91,10 +104,13 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
           WifiManager.disconnect('ssid')
             .then(() => {
               setConnectionStatus('DISCONNECTED');
+              setSyncStatus('NONE');
             })
             .catch((e) => {
               console.error(e);
+              setError('Error disconnecting from WiFi : ' + e.message);
               setConnectionStatus('ERROR_WIFI');
+              setSyncStatus('NONE');
             });
         }
       },
@@ -108,8 +124,21 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
       .catch((e) => {
         console.error(e);
         setConnectionStatus('ERROR_WIFI');
+        setSyncStatus('NONE');
       });
+
+    return () => {
+      TcpClient.subscribe({});
+      TcpClient.disconnect();
+      WifiManager.disconnect(data.ssid);
+    };
   }, [data, processClientExportCompleted, processClientImport, processServerReady, startSync]);
+  useEffect(() => {
+    const unsubcribe = handleConnection();
+    return () => {
+      unsubcribe();
+    };
+  }, [handleConnection]);
 
   useEffect(() => {
     if (connectionStatus === 'ERROR_WIFI') {
@@ -118,6 +147,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
         'Erreur de connexion au nutritionniste.',
         'Veuillez activer votre wifi et réessayer.',
         'top',
+        'wifi_error',
       );
     } else if (connectionStatus === 'ERROR_TCP') {
       toast.show(
@@ -125,20 +155,248 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
         'Erreur de connexion au nutritionniste.',
         "Assurez-vous d'être connecté à internet et de réessayer.",
         'top',
+        'tcp_error',
       );
     }
   }, [connectionStatus, toast]);
 
-  if (
-    connectionStatus === 'ERROR_TCP' ||
-    connectionStatus === 'ERROR_WIFI' ||
-    syncStatus === 'NONE'
-  ) {
-    onClose();
-    return null;
-  }
   return (
-    <BottomSheetModal isVisible={isVisible} onClose={onClose}>
+    <BottomSheetModal isVisible={isVisible} onClose={onClose} snapPoints={['70%']}>
+      {syncStatus === 'NONE' && (
+        <React.Fragment>
+          {connectionStatus === 'CONNECTING_WIFI' && (
+            <VStack className="flex-1 items-center justify-center gap-y-6">
+              <HStack className=" justify-center">
+                <Box className="relative">
+                  <Box className="absolute inset-0 animate-ping rounded-full bg-emerald-500/20" />
+                  <Box className="relative rounded-full bg-emerald-100 p-4 dark:bg-emerald-900/30">
+                    <Icon
+                      as={Wifi}
+                      className="h-12 w-12 animate-pulse text-emerald-600 dark:text-emerald-400"
+                    />
+                  </Box>
+                </Box>
+              </HStack>
+
+              <Box className="gap-y-2 text-center">
+                <Text className="text-center font-h4 text-lg font-medium  text-emerald-600 dark:text-emerald-400">
+                  Connexion au réseau WiFi
+                </Text>
+                <Text className="text-center font-light text-sm text-muted-foreground">
+                  Connexion au réseau
+                </Text>
+                <Text className="text-center font-light text-xs text-muted-foreground">
+                  Assurez-vous que le WiFi est activé sur votre appareil
+                </Text>
+              </Box>
+              <HStack className="items-center justify-center gap-2">
+                <Icon
+                  as={Loader2}
+                  className="h-4 w-4 animate-spin text-emerald-600 dark:text-emerald-400"
+                />
+                <Text className="text-center font-light text-xs text-muted-foreground">
+                  Connexion en cours...
+                </Text>
+              </HStack>
+            </VStack>
+          )}
+          {connectionStatus === 'CONNECTING_TCP' && (
+            <VStack className="flex-1  items-center justify-center gap-y-6">
+              <HStack className="justify-center">
+                <Box className="relative">
+                  <Box className="absolute inset-0 animate-ping rounded-full bg-blue-500/20" />
+                  <Box className="relative rounded-full bg-blue-100 p-4 dark:bg-blue-900/30">
+                    <Icon
+                      as={Network}
+                      className="h-12 w-12 animate-pulse text-blue-600 dark:text-blue-400"
+                    />
+                  </Box>
+                </Box>
+              </HStack>
+
+              <Box className="space-y-2 text-center">
+                <Text className="text-center font-h4 text-lg font-medium text-blue-600 dark:text-blue-400 ">
+                  Établissement de la connexion
+                </Text>
+                <Text className="text-center font-light text-xs text-muted-foreground">
+                  Connexion sécurisée avec le nutritionniste
+                </Text>
+              </Box>
+              <Box className="flex items-center justify-center gap-2">
+                <Icon
+                  as={Loader2}
+                  className="size-4 animate-spin text-blue-600 dark:text-blue-400"
+                />
+                <Text className="text-center font-light text-xs text-muted-foreground">
+                  Connexion sécurisée...
+                </Text>
+              </Box>
+            </VStack>
+          )}
+          {connectionStatus === 'ERROR_WIFI' && (
+            <VStack className="flex-1 gap-y-6 p-6">
+              <HStack className="flex justify-center">
+                <Box className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
+                  <Icon as={WifiOff} className="size-12 text-red-600 dark:text-red-400" />
+                </Box>
+              </HStack>
+              <Box className="gap-y-2 text-center">
+                <Text className="text-center font-h4 text-lg font-medium text-red-600 dark:text-red-400">
+                  Échec de connexion WiFi
+                </Text>
+                <Text className="text-center font-light text-xs text-muted-foreground">
+                  Impossible de se connecter au réseau{' '}
+                </Text>
+              </Box>
+              <Box className="gap-y-2 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+                <Text className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                  Vérifications à effectuer :
+                </Text>
+                <VStack className=" gap-y-1">
+                  <Text className="text-amber-700 dark:text-amber-300">
+                    {'• Activez le WiFi sur votre appareil'}
+                  </Text>
+                  <Text className="text-amber-700 dark:text-amber-300">
+                    {"• Assurez-vous d'être à proximité du nutritionniste"}
+                  </Text>
+                </VStack>
+              </Box>
+
+              {error && (
+                <Text className="rounded bg-muted p-2 text-center text-xs text-muted-foreground">
+                  {error}
+                </Text>
+              )}
+              <HStack className="w-full gap-3">
+                <Button variant="outline" onPress={onClose} className="flex-1 rounded-xl">
+                  <ButtonText className="font-h4 text-white">Annuler</ButtonText>
+                </Button>
+                <Button
+                  onPress={handleConnection}
+                  className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 ">
+                  <ButtonIcon as={RefreshCw} className="h-4 w-4 text-white " />
+                  <ButtonText className="font-h4 text-white">Réessayer</ButtonText>
+                </Button>
+              </HStack>
+            </VStack>
+          )}
+          {connectionStatus === 'ERROR_TCP' && (
+            <VStack className="flex-1 gap-y-6 p-6">
+              <HStack className="flex justify-center">
+                <Box className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
+                  <Icon as={AlertCircle} className="size-12 text-red-600 dark:text-red-400" />
+                </Box>
+              </HStack>
+              <Box className="gap-y-2 text-center">
+                <Text className="text-center font-h4 text-lg font-medium text-red-600 dark:text-red-400">
+                  Échec de la communication
+                </Text>
+                <Text className="text-center font-light text-xs text-muted-foreground">
+                  {"Impossible d'établir une connexion sécurisée avec le nutritionniste"}
+                </Text>
+              </Box>
+              <Box className="gap-y-2 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
+                <Text className="text-sm font-medium text-amber-900 dark:text-amber-100">
+                  Vérifications à effectuer :
+                </Text>
+                <VStack className=" gap-y-1">
+                  <Text className="text-amber-700 dark:text-amber-300">
+                    • {"Le nutritionniste doit avoir l'application ouverte"}
+                  </Text>
+                  <Text className="text-amber-700 dark:text-amber-300">
+                    • {'Vérifiez que votre Wifi est activé'}
+                  </Text>
+                  <Text className="text-amber-700 dark:text-amber-300">
+                    • {'Réessayez de scanner le QR code'}
+                  </Text>
+                  <Text className="text-amber-700 dark:text-amber-300">
+                    • {'Redémarrez les deux applications si le problème persiste'}
+                  </Text>
+                </VStack>
+              </Box>
+
+              {error && (
+                <Text className="rounded bg-muted p-2 text-center text-xs text-muted-foreground">
+                  {error}
+                </Text>
+              )}
+              <HStack className="w-full gap-3">
+                <Button variant="outline" onPress={onClose} className="h-v-10 flex-1 rounded-xl">
+                  <ButtonText className="font-h4 text-white">Annuler</ButtonText>
+                </Button>
+                <Button
+                  onPress={handleConnection}
+                  className="h-v-10 flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 ">
+                  <ButtonIcon as={RefreshCw} className="h-4 w-4 text-white " />
+                  <ButtonText className="font-h4 text-white">Réessayer</ButtonText>
+                </Button>
+              </HStack>
+            </VStack>
+          )}
+          {connectionStatus === 'TIMEOUT' && (
+            <VStack className="flex-1 gap-y-6 p-6">
+              <HStack className="flex justify-center">
+                <Box className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
+                  <Icon as={AlertCircle} className="size-12 text-red-600 dark:text-red-400" />
+                </Box>
+              </HStack>
+              <Box className="gap-y-2 text-center">
+                <Text className="text-center font-h4 text-lg font-medium text-red-600 dark:text-red-400">
+                  Délai de connexion dépassé
+                </Text>
+                <Text className="text-center font-light text-xs text-muted-foreground">
+                  La connexion a pris trop de temps (plus de 30 secondes)
+                </Text>
+              </Box>
+              <Box className="gap-y-2 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+                <Text className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  Conseils :
+                </Text>
+                <VStack className=" gap-y-1">
+                  <Text className="text-blue-700 dark:text-blue-300">
+                    • {'Rapprochez-vous du nutritionniste'}
+                  </Text>
+                  <Text className="text-blue-700 dark:text-blue-300">
+                    • {"Assurez-vous qu'aucun autre appareil n'utilise le réseau"}
+                  </Text>
+                  <Text className="text-blue-700 dark:text-blue-300">
+                    • {'Désactivez puis réactivez votre WiFi'}
+                  </Text>
+                </VStack>
+              </Box>
+
+              {error && (
+                <Text className="rounded bg-muted p-2 text-center text-xs text-muted-foreground">
+                  {error}
+                </Text>
+              )}
+              <HStack className="w-full gap-3">
+                <Button variant="outline" onPress={onClose} className="h-v-10 flex-1 rounded-xl">
+                  <ButtonText className="font-h4 text-white">Annuler</ButtonText>
+                </Button>
+                <Button
+                  onPress={handleConnection}
+                  className="h-v-10 flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 ">
+                  <ButtonIcon as={RefreshCw} className="h-4 w-4 text-white " />
+                  <ButtonText className="font-h4 text-white">Réessayer</ButtonText>
+                </Button>
+              </HStack>
+            </VStack>
+          )}
+          {connectionStatus === 'CONNECTED' && (
+            <VStack className="flex-1 items-center justify-center gap-y-6">
+              <Box className="mx-auto w-fit rounded-full bg-emerald-100 p-8 dark:bg-emerald-900/20">
+                <Icon as={CheckCircle} className="size-20 text-emerald-600 dark:text-emerald-400" />
+              </Box>
+              <Box className="gap-y-2">
+                <Text className="text-center font-h4 text-lg font-medium text-foreground">
+                  Connexion réuissir
+                </Text>
+              </Box>
+            </VStack>
+          )}
+        </React.Fragment>
+      )}
       {(syncStatus === 'IMPORT' || syncStatus === 'EXPORT') && (
         <VStack className="flex-1 items-center justify-center gap-y-6">
           <Box className="mx-auto w-fit rounded-full bg-emerald-100 p-8 dark:bg-emerald-900/20">
@@ -172,8 +430,8 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
 
           <Button
             onPress={handleDone}
-            className="h-14 w-full bg-emerald-600 text-white hover:bg-emerald-700">
-            <ButtonText>Terminé</ButtonText>
+            className="h-v-10 w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">
+            <ButtonText className="font-h4 text-white">Terminé</ButtonText>
           </Button>
         </VStack>
       )}
