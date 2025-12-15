@@ -15,7 +15,7 @@
 
 - [x] Historique des mesures par patient
 - [x] Scan de codes-barres
-- [ ] Synchronisation avec serveur distant
+- [x] Synchronisation avec serveur distant
 - [ ] Gestion multi-utilisateurs (rôles)
 - [ ] Tests unitaires et d’intégration
 
