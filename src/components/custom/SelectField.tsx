@@ -47,7 +47,7 @@ export function SelectFieldComponent({
               selectedValue={value || field.default}
               onValueChange={onChange}>
               <SelectTrigger
-                className={`h-v-10 w-full justify-between  rounded-lg   border border-border bg-input  px-2 py-3 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500 `}>
+                className={`h-v-10 w-full justify-between  rounded-lg   border border-border bg-input  px-2 py-3 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-emerald-500 `}>
                 <SelectInput
                   className={'font-body text-sm font-normal text-foreground'}
                   placeholderClassName={'text-muted-foreground font-body text-base  font-normal'}

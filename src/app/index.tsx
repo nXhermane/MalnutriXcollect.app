@@ -2,7 +2,7 @@ import { ControlPanel } from '@/components/dashboard/ControlPanel';
 import { Header } from '@/components/dashboard/Header';
 import { PatientList } from '@/components/dashboard/PatientList';
 import { Badge, BadgeText } from '@/components/ui/badge';
-import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
+import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { useWifiCheck } from '@/hooks';
@@ -35,9 +35,19 @@ export default function Index() {
           onScrollStart={() => setHidsFabs(true)}
         />
         {!hideFabs && (
-          <HStack className="absolute bottom-0 w-full  justify-between gap-4 px-4">
-            <Fab
-              className="elevation-md fixed right-0 size-12 bg-green-500 hover:bg-green-600 "
+          <HStack className="absolute bottom-0 w-full gap-4   px-4 py-4">
+            <Button
+              className="h-v-12 flex-1 rounded-xl bg-emerald-600 shadow-lg  shadow-emerald-600/20 hover:bg-emerald-700 dark:shadow-emerald-500/10"
+              onPress={() => {
+                router.navigate('/patient_form');
+                Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+              }}>
+              <ButtonIcon as={Plus} size="xl" className="text-white" />
+              <ButtonText className="font-h4 text-lg font-medium text-white">Ajouter</ButtonText>
+            </Button>
+            <Button
+              className="relative h-v-12 rounded-xl border-2 border-emerald-600  px-6 hover:bg-emerald-50  dark:border-emerald-500 dark:hover:bg-emerald-950/30"
+              variant="outline"
               onPress={async () => {
                 if (!hasPermission) {
                   requestPermission();
@@ -56,19 +66,8 @@ export default function Index() {
                   <BadgeText className="text-2xs text-white">{nonExportedPatientsCount}</BadgeText>
                 </Badge>
               )}
-              <FabIcon as={RefreshCcw} className="text-white" />
-            </Fab>
-            <Fab
-              className="elevation-md  fixed -top-8 right-0 size-14 bg-green-600 hover:bg-green-700"
-              onPress={() => {
-                router.navigate('/patient_form');
-                Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-              }}>
-              <FabIcon as={Plus} className="text-white" />
-              <FabLabel className="absolute -bottom-4 font-light text-xs  font-semibold text-gray-700 dark:text-gray-400">
-                Ajouter
-              </FabLabel>
-            </Fab>
+              <ButtonIcon as={RefreshCcw} className="text-emerald-600 dark:text-emerald-400" />
+            </Button>
           </HStack>
         )}
       </VStack>

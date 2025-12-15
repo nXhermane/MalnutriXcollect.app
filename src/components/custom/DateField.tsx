@@ -1,11 +1,11 @@
+import { isDark$ } from '@/store';
 import { DateField } from '@/utils/field';
+import { useValue } from '@legendapp/state/react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Control, Controller, FieldErrors } from 'react-hook-form';
-import { Input, InputField, InputSlot } from '../ui/input';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { isDark$ } from '@/store';
-import { useValue } from '@legendapp/state/react';
 import colors from 'tailwindcss/colors';
+import { Input, InputField, InputSlot } from '../ui/input';
 import { FieldWrapper } from './FieldWrapper';
 interface DateFieldComponentProps {
   field: DateField;
@@ -29,7 +29,7 @@ export function DateFieldComponent({ field, control, errors, readonly }: DateFie
             <React.Fragment>
               <Input
                 isReadOnly={true}
-                className={`h-v-10 w-full  rounded-lg  border border-border bg-input  px-2 py-3 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500  `}>
+                className={`h-v-10 w-full  rounded-lg  border border-border bg-input  px-2 py-3 transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-emerald-500  `}>
                 <InputSlot className="flex-1" onPress={() => setVisible(!visible)}>
                   <InputField
                     onBlur={onBlur}

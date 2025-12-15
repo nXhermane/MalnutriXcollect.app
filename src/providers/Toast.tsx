@@ -4,13 +4,14 @@ import {
   ToastTitle,
   useToast as useGluestackToast,
 } from '@/components/ui/toast';
-import { InfoIcon } from 'lucide-react-native';
+import { InfoIcon, X } from 'lucide-react-native';
 import React, { createContext, ReactNode, useCallback, useContext } from 'react';
 import { Dimensions } from 'react-native';
 import { ToastPlacement } from '@gluestack-ui/core/lib/esm/toast/creator/types';
 import { Icon } from '@/components/ui/icon';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
+import { Pressable } from '@/components/ui/pressable';
 
 type ToastType = 'Success' | 'Error' | 'Info';
 export interface ToastContextType {
@@ -80,6 +81,7 @@ interface ToastProps {
   description?: string;
 }
 const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => {
+  const toast = useGluestackToast();
   const variant: Record<
     ToastType,
     {
@@ -106,15 +108,18 @@ const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => 
       style={{
         alignSelf: 'center',
       }}
-      className={'elevation-sm w-[95%] overflow-hidden rounded-2xl border-border bg-card p-4'}>
-      {/* <Pressable
+      className={' w-[95%] overflow-hidden rounded-xl border border-border bg-card p-4'}>
+      <Pressable
         onPress={() => {
-          toast.closeAll();
+          toast.close(id);
+          if (toast.isActive(id)) {
+            toast.closeAll();
+          }
         }}
         className={'absolute right-3 top-3'}>
-        <Icon as={X} size={'md'} className={''} />
-      </Pressable> */}
-      <HStack className="gap-3">
+        <Icon as={X} size={'md'} className={'text-foreground'} />
+      </Pressable>
+      <HStack className="items-center gap-3">
         <Icon
           as={InfoIcon}
           className={`size-6 items-center justify-center rounded-full ${variant[type].icon}`}
