@@ -8,23 +8,28 @@ export interface TcpClientEvent {
 class TcpClient {
   private client: net.Socket | null;
   private callbacks: TcpClientEvent;
-  private status: TcpClientStatus;
-  private error: Error | null;
   constructor() {
     this.client = null;
     this.callbacks = {};
-    this.status = 'closed';
-    this.error = null;
   }
 
   connect(host: string, port: number) {
     if (this.client != null) this.disconnect();
-    this.client = net.createConnection({ port, host }, () => {
-      console.log('Connected !');
-      if (this.callbacks.onStatusChange) {
-        this.callbacks.onStatusChange('connected');
-      }
-    });
+    this.client = net.connectTLS(
+      {
+        port,
+        host,
+        localAddress: 'localhost',
+        reuseAddress: true,
+        ca: require('./../../assets/crypto/server-cert.pem'),
+      },
+      () => {
+        console.log('Connected !');
+        if (this.callbacks.onStatusChange) {
+          this.callbacks.onStatusChange('connected');
+        }
+      },
+    );
     this.client.on('data', (data) => {
       if (this.callbacks.onReceived) this.callbacks.onReceived(JSON.parse(data.toString()));
     });
