@@ -37,7 +37,7 @@ export function FieldWrapper({
           {field.label}
         </FormControlLabelText>
         {field.validation?.required && (
-          <FormControlLabelAstrick className="ml-1 text-destructive">
+          <FormControlLabelAstrick className="ml-1 text-destructive" />
             {/* <Text className="text-destructive">*</Text> */}
         )}
       </FormControlLabel>
