@@ -1,9 +1,3 @@
-import TcpClient from '@/services/TcpClient';
-import WifiManager from '@/services/WifiManager';
-import React, { memo, useCallback, useEffect, useState } from 'react';
-import { BottomSheetModal } from '../custom';
-import { Text } from '../ui/text';
-import { VStack } from '../ui/vstack';
 import {
   ClientAckServerPatientPayload,
   SyncClientExportCompletedPayload,
@@ -13,9 +7,10 @@ import {
   SyncServerMessageType,
   useSyncManager,
 } from '@/hooks';
-import { Box } from '../ui/box';
 import { useToast } from '@/providers/Toast';
-import { Icon } from '../ui/icon';
+import TcpClient from '@/services/TcpClient';
+import WifiManager from '@/services/WifiManager';
+import { router } from 'expo-router';
 import {
   AlertCircle,
   CheckCircle,
@@ -25,19 +20,24 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react-native';
+import React, { memo, useCallback, useEffect, useState } from 'react';
+import { BottomSheetModal } from '../custom';
+import { Box } from '../ui/box';
 import { Button, ButtonIcon, ButtonText } from '../ui/button';
-import { router } from 'expo-router';
 import { HStack } from '../ui/hstack';
+import { Icon } from '../ui/icon';
+import { Text } from '../ui/text';
+import { VStack } from '../ui/vstack';
 
+/**
+ * Union type for all possible communication data payloads between client and server
+ */
 type CommunicationDataType =
   | SyncClientExportCompletedPayload
   | SyncProcessCompletedPayload
   | SyncReadyForClientDataPayload
   | SyncServerImportPayload
-  | ClientAckServerPatientPayload
-  | {
-      type: SyncServerMessageType.SERVER_ACK_CLIENT_EXPORT;
-    };
+  | ClientAckServerPatientPayload;
 
 export interface SyncModalProps {
   isVisible: boolean;
@@ -50,6 +50,15 @@ export interface SyncModalProps {
   onClose: () => void;
 }
 
+/**
+ * Modal component for handling the synchronization process with the nutritionist server
+ *
+ * This component manages the complete synchronization flow:
+ * 1. WiFi connection to the nutritionist's network
+ * 2. TLS encrypted TCP connection to the server
+ * 3. Patient data exchange using the defined protocol
+ * 4. UI feedback for each step of the process
+ */
 const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
   const toast = useToast();
   const [connectionStatus, setConnectionStatus] = useState<
@@ -66,11 +75,16 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
   const { processClientExportCompleted, processClientImport, processServerReady, startSync } =
     useSyncManager();
   const [error, setError] = useState<string | null>(null);
+
   const handleDone = useCallback(() => {
     onClose();
     router.navigate('/');
   }, [onClose]);
 
+  /**
+   * Handles the complete connection and synchronization process
+   * Sets up event listeners and initiates WiFi and TCP connections
+   */
   const handleConnection = useCallback(() => {
     TcpClient.subscribe({
       onError: (error) => {
@@ -90,7 +104,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
         } else if (_data.type === SyncServerMessageType.SERVER_PATIENT_IMPORT) {
           setSyncStatus('IMPORT');
           TcpClient.send(processClientImport(_data));
-        } else if (_data.type === SyncServerMessageType.SERVER_ACK_CLIENT_EXPORT) {
+        } else if (_data.type === SyncServerMessageType.SYNC_PROCESS_COMPLETED) {
           setSyncStatus('FINISHED');
         }
       },
@@ -133,6 +147,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
       WifiManager.disconnect(data.ssid);
     };
   }, [data, processClientExportCompleted, processClientImport, processServerReady, startSync]);
+
   useEffect(() => {
     const unsubcribe = handleConnection();
     return () => {
@@ -165,7 +180,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
       {syncStatus === 'NONE' && (
         <React.Fragment>
           {connectionStatus === 'CONNECTING_WIFI' && (
-            <VStack className="flex-1 items-center justify-center gap-y-6">
+            <VStack className="h-full flex-1 items-center justify-center gap-y-6">
               <HStack className=" justify-center">
                 <Box className="relative">
                   <Box className="absolute inset-0 animate-ping rounded-full bg-emerald-500/20" />
@@ -201,7 +216,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
             </VStack>
           )}
           {connectionStatus === 'CONNECTING_TCP' && (
-            <VStack className="flex-1  items-center justify-center gap-y-6">
+            <VStack className="h-full flex-1 items-center justify-center gap-y-6">
               <HStack className="justify-center">
                 <Box className="relative">
                   <Box className="absolute inset-0 animate-ping rounded-full bg-blue-500/20" />
@@ -234,7 +249,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
             </VStack>
           )}
           {connectionStatus === 'ERROR_WIFI' && (
-            <VStack className="flex-1 gap-y-6 p-6">
+            <VStack className="flex-1 items-center justify-center gap-y-6 p-6">
               <HStack className="flex justify-center">
                 <Box className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
                   <Icon as={WifiOff} className="size-12 text-red-600 dark:text-red-400" />
@@ -269,7 +284,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
               )}
               <HStack className="w-full gap-3">
                 <Button variant="outline" onPress={onClose} className="flex-1 rounded-xl">
-                  <ButtonText className="font-h4 text-white">Annuler</ButtonText>
+                  <ButtonText className="font-h4 text-foreground">Annuler</ButtonText>
                 </Button>
                 <Button
                   onPress={handleConnection}
@@ -281,7 +296,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
             </VStack>
           )}
           {connectionStatus === 'ERROR_TCP' && (
-            <VStack className="flex-1 gap-y-6 p-6">
+            <VStack className="flex-1 items-center justify-center gap-y-6 p-6">
               <HStack className="flex justify-center">
                 <Box className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
                   <Icon as={AlertCircle} className="size-12 text-red-600 dark:text-red-400" />
@@ -304,7 +319,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
                     • {"Le nutritionniste doit avoir l'application ouverte"}
                   </Text>
                   <Text className="text-amber-700 dark:text-amber-300">
-                    • {'Vérifiez que votre Wifi est activé'}
+                    • {'Vérifiez que votre Wifi est activé'}
                   </Text>
                   <Text className="text-amber-700 dark:text-amber-300">
                     • {'Réessayez de scanner le QR code'}
@@ -322,7 +337,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
               )}
               <HStack className="w-full gap-3">
                 <Button variant="outline" onPress={onClose} className="h-v-10 flex-1 rounded-xl">
-                  <ButtonText className="font-h4 text-white">Annuler</ButtonText>
+                  <ButtonText className="font-h4 text-foreground">Annuler</ButtonText>
                 </Button>
                 <Button
                   onPress={handleConnection}
@@ -334,7 +349,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
             </VStack>
           )}
           {connectionStatus === 'TIMEOUT' && (
-            <VStack className="flex-1 gap-y-6 p-6">
+            <VStack className="flex-1 items-center justify-center gap-y-6 p-6">
               <HStack className="flex justify-center">
                 <Box className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
                   <Icon as={AlertCircle} className="size-12 text-red-600 dark:text-red-400" />
@@ -372,7 +387,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
               )}
               <HStack className="w-full gap-3">
                 <Button variant="outline" onPress={onClose} className="h-v-10 flex-1 rounded-xl">
-                  <ButtonText className="font-h4 text-white">Annuler</ButtonText>
+                  <ButtonText className="font-h4 text-foreground">Annuler</ButtonText>
                 </Button>
                 <Button
                   onPress={handleConnection}
@@ -384,13 +399,13 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
             </VStack>
           )}
           {connectionStatus === 'CONNECTED' && (
-            <VStack className="flex-1 items-center justify-center gap-y-6">
+            <VStack className="h-full flex-1 items-center justify-center gap-y-6">
               <Box className="mx-auto w-fit rounded-full bg-emerald-100 p-8 dark:bg-emerald-900/20">
                 <Icon as={CheckCircle} className="size-20 text-emerald-600 dark:text-emerald-400" />
               </Box>
               <Box className="gap-y-2">
                 <Text className="text-center font-h4 text-lg font-medium text-foreground">
-                  Connexion réuissir
+                  Connexion réuissir
                 </Text>
               </Box>
             </VStack>
@@ -398,7 +413,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
         </React.Fragment>
       )}
       {(syncStatus === 'IMPORT' || syncStatus === 'EXPORT') && (
-        <VStack className="flex-1 items-center justify-center gap-y-6">
+        <VStack className="h-full flex-1 items-center justify-center gap-y-6">
           <Box className="mx-auto w-fit rounded-full bg-emerald-100 p-8 dark:bg-emerald-900/20">
             <Box className="size-20 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent dark:border-emerald-400"></Box>
           </Box>
@@ -413,7 +428,7 @@ const SyncModal = memo(({ data, isVisible, onClose }: SyncModalProps) => {
         </VStack>
       )}
       {syncStatus === 'FINISHED' && (
-        <VStack className="flex-1 items-center justify-center gap-y-6 px-4">
+        <VStack className="h-full flex-1 items-center justify-center gap-y-6 px-4">
           <Box className="mx-auto w-fit rounded-full bg-emerald-100 p-8 dark:bg-emerald-900/20">
             <Icon as={CheckCircle} className="size-20 text-emerald-600 dark:text-emerald-400" />
           </Box>
