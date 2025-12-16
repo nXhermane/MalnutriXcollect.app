@@ -1,4 +1,4 @@
-import { Patient, CreatePatientDTO, ParentRelation, ParentDTO } from '../schemas';
+import { Patient, CreatePatientDTO } from '../schemas';
 import { nanoid } from 'nanoid/non-secure';
 
 export namespace PatientHelpers {
@@ -46,18 +46,6 @@ export namespace PatientHelpers {
       .map((n) => n[0])
       .join('')
       .toUpperCase();
-  }
-
-  export function getPrimaryContact(patient: Patient): string | undefined {
-    return patient.contact.email || patient.contact.tel;
-  }
-
-  export function getMotherInfo(patient: Patient): ParentDTO | undefined {
-    return patient.parents.find((p) => p.relation === ParentRelation.MOTHER);
-  }
-
-  export function getFatherInfo(patient: Patient): ParentDTO | undefined {
-    return patient.parents.find((p) => p.relation === ParentRelation.FATHER);
   }
 
   export function getFormattedBirthdate(patient: Patient): string {

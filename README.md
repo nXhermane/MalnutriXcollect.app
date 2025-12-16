@@ -30,7 +30,7 @@ Application mobile pour les aides-soignants qui permet de :
 - 👤 Visualisation de la liste des patients avec recherche
 - 📋 Formulaire complet pour créer/mettre à jour un patient (nom, sexe, adresse, parents, contact)
 - 📏 Formulaire de mesure (poids, taille, etc.) pour chaque patient
-- 📲 Import de patients via scan de QR code (`MalnutriX URI`)
+- 📲 Synchronisation via WiFi/TCP Socket avec l'application MalnutriX (nutritionniste)
 - 📤 Export des patients via séquence de QR codes animés
 - 💾 Stockage local hors ligne (MMKV/LegendState)
 - 🔐 Verrouillage/déverrouillage des patients
@@ -48,7 +48,7 @@ Application mobile pour les aides-soignants qui permet de :
 ✅ Navigation de base entre les écrans
 ✅ Affichage de la liste des patients
 ✅ Formulaire de création/mise à jour des patients
-✅ Scan de QR code pour import de patients (via `MalnutriX URI`)
+✅ Synchronisation via WiFi et TCP Socket avec l'application MalnutriX (nutritionniste)
 ✅ Export des patients via QR codes séquencés (animés)
 ✅ Gestion des informations complètes (parents, contact, adresse, etc.)
 ✅ Formulaire de mesure pour les patients (`[id]/patient_measure_form`)
@@ -60,7 +60,6 @@ Application mobile pour les aides-soignants qui permet de :
 
 ⬜ Scan de codes-barres
 ⬜ Historique des mesures par patient (à affiner)
-⬜ Synchronisation avec serveur distant (à définir)
 ⬜ Gestion multi-utilisateurs (rôles)
 ⬜ Tests unitaires/intégration
 
@@ -178,9 +177,10 @@ classDiagram
 
 ## 🔄 Workflow de transmission des données
 1. **Collecte** : L'aide-soignant saisit les données du patient dans MalnutriX Collect
-2. **Transmission** : Les données sont encodées dans un QR code
-3. **Réception** : Le nutritionniste scanne le QR code avec MalnutriX
-4. **Intégration** : Les données sont automatiquement intégrées dans le dossier du patient
+2. **Synchronisation** : L'aide-soignant scanne un QR code contenant les informations de connexion (SSID, mot de passe, IP et port) du nutritionniste
+3. **Connexion** : MalnutriX Collect se connecte automatiquement au réseau WiFi du nutritionniste et établit une connexion TCP sécurisée
+4. **Transfert** : Les données des patients non encore synchronisés sont transférées du collecteur vers l'application du nutritionniste via le protocole TCP
+5. **Intégration** : Les données sont automatiquement intégrées dans le dossier du patient et les patients sont verrouillés après synchronisation
 
 ## 🛠️ Installation et démarrage
 

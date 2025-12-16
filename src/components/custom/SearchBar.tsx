@@ -17,7 +17,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ fieldProps, className, ...
   return (
     <Box>
       <Input
-        className={`h-11 rounded-xl border border-border bg-card data-[focus=true]:border-green-400 data-[focus=true]:ring-green-400   ${className}`}
+        className={`h-11 rounded-xl border border-border bg-input  data-[focus=true]:border-emerald-600 dark:data-[focus=true]:border-emerald-400   ${className}`}
         {...props}>
         <InputSlot className={'pl-3'}>
           <InputIcon as={() => <Icon as={Search} className={'size-5 text-muted-foreground'} />} />

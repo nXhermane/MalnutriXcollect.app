@@ -16,6 +16,7 @@ import {
   ParentRelation,
   parentSchema,
   Sex,
+  UpdatePatientDTO,
 } from '@/models/schemas';
 import * as v from 'valibot';
 import { useAddPatientViewModal } from '@/hooks/useAddPatientViewModel';
@@ -78,7 +79,17 @@ export default function AddOrUpdatePatient() {
         <DynamicForm
           {...props}
           sections={addPatientFormConfig}
-          onSubmit={(data) => (isUpdate ? updatePatient(id, data as any) : addPatient(data as any))}
+          onSubmit={(data) => {
+            if (isUpdate) {
+              updatePatient(id, data as UpdatePatientDTO);
+              console.log('Patient updated successfully');
+              router.back();
+            } else {
+              addPatient(data as CreatePatientDTO);
+              console.log('Patient added successfully');
+              router.back();
+            }
+          }}
           transformData={transformData}
           outputSchema={createPatientSchema}
           {...{
@@ -97,13 +108,16 @@ export default function AddOrUpdatePatient() {
             experimentalBlurMethod={'dimezisBlurView'}
             className="w-full px-4 py-v-2">
             <Button
-              className={`h-v-12 w-full rounded-xl ${error ? 'bg-red-500' : 'bg-green-600'}`}
+              className={`h-v-12 flex-1 rounded-xl  shadow-lg  shadow-emerald-600/20 hover:bg-emerald-700 dark:shadow-emerald-500/10 ${error ? 'bg-red-500' : 'bg-emerald-600 dark:bg-emerald-500'}`}
               isDisabled={formReady}
               onPress={submit}>
               {isLoading ? (
-                <ButtonSpinner size={'small'} className="data-[active=true]:text-green-500" />
+                <ButtonSpinner
+                  size={'small'}
+                  className="text-white data-[active=true]:text-emerald-700"
+                />
               ) : (
-                <ButtonText className="font-h4 font-medium text-white data-[active=true]:text-green-500">
+                <ButtonText className="font-h4 font-medium text-white data-[active=true]:text-emerald-700">
                   {isUpdate ? 'Mettre à jour' : 'Ajouter un nouveau patient'}
                 </ButtonText>
               )}
@@ -284,7 +298,7 @@ const addPatientFormConfig: FormSection[] = [
         ],
         default: ParentRelation.GUARDIAN,
         alwaysShow: false,
-        condition: (data) => data.hasParent2 === 'oui',
+        condition: (data) => data.has_parent_2 === 'oui',
       },
     ],
   },

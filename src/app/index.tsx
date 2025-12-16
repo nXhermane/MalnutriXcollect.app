@@ -2,49 +2,17 @@ import { ControlPanel } from '@/components/dashboard/ControlPanel';
 import { Header } from '@/components/dashboard/Header';
 import { PatientList } from '@/components/dashboard/PatientList';
 import { Badge, BadgeText } from '@/components/ui/badge';
-import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
+import { Button, ButtonIcon, ButtonText } from '@/components/ui/button';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
+import { useWifiCheck } from '@/hooks';
 import { modeles$ } from '@/store';
 import { useValue } from '@legendapp/state/react';
-import { useCameraPermission } from 'react-native-vision-camera';
-import { router } from 'expo-router';
-import { Plus, QrCode, ScanQrCode } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
 import * as Hapatic from 'expo-haptics';
-import { export_patient$ } from '@/store/export_patient';
-import { compileUnExportedPatient, exportCompiledPatient } from '@/utils/export_patient_utils';
-import { dataToFrames } from 'qrloop';
-import { observe } from '@legendapp/state';
-
-observe(() => {
-  const unExportedPatients = modeles$.non_exported_patients.get();
-  if (unExportedPatients.length > 0) {
-    const process = async () => {
-      export_patient$.isRunning.set(true);
-      const patients = Object.values(modeles$.patients.get());
-      const patients_measures = modeles$.patient_measures.get();
-      const data = compileUnExportedPatient(Object.values(patients), patients_measures);
-      const formated_data = exportCompiledPatient(JSON.stringify(data.data));
-      const frames = dataToFrames(formated_data, 50, 5);
-      export_patient$.compiled_patient_ids.set(data.exported_patient_ids);
-      export_patient$.data_frames.set(frames);
-      export_patient$.isRunning.set(false);
-      console.log('changed');
-    };
-    process()
-      .then(() => {})
-      .catch((e) => {
-        console.warn(`Error in data compilation => `, e);
-      });
-  } else {
-    export_patient$.set({
-      compiled_patient_ids: [],
-      isRunning: false,
-      data_frames: null,
-    });
-  }
-});
+import { router } from 'expo-router';
+import { Plus, RefreshCcw } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { useCameraPermission } from 'react-native-vision-camera';
 
 export default function Index() {
   const [showSearchBar, setShowSeachBar] = useState<boolean>(false);
@@ -52,9 +20,8 @@ export default function Index() {
 
   const nonExportedPatientsCount = useValue(() => modeles$.non_exported_patients().length);
   const [hideFabs, setHidsFabs] = useState<boolean>(false);
-  useEffect(() => {
-    router.prefetch('/export_patients');
-  }, []);
+  const { checkAndEnableWifi } = useWifiCheck();
+
   return (
     <React.Fragment>
       <VStack className="flex-1 bg-bg">
@@ -68,45 +35,39 @@ export default function Index() {
           onScrollStart={() => setHidsFabs(true)}
         />
         {!hideFabs && (
-          <HStack className="absolute bottom-0 w-full  justify-between gap-4 px-4">
-            <Fab
-              className="elevation-md fixed right-0 size-12 bg-green-500 hover:bg-green-600 "
-              onPress={() => {
-                if (!hasPermission) {
-                  requestPermission();
-                  return;
-                } else {
-                  router.navigate('/import_patients');
-                  Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-                }
-              }}>
-              <FabIcon as={ScanQrCode} className="text-white" />
-            </Fab>
-            <Fab
-              className="elevation-md  fixed -top-8 right-0 size-14 bg-green-600 hover:bg-green-700"
+          <HStack className="absolute bottom-0 w-full gap-4   px-4 py-4">
+            <Button
+              className="h-v-12 flex-1 rounded-xl bg-emerald-600 shadow-lg  shadow-emerald-600/20 hover:bg-emerald-700 dark:shadow-emerald-500/10"
               onPress={() => {
                 router.navigate('/patient_form');
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               }}>
-              <FabIcon as={Plus} className="text-white" />
-              <FabLabel className="absolute -bottom-4 font-light text-xs  font-semibold text-gray-700 dark:text-gray-400">
-                Ajouter
-              </FabLabel>
-            </Fab>
-            <Fab
-              disabled={nonExportedPatientsCount === 0}
-              className="elevation-md  fixed  right-0 size-12 bg-green-500 hover:bg-green-600 "
-              onPress={() => {
-                router.navigate('/export_patients');
-                Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+              <ButtonIcon as={Plus} size="xl" className="text-white" />
+              <ButtonText className="font-h4 text-lg font-medium text-white">Ajouter</ButtonText>
+            </Button>
+            <Button
+              className="relative h-v-12 rounded-xl border-2 border-emerald-600  px-6 hover:bg-emerald-50  dark:border-emerald-500 dark:hover:bg-emerald-950/30"
+              variant="outline"
+              onPress={async () => {
+                if (!hasPermission) {
+                  requestPermission();
+                  return;
+                } else {
+                  if (await checkAndEnableWifi()) {
+                    router.navigate('/sync');
+                    Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+                  } else {
+                    Hapatic.notificationAsync(Hapatic.NotificationFeedbackType.Error);
+                  }
+                }
               }}>
               {nonExportedPatientsCount > 0 && (
                 <Badge className="absolute -right-1 -top-1  size-5 items-center justify-center rounded-full bg-orange-500">
                   <BadgeText className="text-2xs text-white">{nonExportedPatientsCount}</BadgeText>
                 </Badge>
               )}
-              <FabIcon as={QrCode} className="text-white" />
-            </Fab>
+              <ButtonIcon as={RefreshCcw} className="text-emerald-600 dark:text-emerald-400" />
+            </Button>
           </HStack>
         )}
       </VStack>

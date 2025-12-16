@@ -1,22 +1,52 @@
-import QuickCrypto from 'react-native-quick-crypto';
+import QuickCrypto, { randomUUID } from 'react-native-quick-crypto';
+import { Buffer } from 'buffer';
+type CryptoBuffer = Parameters<ReturnType<typeof QuickCrypto.createDecipheriv>['setAuthTag']>[0];
+let SECRET_KEY: Buffer | null = null;
 
-export function encode(data: string, secret: string) {
-  const iv = QuickCrypto.randomBytes(16);
-
-  const cipher = QuickCrypto.createCipheriv('aes-256-cbc', secret, iv);
-  let encrypted = cipher.update(data, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-
-  return iv.toString('hex') + ':' + encrypted;
+try {
+  const key = process.env.EXPO_PUBLIC_SECRET_KEY;
+  if (key && /^[0-9a-fA-F]{64}$/.test(key)) {
+    SECRET_KEY = Buffer.from(key, 'hex');
+  }
+} catch (e) {
+  console.error('Failed to initialize crypto:', e);
 }
 
-export function decode(encryptedData: string, secret: string) {
-  const parts = encryptedData.split(':');
-  const iv = Buffer.from(parts[0], 'hex');
-  const encrypted = parts[1];
-
-  const decipher = QuickCrypto.createDecipheriv('aes-256-cbc', secret, iv);
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+export function isCryptoAvailable(): boolean {
+  return SECRET_KEY !== null;
 }
+
+const IV_LENGTH = 12;
+const TAG_LENGTH = 16;
+
+export function encode(data: string) {
+  if (!SECRET_KEY) {
+    throw new Error('Crypto not initialized');
+  }
+  const iv = QuickCrypto.randomBytes(12);
+  const cipher = QuickCrypto.createCipheriv('aes-256-gcm', SECRET_KEY, iv);
+  const encrypted = Buffer.concat([cipher.update(data, 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return Buffer.concat([iv, tag, encrypted]).toString('base64');
+}
+
+export function decode(data: string) {
+  try {
+    if (!SECRET_KEY) {
+      throw new Error('Crypto not initialized');
+    }
+    const encryptedBuffer = Buffer.from(data, 'base64');
+    const iv = encryptedBuffer.subarray(0, IV_LENGTH);
+    const tag = encryptedBuffer.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
+    const encryptedData = encryptedBuffer.subarray(IV_LENGTH + TAG_LENGTH);
+    const decipher = QuickCrypto.createDecipheriv('aes-256-gcm', SECRET_KEY, iv);
+    decipher.setAuthTag(tag as unknown as CryptoBuffer);
+    const decrypted = Buffer.concat([decipher.update(encryptedData), decipher.final()]);
+    return decrypted.toString('utf8');
+  } catch (e) {
+    console.error('Decryption failed:', e);
+    return null;
+  }
+}
+
+export { randomUUID };

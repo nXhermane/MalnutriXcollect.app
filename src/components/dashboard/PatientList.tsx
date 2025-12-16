@@ -10,7 +10,7 @@ import { Text } from '../ui/text';
 import { Box } from '../ui/box';
 import { Center } from '../ui/center';
 import { Icon } from '../ui/icon';
-import { User } from 'lucide-react-native';
+import { UserPlus } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
 
 export function PatientList({
@@ -22,29 +22,26 @@ export function PatientList({
 }) {
   const isDark = useValue(isDark$);
   const filteredPatients = useValue(() => modeles$.filtered_patients());
-  const nonExportedPatientsCount = useValue(() => modeles$.non_exported_patients().length);
+  const searchQuery = useValue(() => modeles$.search_text);
   const renderItem = useCallback(({ item }: ListRenderItemInfo<Patient>) => {
     return <PatientItem {...item} />;
   }, []);
 
   return (
     <VStack className="flex-1 overflow-y-auto  bg-bg  py-4">
-      <HStack className="absolute top-0 z-30 mb-4 w-full ">
-        <BlurView
-          intensity={100}
-          experimentalBlurMethod={'dimezisBlurView'}
-          tint={isDark ? 'dark' : 'light'}
-          className="w-full flex-row items-center justify-between px-4 py-3 ">
-          <Text className="font-h4 font-medium text-muted-foreground">
-            {filteredPatients.length} patient{filteredPatients.length > 1 && 's'}
-          </Text>
-          {nonExportedPatientsCount > 0 && (
-            <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 dark:border-orange-100/20 dark:bg-orange-600/10 dark:text-orange-600">
-              {nonExportedPatientsCount} mésure{nonExportedPatientsCount > 1 ? 's' : ''} à exporter
+      {filteredPatients.length > 0 && (
+        <HStack className="absolute top-0 z-30 mb-4 w-full ">
+          <BlurView
+            intensity={100}
+            experimentalBlurMethod={'dimezisBlurView'}
+            tint={isDark ? 'dark' : 'light'}
+            className="w-full flex-row items-center justify-between px-4 py-3 ">
+            <Text className="font-h4 font-medium text-muted-foreground">
+              {filteredPatients.length} patient{filteredPatients.length > 1 && 's'}
             </Text>
-          )}
-        </BlurView>
-      </HStack>
+          </BlurView>
+        </HStack>
+      )}
 
       <FlatList
         contentContainerClassName="px-4 gap-4 pb-20 pt-10 "
@@ -57,12 +54,17 @@ export function PatientList({
         ListEmptyComponent={() => (
           <VStack className="elevation-sm mt-12 rounded-xl border-border bg-card p-8 text-center shadow-sm ">
             <Center className="gap-4">
-              <Box className="flex size-14 items-center justify-center rounded-full bg-background-100">
-                <Icon as={User} className="size-7 text-muted-foreground" />
+              <Box className="flex h-v-14  w-v-14 items-center justify-center rounded-full  bg-emerald-100 dark:bg-emerald-900/20">
+                <Icon as={UserPlus} size="xl" className="text-emerald-600 dark:text-emerald-400" />
               </Box>
               <VStack className="">
-                <Text className="mb-1 text-center font-body text-muted-foreground">
-                  Aucun patient enregistré
+                <Text className="mb-1 text-center font-body text-sm text-muted-foreground">
+                  {searchQuery.trim() === '' ? 'Aucun patient enregistré' : 'Aucun résultat'}
+                </Text>
+                <Text className="text-center font-body text-xs text-muted-foreground">
+                  {searchQuery
+                    ? 'Aucun patient ne correspond à votre recherche.'
+                    : 'Commencez par créer votre premier patient pour collecter des données nutritionnelles.'}
                 </Text>
               </VStack>
             </Center>

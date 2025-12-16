@@ -3,7 +3,7 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'MalnutriX collect',
-  slug: 'Malnutrix_collect',
+  slug: 'malnutrix_collect',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/malnutrix.ic.launcher.dark.png',
@@ -48,20 +48,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-font',
     'expo-web-browser',
-    ["react-native-vision-camera",{
+    [
+      'react-native-vision-camera',
+      {
         cameraPermissionText: 'Allow $(PRODUCT_NAME) to access your camera',
-        enableCodeScanner: true 
-    }]
+        enableCodeScanner: true,
+      },
+    ],
+    'react-native-wifi-reborn',
   ],
   experiments: {
     typedRoutes: true,
     reactCompiler: true,
   },
   extra: {
-    router: {},
     eas: {
-      projectId: 'd6e4f647-b746-4d5e-98b5-fd4af11b424f',
+      projectId: '7ced4a34-682d-4b00-91d2-24243d8d2663',
     },
   },
-  owner: 'nxhermano',
 });

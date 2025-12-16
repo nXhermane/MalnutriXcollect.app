@@ -153,7 +153,7 @@ export const config = {
     '--color-indicator-primary': '55 55 55',
     '--color-indicator-info': '83 153 236',
     '--color-indicator-error': '185 28 28',
-    
+
     /* New Color Variables */
     '--color-background': '0 0% 100%',
     '--color-foreground': '222.2 47.4% 11.2%',
@@ -162,7 +162,7 @@ export const config = {
     '--color-popover': '0 0% 100%',
     '--color-popover-foreground': '222.2 47.4% 11.2%',
     '--color-border': '214.3 31.8% 91.4%',
-    '--color-input': '214.3 31.8% 91.4%',
+    '--color-input': '214.3 31.8% 94%',
     '--color-card': '0 0% 100%',
     '--color-card-foreground': '222.2 47.4% 11.2%',
     '--color-primary': '199 89% 48%',
@@ -326,7 +326,7 @@ export const config = {
     '--color-indicator-primary': '247 247 247',
     '--color-indicator-info': '161 199 245',
     '--color-indicator-error': '232 70 69',
-    
+
     /* New Color Variables */
     '--color-background': '0 0% 4%',
     '--color-foreground': '0 0% 95%',

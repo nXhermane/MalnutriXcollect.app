@@ -55,7 +55,7 @@ export function QuantityFieldComponent({
             <React.Fragment>
               <Input
                 isReadOnly={readonly}
-                className={`h-v-10  w-full rounded-lg border border-border    bg-input p-0  transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-green-500`}>
+                className={`h-v-10  w-full rounded-lg border border-border    bg-input p-0  transition-colors focus:border-transparent focus:outline-none   focus:ring-green-500 data-[focus=true]:border-emerald-500`}>
                 <InputField
                   type={'text'}
                   placeholder={field.placeholder}

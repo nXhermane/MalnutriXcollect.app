@@ -3,7 +3,9 @@ import { Text } from '@/components/ui/text';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Fab, FabIcon, FabLabel } from '@/components/ui/fab';
 import {
+  Activity,
   Calendar,
+  Delete,
   Edit,
   LockKeyhole,
   Mail,
@@ -13,7 +15,7 @@ import {
   User,
   X,
 } from 'lucide-react-native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { HStack } from '@/components/ui/hstack';
 import { Pressable } from '@/components/ui/pressable';
 import { Icon } from '@/components/ui/icon';
@@ -28,11 +30,13 @@ import { Box } from '@/components/ui/box';
 import { FlatList, ListRenderItemInfo, ScrollView } from 'react-native';
 import { useDeletePatientMeasureViewModel } from '@/hooks';
 import { Spinner } from '@/components/ui/spinner';
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+import { Button, ButtonIcon } from '@/components/ui/button';
 
 export default function PatientScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const patients = useValue(() => modeles$.patients.get());
-  const [hideFab, setHideFab] = useState<boolean>(false);
   const patientMeasures = useValue(() => modeles$.patient_measures[id].get());
 
   const renderPatientMeasure = useCallback(
@@ -69,27 +73,18 @@ export default function PatientScreen() {
                 });
                 Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
               }}
-              className="size-12 items-center justify-center rounded-full bg-green-600 hover:bg-green-700">
+              className="size-12 items-center justify-center rounded-full bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500">
               <Icon as={Edit} className="text-white" />
             </Pressable>
           </HStack>
         </VStack>
-        <ScrollView
-          contentContainerClassName="pb-20"
-          onScrollBeginDrag={() => setHideFab(true)}
-          onScrollEndDrag={() => setHideFab(false)}
-          showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerClassName="pb-20" showsVerticalScrollIndicator={false}>
           <VStack className="p-4">{patients[id] && <PatientHero id={id} />}</VStack>
           <VStack className="mb-4 flex-1">
             <HStack className="items-center justify-between px-4">
-              <Text className="font-h4 font-medium text-gray-700 dark:text-typography-800">
-                Visites & Mesures
+              <Text className="font-h4 font-medium text-emerald-600 dark:text-emerald-400">
+                Visites ({patientMeasures.length})
               </Text>
-              {patientMeasures.length > 0 && (
-                <Text className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-sm text-green-600 dark:border-green-800 dark:bg-green-950 dark:text-green-400">
-                  {patientMeasures.length} visite{patientMeasures.length > 1 ? 's' : ''}
-                </Text>
-              )}
             </HStack>
             <FlatList
               data={patientMeasures.sort(
@@ -98,20 +93,25 @@ export default function PatientScreen() {
               disableScrollViewPanResponder={false}
               extraData={patientMeasures.length}
               renderItem={renderPatientMeasure}
-              // keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
               contentContainerClassName="mt-5 mx-4 gap-4 "
               ListEmptyComponent={() => (
                 <VStack className="rounded-xl border border-border bg-card  p-8 text-center shadow-sm ">
                   <Center className="gap-4">
-                    <Box className="flex size-14 items-center justify-center rounded-full bg-background-100">
-                      <Icon as={Calendar} className="size-7 text-muted-foreground" />
+                    <Box className="flex h-v-14  w-v-14 items-center justify-center rounded-full  bg-emerald-100 dark:bg-emerald-900/20">
+                      <Icon
+                        as={Activity}
+                        size="xl"
+                        className="text-emerald-600 dark:text-emerald-400"
+                      />
                     </Box>
                     <VStack className="">
                       <Text className="mb-1 text-center font-body text-foreground">
                         Aucune visite enregistrée
                       </Text>
                       <Text className="text-center font-light text-sm text-muted-foreground">
-                        Ajoutez une première visite pour ce patient
+                        Appuyez sur + pour ajouter la première visite
                       </Text>
                     </VStack>
                   </Center>
@@ -120,23 +120,21 @@ export default function PatientScreen() {
             />
           </VStack>
         </ScrollView>
-        {!hideFab && (
-          <Fab
-            placement="bottom center"
-            className="bottom-8 size-14 bg-green-600 hover:bg-green-700"
-            onPress={() => {
-              router.navigate({
-                pathname: '/[id]/patient_measure_form',
-                params: { id },
-              });
-              Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
-            }}>
-            <FabIcon as={Plus} className="text-white" />
-            <FabLabel className="absolute -bottom-4 font-light text-xs  font-semibold text-foreground">
-              Nouvelle visite
-            </FabLabel>
-          </Fab>
-        )}
+
+        <Fab
+          className=" bottom-10 right-4 z-20 size-14 bg-emerald-600   shadow-lg shadow-emerald-600/30 transition-all   hover:scale-110 hover:bg-emerald-700 active:scale-95 dark:shadow-emerald-500/20"
+          onPress={() => {
+            router.navigate({
+              pathname: '/[id]/patient_measure_form',
+              params: { id },
+            });
+            Hapatic.impactAsync(Hapatic.ImpactFeedbackStyle.Light);
+          }}>
+          <FabIcon as={Plus} className="text-white" />
+          <FabLabel className="absolute -bottom-4 font-light text-xs  font-semibold text-foreground">
+            Nouvelle visite
+          </FabLabel>
+        </Fab>
       </VStack>
     </React.Fragment>
   );
@@ -263,44 +261,69 @@ function PatientVisit({ avatar, measure: item }: { avatar: string; measure: Pati
       year: 'numeric',
     });
   };
+  function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
+    const styleAnimation = useAnimatedStyle(() => {
+      return {
+        transform: [{ translateX: drag.value + 50 }],
+      };
+    });
+
+    return (
+      <Reanimated.View style={styleAnimation}>
+        <VStack className="h-full w-v-14 items-center justify-center">
+          <Button
+            onPress={() => {
+              deletePatientMeasure(item.patientId, item.id);
+            }}
+            className="h-v-12 w-v-12 rounded-full bg-red-500">
+            <ButtonIcon as={Delete} size="sm" className="text-white" />
+          </Button>
+        </VStack>
+      </Reanimated.View>
+    );
+  }
   if (isLoading) return <Spinner size={'large'} className="text-blue-500" />;
 
   return (
-    <Pressable
-      onLongPress={() => {
-        deletePatientMeasure(item.patientId, item.id);
-      }}
-      onPress={() =>
-        router.navigate({
-          pathname: '/[id]/patient_measure_form',
-          params: { id: item.patientId, measureId: item.id, readonly: item.isExported ? '1' : '0' },
-        })
-      }>
-      <HStack className="items-center justify-between gap-3 rounded-xl border border-border bg-card  p-4 shadow-sm  transition-all ">
-        <HStack className="gap-3">
-          <Avatar className="flex size-10 items-center justify-center rounded-full border border-green-200 bg-green-50 ">
+    <Swipeable
+      friction={2}
+      enableTrackpadTwoFingerGesture
+      rightThreshold={40}
+      renderRightActions={RightAction}>
+      <Pressable
+        onPress={() =>
+          router.navigate({
+            pathname: '/[id]/patient_measure_form',
+            params: {
+              id: item.patientId,
+              measureId: item.id,
+              readonly: item.isExported ? '1' : '0',
+            },
+          })
+        }>
+        <HStack className="items-center justify-between gap-3 rounded-xl border border-border bg-card  p-4 shadow-sm  transition-all ">
+          <HStack className="gap-3">
+            {/* <Avatar className="flex size-10 items-center justify-center rounded-full border border-green-200 bg-green-50 ">
             <AvatarFallbackText className="font-h4 font-medium text-green-600">
               {avatar}
             </AvatarFallbackText>
-          </Avatar>
-          <VStack className="gap-2">
-            <Text className="font-h4 text-sm font-medium text-foreground">Visite {avatar}</Text>
-            <Text className="font-body text-xs font-normal text-muted-foreground">
-              {formatShortDate(item.createdAt)}
-            </Text>
-          </VStack>
-        </HStack>
+          </Avatar> */}
 
-        {item.isExported ? (
-          <Text className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 font-body text-xs text-green-600 ">
-            ✓ Exporté
-          </Text>
-        ) : (
-          <Text className="rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 font-body text-xs text-orange-600 ">
-            À exporter
-          </Text>
-        )}
-      </HStack>
-    </Pressable>
+            <VStack className="gap-2">
+              <Text className="font-h4 text-sm font-medium text-foreground">Visite {avatar}</Text>
+              <Text className="font-body text-xs font-normal text-muted-foreground">
+                {formatShortDate(item.createdAt)}
+              </Text>
+            </VStack>
+          </HStack>
+
+          {!item.isExported && (
+            <Text className="rounded-sm bg-orange-500 px-2 py-1 text-xs text-white">
+              Non synchronisé
+            </Text>
+          )}
+        </HStack>
+      </Pressable>
+    </Swipeable>
   );
 }
