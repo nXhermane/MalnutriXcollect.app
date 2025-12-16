@@ -16,6 +16,7 @@ import {
   ParentRelation,
   parentSchema,
   Sex,
+  UpdatePatientDTO,
 } from '@/models/schemas';
 import * as v from 'valibot';
 import { useAddPatientViewModal } from '@/hooks/useAddPatientViewModel';
@@ -78,7 +79,17 @@ export default function AddOrUpdatePatient() {
         <DynamicForm
           {...props}
           sections={addPatientFormConfig}
-          onSubmit={(data) => (isUpdate ? updatePatient(id, data as any) : addPatient(data as any))}
+          onSubmit={(data) => {
+            if (isUpdate) {
+              updatePatient(id, data as UpdatePatientDTO);
+              console.log('Patient updated successfully');
+              router.back();
+            } else {
+              addPatient(data as CreatePatientDTO);
+              console.log('Patient added successfully');
+              router.back();
+            }
+          }}
           transformData={transformData}
           outputSchema={createPatientSchema}
           {...{
