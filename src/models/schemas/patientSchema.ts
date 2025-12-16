@@ -1,3 +1,4 @@
+import { DAY_IN_MONTHS, MAX_AGE_IN_MONTH_IN_PEDIATRIC } from '@/constants';
 import * as v from 'valibot';
 
 export enum ParentRelation {
@@ -56,6 +57,20 @@ export const patientSchema = v.object({
       (date) => new Date(date) <= new Date(),
       'La date de naissance ne peut pas être dans le futur',
     ),
+    v.check(
+      (date) => {
+        const now = new Date();
+        const birthDate = new Date(date);
+        const diffInMs = now.getTime() - birthDate.getTime();
+        return (
+          Math.floor(diffInMs / (1000 * 60 * 60 * 24)) / DAY_IN_MONTHS <=
+          MAX_AGE_IN_MONTH_IN_PEDIATRIC
+        );
+      },
+      'Ce patient ne peux être enrégistré en pediatrie. Il a plus ' +
+        Math.floor(MAX_AGE_IN_MONTH_IN_PEDIATRIC / 12) +
+        ' ans',
+    ),
   ),
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
   isLocked: v.optional(v.boolean(), false),
@@ -102,6 +117,20 @@ export const createPatientSchema = v.object({
       (date) => new Date(date) <= new Date(),
       'La date de naissance ne peut pas être dans le futur',
     ),
+    v.check(
+      (date) => {
+        const now = new Date();
+        const birthDate = new Date(date);
+        const diffInMs = now.getTime() - birthDate.getTime();
+        return (
+          Math.floor(diffInMs / (1000 * 60 * 60 * 24)) / DAY_IN_MONTHS <=
+          MAX_AGE_IN_MONTH_IN_PEDIATRIC
+        );
+      },
+      'Ce patient ne peux être enrégistré en pediatrie. Il a plus de ' +
+        Math.floor(MAX_AGE_IN_MONTH_IN_PEDIATRIC / 12) +
+        ' ans',
+    ),
   ),
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
   contact: v.optional(contactSchema),
@@ -131,6 +160,20 @@ export const updatePatientSchema = v.object({
       v.check(
         (date) => new Date(date) <= new Date(),
         'La date de naissance ne peut pas être dans le futur',
+      ),
+      v.check(
+        (date) => {
+          const now = new Date();
+          const birthDate = new Date(date);
+          const diffInMs = now.getTime() - birthDate.getTime();
+          return (
+            Math.floor(diffInMs / (1000 * 60 * 60 * 24)) / DAY_IN_MONTHS <=
+            MAX_AGE_IN_MONTH_IN_PEDIATRIC
+          );
+        },
+        'Ce patient ne peux être enrégistré en pediatrie. Il a plus de ' +
+          Math.floor(MAX_AGE_IN_MONTH_IN_PEDIATRIC / 12) +
+          ' ans',
       ),
     ),
   ),
