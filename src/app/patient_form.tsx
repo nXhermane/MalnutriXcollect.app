@@ -25,8 +25,10 @@ import { verticalScale } from 'react-native-size-matters';
 import { useValue } from '@legendapp/state/react';
 import { useUpdatePatientViewModel } from '@/hooks';
 import { useEffect } from 'react';
+import { useToast } from '@/providers/Toast';
 
 export default function AddOrUpdatePatient() {
+  const toast = useToast();
   const { id, readonly } = useLocalSearchParams<{ id: string; readonly: string }>();
   const isDark = useValue(isDark$);
   const { props, submit, reset, loading, error, sucess, formReady, invalidInputCount } =
@@ -83,11 +85,29 @@ export default function AddOrUpdatePatient() {
             if (isUpdate) {
               updatePatient(id, data as UpdatePatientDTO);
               console.log('Patient updated successfully');
-              router.back();
+              toast.show(
+                'Success',
+                'Patient mis à jour avec succès',
+                undefined,
+                'top',
+                'patient_update_success',
+              );
+              setTimeout(() => {
+                router.back();
+              }, 1000);
             } else {
               addPatient(data as CreatePatientDTO);
               console.log('Patient added successfully');
-              router.back();
+              toast.show(
+                'Success',
+                'Patient créé avec succès',
+                undefined,
+                'top',
+                'patient_creation_success',
+              );
+              setTimeout(() => {
+                router.back();
+              }, 1000);
             }
           }}
           transformData={transformData}
@@ -109,7 +129,7 @@ export default function AddOrUpdatePatient() {
             className="w-full px-4 py-v-2">
             <Button
               className={`h-v-12 flex-1 rounded-xl  shadow-lg  shadow-emerald-600/20 hover:bg-emerald-700 dark:shadow-emerald-500/10 ${error ? 'bg-red-500' : 'bg-emerald-600 dark:bg-emerald-500'}`}
-              isDisabled={formReady}
+              isDisabled={formReady || isLoading}
               onPress={submit}>
               {isLoading ? (
                 <ButtonSpinner
@@ -124,7 +144,7 @@ export default function AddOrUpdatePatient() {
               {sucess && <ButtonIcon as={Check} className="text-white" />}
               {error && <ButtonIcon as={X} className="text-white" />}
             </Button>
-            {error && (
+            {error && invalidInputCount > 0 && (
               <Text className="text-center font-h4 text-red-500">{`${invalidInputCount} champs invalides`}</Text>
             )}
           </BlurView>
@@ -136,7 +156,7 @@ export default function AddOrUpdatePatient() {
 
 const addPatientFormConfig: FormSection[] = [
   {
-    name: 'Informations de base',
+    name: 'Informations personnelles',
     fields: [
       {
         type: 'text',
@@ -181,6 +201,18 @@ const addPatientFormConfig: FormSection[] = [
         alwaysShow: true,
         placeholder: 'Ex. +229 80 1234 5678',
         validation: { required: false },
+        schema: v.optional(
+          v.union([
+            v.pipe(
+              v.union([v.literal('')]),
+              v.transform((value) => undefined),
+            ),
+            v.pipe(
+              v.string(),
+              v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+            ),
+          ]),
+        ),
       },
       {
         type: 'text',
@@ -199,7 +231,7 @@ const addPatientFormConfig: FormSection[] = [
     fields: [
       {
         type: 'text',
-        label: 'Adresse Complete',
+        label: 'Adresse Complète',
         name: 'fullAddress',
         mode: 'input',
         default: '',
@@ -220,11 +252,11 @@ const addPatientFormConfig: FormSection[] = [
     ],
   },
   {
-    name: 'Parents',
+    name: 'Parents / Tuteurs',
     fields: [
       {
         type: 'text',
-        label: 'Nom',
+        label: 'Nom du parent 1',
         name: 'parent_1_name',
         mode: 'input',
         default: '',
@@ -241,15 +273,27 @@ const addPatientFormConfig: FormSection[] = [
         alwaysShow: true,
         placeholder: 'Ex. +229 80 1234 5678',
         validation: { required: false },
+        schema: v.optional(
+          v.union([
+            v.pipe(
+              v.union([v.literal('')]),
+              v.transform((value) => undefined),
+            ),
+            v.pipe(
+              v.string(),
+              v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+            ),
+          ]),
+        ),
       },
       {
         type: 'select',
-        label: 'Relation',
+        label: 'Lien de parenté',
         name: 'parent_1_relation',
         options: [
           { value: ParentRelation.FATHER, label: 'Père' },
           { value: ParentRelation.MOTHER, label: 'Mère' },
-          { value: ParentRelation.GUARDIAN, label: 'Autre' },
+          { value: ParentRelation.GUARDIAN, label: 'Tuteur / Autre' },
         ],
         default: ParentRelation.GUARDIAN,
         alwaysShow: true,
@@ -257,7 +301,7 @@ const addPatientFormConfig: FormSection[] = [
       {
         type: 'radio',
         name: 'has_parent_2',
-        label: 'Y a-t-il un deuxième parent ?',
+        label: 'Ajouter un second parent ?',
         options: [
           { value: 'oui', label: 'Oui' },
           { value: 'non', label: 'Non' },
@@ -274,7 +318,7 @@ const addPatientFormConfig: FormSection[] = [
         mode: 'input',
         alwaysShow: false,
         validation: { required: false },
-        condition: (data) => data.hasParent2 === 'oui',
+        condition: (data) => data.has_parent_2 === 'oui',
       },
       {
         type: 'text',
@@ -285,16 +329,22 @@ const addPatientFormConfig: FormSection[] = [
         alwaysShow: false,
         placeholder: 'Ex. +229 80 1234 5678',
         validation: { required: false },
-        condition: (data) => data.hasParent2 === 'oui',
+        condition: (data) => data.has_parent_2 === 'oui',
+        schema: v.optional(
+          v.pipe(
+            v.string(),
+            v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+          ),
+        ),
       },
       {
         type: 'select',
-        label: 'Relation',
+        label: 'Lien de parenté',
         name: 'parent_2_relation',
         options: [
           { value: ParentRelation.FATHER, label: 'Père' },
           { value: ParentRelation.MOTHER, label: 'Mère' },
-          { value: ParentRelation.GUARDIAN, label: 'Autre' },
+          { value: ParentRelation.GUARDIAN, label: 'Tuteur / Autre' },
         ],
         default: ParentRelation.GUARDIAN,
         alwaysShow: false,
