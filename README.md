@@ -252,4 +252,4 @@ src/
 ## 🔗 Liens utiles
 
 - [Repo GitHub](https://github.com/nXhermane/MalnutrixCollect)
-- [Documentation pour les aides-soignants](#)
+- [Documentation pour les aides-soignants](./docs/user-guide.md)
