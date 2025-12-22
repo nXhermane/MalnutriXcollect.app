@@ -46,10 +46,8 @@ Voici comment l'application s'intègre dans votre travail quotidien.
 
    _Note : Une fois les informations nécessaires saisies, vous pouvez ajouter un nouveau patient sinon le bouton d'ajout reste désactivé._
    
-   <video controls width="100%">
-   <source src="./assets/screen-20251222-005337.mp4" type="video/mp4">
-   Formulaire de création de patient
-   </video>
+
+[🎥 Cliquez ici pour voir la vidéo de démonstration](https://img.youtube.com/vi/2aF0BKlBcpo/mqdefault.jpg) [https://youtube.com/shorts/2aF0BKlBcpo](https://youtube.com/shorts/2aF0BKlBcpo)
 
 ---
 
@@ -66,10 +64,8 @@ Voici comment l'application s'intègre dans votre travail quotidien.
    - **Œdèmes :** Cochez la case si vous observez des œdèmes.
    - **Signes cliniques :** Température et autres informations.
 
-<video controls width="100%">
-<source src="./assets//screen-20251222-011830.mp4" type="video/mp4">
-Formulaire de mesure anthropométrique
-</video>
+[🎥 Cliquez ici pour voir la vidéo de démonstration](https://img.youtube.com/vi/Z4VxHpO7ilk/mqdefault.jpg) [https://youtube.com/shorts/Z4VxHpO7ilk](https://youtube.com/shorts/Z4VxHpO7ilk)
+
 
 4. Validez pour enregistrer la visite.
 
