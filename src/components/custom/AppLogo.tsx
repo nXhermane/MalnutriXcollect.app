@@ -9,8 +9,8 @@ interface AppLogoProps extends Omit<
 const AppLogo: React.NamedExoticComponent<AppLogoProps> = React.memo(function ({ mode, ...props }) {
   return (
     <UIImage
-      sourceDark={require('./../../../assets/images/nutriped.dark.png')}
-      sourceLight={require('./../../../assets/images/nutriped.ligth.png')}
+      sourceDark={require('./../../../assets/images/malnutix.logo.png')}
+      sourceLight={require('./../../../assets/images/malnutix.logo.png')}
       alt="MalnutriX collect logo"
       resizeMode={'contain'}
       mode={mode}

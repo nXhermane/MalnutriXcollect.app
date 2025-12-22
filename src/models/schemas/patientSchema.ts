@@ -24,7 +24,12 @@ export const contactSchema = v.object({
     v.pipe(
       v.string(),
       v.transform((input) => (input === '' ? undefined : input)),
-      v.optional(v.pipe(v.string(), v.regex(/^[+]?[\d\s-()]+$/, 'Numéro de téléphone invalide'))),
+      v.optional(
+        v.pipe(
+          v.string(),
+          v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+        ),
+      ),
     ),
   ),
 });
@@ -36,7 +41,9 @@ export const parentSchema = v.object({
     v.nonEmpty('Le nom du parent est requis'),
     v.minLength(3, 'Le nom doit contenir au moins 3 caractères'),
   ),
-  tel: v.optional(v.pipe(v.string(), v.regex(/^[+]?[\d\s-()]+$/, 'Numéro de téléphone invalide'))),
+  tel: v.optional(
+    v.pipe(v.string(), v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide')),
+  ),
 });
 
 export const addressSchema = v.object({
@@ -75,29 +82,19 @@ export const patientSchema = v.object({
   sex: v.enum(Sex, 'Le sex du patient est invalide'),
   isLocked: v.optional(v.boolean(), false),
   contact: v.optional(contactSchema),
-  parents: v.optional(
-    v.pipe(
-      v.array(v.object({})),
-      v.transform((input) => (input.length === 0 ? undefined : input)),
-      v.optional(
-        v.pipe(
-          v.array(parentSchema),
-          v.check((parents) => {
-            const obj: { [key in ParentRelation]: boolean } = {} as any;
-            for (const parent of parents) {
-              if (obj[parent.relation]) {
-                return false;
-              }
-              obj[parent.relation] = true;
-            }
-            return true;
-          }, 'Plusieurs parents du même type sont présents'),
-        ),
-      ),
-
-      // v.nonEmpty('Au moins un parent est requis'),
-    ),
-    [],
+  parents: v.pipe(
+    v.array(parentSchema),
+    v.check((parents) => {
+      const obj: { [key in ParentRelation]: boolean } = {} as any;
+      for (const parent of parents) {
+        if (obj[parent.relation]) {
+          return false;
+        }
+        obj[parent.relation] = true;
+      }
+      return true;
+    }, 'Plusieurs parents du même type sont présents'),
+    // v.nonEmpty('Au moins un parent est requis'),
   ),
   address: addressSchema,
   createdAt: v.pipe(v.string(), v.isoTimestamp()),
