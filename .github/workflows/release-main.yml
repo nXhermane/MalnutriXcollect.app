@@ -1,0 +1,85 @@
+name: Publish Stable Release & Build AAB
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'  
+
+env:
+ 
+  ARTIFACT_NAME: app-production.aab 
+  EAS_GITHUB_APP_NAME: ${{ github.event.repository.name }}
+  EAS_GITHUB_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: ⚙️ Checkout repository (Using SECRET_TOKEN for push permissions)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+          token: ${{ secrets.SECRET_TOKEN }}
+
+      - name: ⚙️ Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: ⚙️ Setup Expo & EAS CLI
+
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+          
+      - name: 📦 Install dependencies
+        run: bun install
+
+      - name: 🏷️ Extract tag
+        id: tag
+        run: |
+          TAG=$(echo ${GITHUB_REF#refs/tags/})
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: 📝 Update version in package.json
+        run: |
+          sed -i "s|\"version\": \".*\"|\"version\": \"$TAG\"|" package.json
+          bun install --lockfile-only  # Mise à jour du lockfile
+
+      - name: 📝 Update version in app.config.ts
+        run: |
+          sed -i "s|version: '[^\']*'|version: '$TAG'|" app.config.ts
+
+      - name: 📜 Generate changelog
+        run: bun run scripts/generate-changelog.mjs
+
+      - name: 🛠️ Build AAB/APK locally with EAS
+
+        run: eas build --local --profile production --platform android --non-interactive --output ${{ env.ARTIFACT_NAME }}
+
+
+      - name: 💾 Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add package.json app.config.ts CHANGELOG.md
+          git commit -m "chore: bump version to $TAG and update changelog" || true
+          
+          git push origin main 
+      
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Release ${{ env.TAG }}
+          body_path: CHANGELOG.md 
+          draft: false
+          prerelease: false 
+          files: |
+            ${{ env.ARTIFACT_NAME }} 
+            CHANGELOG.md
