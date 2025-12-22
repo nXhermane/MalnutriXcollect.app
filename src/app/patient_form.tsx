@@ -175,6 +175,7 @@ const addPatientFormConfig: FormSection[] = [
         mode: 'date',
         default: new Date(),
         alwaysShow: true,
+        validation: { required: true },
       },
       {
         type: 'radio',
@@ -186,6 +187,7 @@ const addPatientFormConfig: FormSection[] = [
         ],
         default: Sex.MALE,
         alwaysShow: true,
+        validation: { required: true },
       },
     ],
   },
@@ -331,10 +333,16 @@ const addPatientFormConfig: FormSection[] = [
         validation: { required: false },
         condition: (data) => data.has_parent_2 === 'oui',
         schema: v.optional(
-          v.pipe(
-            v.string(),
-            v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
-          ),
+          v.union([
+            v.pipe(
+              v.union([v.literal('')]),
+              v.transform((value) => undefined),
+            ),
+            v.pipe(
+              v.string(),
+              v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+            ),
+          ]),
         ),
       },
       {
