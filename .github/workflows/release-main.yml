@@ -57,7 +57,7 @@ jobs:
       - name: 📜 Generate changelog
         run: bun run scripts/generate-changelog.mjs
 
-      - name: 🛠️ Build AAB/APK locally with EAS
+      - name: 🛠️ Build AAB/APK with EAS cloud
 
         run: eas build --profile production --platform android --non-interactive
       - name: Download AAB 

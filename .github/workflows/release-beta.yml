@@ -70,10 +70,10 @@ jobs:
           fi
 
       
-      - name: 🛠️ Build APK locally with EAS
+      - name: 🛠️ Build APK with EAS cloud
         run: eas build --profile preview --platform android --non-interactive
         
-      - name: Download AAB 
+      - name: Download APK
         run: curl -L -o ${{ env.ARTIFACT_NAME }}  "$(eas build:list --platform android --limit 1 --status finished --non-interactive | grep 'https://.*.apk' -o)"
 
 
@@ -86,7 +86,7 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            ${{ env.ARTIFACT_NAME }} # L'APK généré localement
+            ${{ env.ARTIFACT_NAME }}
             package.json
             app.config.ts
             CHANGELOG.md
