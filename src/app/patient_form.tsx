@@ -283,7 +283,7 @@ const addPatientFormConfig: FormSection[] = [
             ),
             v.pipe(
               v.string(),
-              v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+              v.regex(/^(?:\+229|00229)?\s*(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
             ),
           ]),
         ),
@@ -305,10 +305,10 @@ const addPatientFormConfig: FormSection[] = [
         name: 'has_parent_2',
         label: 'Ajouter un second parent ?',
         options: [
-          { value: 'oui', label: 'Oui' },
-          { value: 'non', label: 'Non' },
+          { value: 'yes', label: 'Oui' },
+          { value: 'no', label: 'Non' },
         ],
-        default: 'non',
+        default: 'no',
         validation: { required: false },
         alwaysShow: true,
       },
@@ -320,7 +320,7 @@ const addPatientFormConfig: FormSection[] = [
         mode: 'input',
         alwaysShow: false,
         validation: { required: false },
-        condition: (data) => data.has_parent_2 === 'oui',
+        condition: (data) => data.has_parent_2 === 'yes',
       },
       {
         type: 'text',
@@ -331,7 +331,7 @@ const addPatientFormConfig: FormSection[] = [
         alwaysShow: false,
         placeholder: 'Ex. +229 80 1234 5678',
         validation: { required: false },
-        condition: (data) => data.has_parent_2 === 'oui',
+        condition: (data) => data.has_parent_2 === 'yes',
         schema: v.optional(
           v.union([
             v.pipe(
@@ -340,7 +340,7 @@ const addPatientFormConfig: FormSection[] = [
             ),
             v.pipe(
               v.string(),
-              v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+              v.regex(/^(?:\+229|00229)?\s*(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
             ),
           ]),
         ),
@@ -356,7 +356,7 @@ const addPatientFormConfig: FormSection[] = [
         ],
         default: ParentRelation.GUARDIAN,
         alwaysShow: false,
-        condition: (data) => data.has_parent_2 === 'oui',
+        condition: (data) => data.has_parent_2 === 'yes',
       },
     ],
   },
@@ -385,7 +385,7 @@ const transformData = (data: any): CreatePatientDTO => {
     parents.push(parent1);
   }
   // Ajouter le parent 2 s'il existe
-  if (data.has_parent_2 === 'oui' && data.parent_2_name) {
+  if (data.has_parent_2 === 'yes' && data.parent_2_name) {
     const parent2 = {
       name: data?.parent_2_name,
       tel: data?.parent_2_tel,

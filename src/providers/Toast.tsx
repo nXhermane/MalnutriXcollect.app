@@ -4,7 +4,7 @@ import {
   ToastTitle,
   useToast as useGluestackToast,
 } from '@/components/ui/toast';
-import { InfoIcon, X } from 'lucide-react-native';
+import { InfoIcon } from 'lucide-react-native';
 import React, { createContext, ReactNode, useCallback, useContext } from 'react';
 import { Dimensions } from 'react-native';
 import { ToastPlacement } from '@gluestack-ui/core/lib/esm/toast/creator/types';
@@ -117,7 +117,7 @@ const CustomToast: React.FC<ToastProps> = ({ id, type, title, description }) => 
           }
         }}
         className={'absolute right-3 top-3'}>
-        <Icon as={X} size={'md'} className={'text-foreground'} />
+        {/*<Icon as={X} size={'md'} className={'text-foreground'} />*/}
       </Pressable>
       <HStack className="items-center gap-3">
         <Icon

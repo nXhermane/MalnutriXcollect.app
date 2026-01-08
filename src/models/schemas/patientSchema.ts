@@ -27,7 +27,7 @@ export const contactSchema = v.object({
       v.optional(
         v.pipe(
           v.string(),
-          v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+          v.regex(/^(?:\+229|00229)?\s*(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
         ),
       ),
     ),
@@ -42,7 +42,10 @@ export const parentSchema = v.object({
     v.minLength(3, 'Le nom doit contenir au moins 3 caractères'),
   ),
   tel: v.optional(
-    v.pipe(v.string(), v.regex(/^(?:\+229|00229)?(01[0-9]{8})$/, 'Numéro de téléphone invalide')),
+    v.pipe(
+      v.string(),
+      v.regex(/^(?:\+229|00229)?\s*(01[0-9]{8})$/, 'Numéro de téléphone invalide'),
+    ),
   ),
 });
 
