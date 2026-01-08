@@ -2,7 +2,7 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'MalnutriX collect',
+  name: 'MalnutriX Collect',
   slug: 'malnutrix_collect',
   version: '1.0.0',
   orientation: 'portrait',
@@ -35,11 +35,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-splash-screen',
       {
         backgroundColor: '#ffffff',
-        image: './assets/images/malnutix.logo.png',
+        image: './assets/images/malnutrix.ic.launcher.light.png',
         resizeMode: 'contain',
         imageWidth: 300,
         dark: {
-          image: './assets/images/malnutix.logo.png',
+          image: './assets/images/malnutrix.ic.launcher.dark.png',
           resizeMode: 'contain',
           backgroundColor: '#000000',
           imageWidth: 300,
