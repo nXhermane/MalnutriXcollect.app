@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: 'malnutrix_collect',
   version: '1.0.0',
   orientation: 'portrait',
-  icon: './assets/images/malnutrix.ic.launcher.dark.png',
+  icon: './assets/images/malnutrix.ic.launcher.png',
   scheme: 'malnutrixcollect',
   userInterfaceStyle: 'automatic',
   newArchEnabled: true,
@@ -15,9 +15,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     adaptiveIcon: {
-      backgroundImage: './assets/images/malnutrix.ic.launcher.dark.png',
-      monochromeImage: './assets/images/malnutrix.ic.launcher.dark.png',
-      foregroundImage: './assets/images/malnutrix.ic.launcher.dark.png',
+      backgroundImage: './assets/images/malnutrix.ic.launcher.png',
+      monochromeImage: './assets/images/malnutrix.ic.launcher.png',
+      foregroundImage: './assets/images/malnutrix.ic.launcher.png',
       backgroundColor: '#000000',
     },
     edgeToEdgeEnabled: true,
@@ -27,7 +27,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   web: {
     output: 'static',
-    favicon: './assets/images/favicon.png',
+    favicon: './assets/images/malnutrix.ic.launcher.png',
   },
   plugins: [
     'expo-router',
@@ -35,11 +35,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-splash-screen',
       {
         backgroundColor: '#ffffff',
-        image: './assets/images/malnutrix.ic.launcher.light.png',
+        image: './assets/images/malnutix.logo.png',
         resizeMode: 'contain',
         imageWidth: 300,
         dark: {
-          image: './assets/images/malnutrix.ic.launcher.dark.png',
+          image: './assets/images/malnutix.logo.png',
           resizeMode: 'contain',
           backgroundColor: '#000000',
           imageWidth: 300,

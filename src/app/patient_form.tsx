@@ -100,7 +100,7 @@ export default function AddOrUpdatePatient() {
               console.log('Patient added successfully');
               toast.show(
                 'Success',
-                'Patient créé avec succès',
+                'Patient ajouté avec succès',
                 undefined,
                 'top',
                 'patient_creation_success',
