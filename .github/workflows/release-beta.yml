@@ -71,7 +71,10 @@ jobs:
 
       
       - name: 🛠️ Build APK locally with EAS
-        run: eas build --local --profile preview --platform android --non-interactive --output ${{ env.ARTIFACT_NAME }}
+        run: eas build --profile preview --platform android --non-interactive
+        
+      - name: Download AAB 
+        run: curl -L -o ${{ env.ARTIFACT_NAME }}  "$(eas build:list --platform android --limit 1 --status finished --non-interactive | grep 'https://.*.apk' -o)"
 
 
       - name: 🚀 Create GitHub Release
