@@ -9,17 +9,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: './assets/images/malnutrix.ic.launcher.png',
   scheme: 'malnutrixcollect',
   userInterfaceStyle: 'automatic',
-  newArchEnabled: true,
-  
+
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.nxhermano.malnutrixcollect',
     icon: './assets/images/malnutrix.ic.launcher.png',
     infoPlist: {
-      NSCameraUsageDescription: 'Allow $(PRODUCT_NAME) to access your camera for capturing nutritional data and photos.',
-      NSMicrophoneUsageDescription: 'Allow $(PRODUCT_NAME) to access your microphone for recording audio.',
-      NSPhotoLibraryUsageDescription: 'Allow $(PRODUCT_NAME) to access your photo library to save and select photos.',
-      NSPhotoLibraryAddUsageDescription: 'Allow $(PRODUCT_NAME) to save photos to your photo library.',
+      NSCameraUsageDescription:
+        'Allow $(PRODUCT_NAME) to access your camera for capturing nutritional data and photos.',
+      NSMicrophoneUsageDescription:
+        'Allow $(PRODUCT_NAME) to access your microphone for recording audio.',
+      NSPhotoLibraryUsageDescription:
+        'Allow $(PRODUCT_NAME) to access your photo library to save and select photos.',
+      NSPhotoLibraryAddUsageDescription:
+        'Allow $(PRODUCT_NAME) to save photos to your photo library.',
     },
     splash: {
       image: './assets/images/malnutrix.ic.launcher.light.png',
@@ -29,7 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     requireFullScreen: false,
     userInterfaceStyle: 'automatic',
   },
-  
+
   android: {
     adaptiveIcon: {
       backgroundImage: './assets/images/malnutrix.ic.launcher.png',
@@ -37,17 +40,16 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/images/malnutrix.ic.launcher.png',
       backgroundColor: '#000000',
     },
-    edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
     package: 'com.nxhermano.malnutrixcollect',
   },
-  
+
   web: {
     output: 'static',
     favicon: './assets/images/malnutrix.ic.launcher.png',
   },
-  
+
   plugins: [
     'expo-router',
     [
@@ -76,13 +78,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     'react-native-wifi-reborn',
+    '@react-native-google-signin/google-signin',
+    'expo-sqlite',
+    '@react-native-community/datetimepicker',
+    'expo-image',
   ],
-  
+
   experiments: {
     typedRoutes: true,
     reactCompiler: true,
   },
-  
+
   extra: {
     eas: {
       projectId: '7ced4a34-682d-4b00-91d2-24243d8d2663',
