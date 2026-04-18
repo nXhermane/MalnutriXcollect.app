@@ -89,7 +89,8 @@ jobs:
 
       - name: Start EAS Build (No Wait)
         if: steps.bump.outputs.bumped == 'true'
-        run: eas build --profile ${{ steps.profile.outputs.profile }} --platform android --non-interactive --no-wait --message "release: ${{ steps.bump.outputs.new_tag }}"
+        run: |
+          eas build --profile ${{ steps.profile.outputs.profile }} --platform android --non-interactive --no-wait --message "release: ${{ steps.bump.outputs.new_tag }}"
 
       - name: Create Draft GitHub Release
         if: steps.bump.outputs.bumped == 'true'
