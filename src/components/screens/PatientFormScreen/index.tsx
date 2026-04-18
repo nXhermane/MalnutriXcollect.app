@@ -126,9 +126,9 @@ export function PatientFormScreen() {
         />
       </KeyboardAwareScrollView>
 
-      <View className="absolute bottom-0 w-full overflow-hidden rounded-t-3xl border-t border-border/50">
+      <View className="absolute -bottom-1 w-full overflow-hidden rounded-t-3xl">
         <BlurView />
-        <View className="px-6 py-4">
+        <View className="px-4 pt-4 pb-v-4">
           <Button
             variant={error ? 'danger' : 'primary'}
             className="w-full h-12 rounded-2xl shadow-lg"

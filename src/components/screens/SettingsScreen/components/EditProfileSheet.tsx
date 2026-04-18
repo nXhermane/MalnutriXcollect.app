@@ -118,9 +118,8 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
           <KeyboardAwareScrollView
             ScrollViewComponent={BottomSheetScrollView as never}
             contentContainerClassName="px-2 py-v-3 gap-v-4"
-            bottomOffset={120}
             showsVerticalScrollIndicator={false}>
-            <Surface variant="default" className="p-3 gap-y-4">
+            <Surface variant="default" className="p-2 gap-y-4">
               <TextField>
                 <Label>
                   <Label.Text className="text-foreground text-sm font-medium">
@@ -215,7 +214,7 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
             </Surface>
           </KeyboardAwareScrollView>
 
-          <View className="px-2 pt-v-2 border-t border-border">
+          <View className="px-4 pt-v-2">
             {submitError ? (
               <Label className="mb-2">
                 <Label.Text className="text-danger text-xs text-center">{submitError}</Label.Text>
@@ -227,7 +226,7 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
               ) : (
                 <>
                   <Icon name="Save" className="text-white" sizeClassName="text-base" />
-                  <Button.Label>Enregistrer les modifications</Button.Label>
+                  <Button.Label className="text-white">Enregistrer les modifications</Button.Label>
                 </>
               )}
             </Button>

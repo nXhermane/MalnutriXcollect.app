@@ -390,7 +390,7 @@ function DynamicFormComponent<TOutput extends { [x: string]: unknown }>(
                   <Text className="text-base font-semibold text-foreground">{name}</Text>
                 </View>
               )}
-          <Surface className="gap-v-3 border border-border p-4">
+          <Surface className="gap-v-3 p-4">
             {fields.map(renderField)}
             {rowFields.length > 0 && (
               <View className="flex-row justify-between gap-3">{rowFields.map(renderField)}</View>

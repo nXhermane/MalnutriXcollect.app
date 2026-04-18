@@ -8,7 +8,8 @@ export const settings$ = observable(
         enabled: true,
       },
       ui: {
-        blurEnabled: true,
+        // TODO: enable blur feature after refactoring of blur . and enable settings session ofblurview
+        blurEnabled: false,
       },
       personalization: {
         workHours: {

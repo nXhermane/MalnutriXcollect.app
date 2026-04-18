@@ -6,7 +6,7 @@ import { patients$ } from '@/store/patients/patients.store';
 import { home$ } from '@/store/ui/home.store';
 import { useValue } from '@legendapp/state/react';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
-import { BottomSheet, Label, PressableFeedback, Radio, RadioGroup } from 'heroui-native';
+import { BottomSheet, PressableFeedback, Radio, RadioGroup, ScrollShadow } from 'heroui-native';
 import { ChevronDown } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Text, View } from 'react-native';
@@ -19,6 +19,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HEADER_COLLAPSED_HEIGHT, HEADER_EXPANDED_HEIGHT, SCROLL_THRESHOLD } from './Header';
 import { PatientCard } from './PatientCard';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface PatientListProps {
   onPatientPress: (id: string) => void;
@@ -157,7 +158,7 @@ export function PatientList({
                       onValueChange={(val) => home$.filters.sortBy.set(val as 'recent' | 'name')}
                       className="gap-2">
                       <RadioGroup.Item value="recent" className="flex-row items-center gap-3 p-1">
-                        <Label className="text-sm font-medium">{"Date d'ajout"}</Label>
+                        <Text className="text-sm font-normal">{"Date d'ajout"}</Text>
                         <Radio className="rounded-full border border-border">
                           <Radio.Indicator>
                             <Radio.IndicatorThumb />
@@ -165,7 +166,7 @@ export function PatientList({
                         </Radio>
                       </RadioGroup.Item>
                       <RadioGroup.Item value="name" className="flex-row items-center gap-3 p-1">
-                        <Label className="text-sm font-medium">Nom (A-Z)</Label>
+                        <Text className="text-sm font-normal">Nom (A-Z)</Text>
                         <Radio className="rounded-full border border-border">
                           <Radio.Indicator>
                             <Radio.IndicatorThumb />
@@ -195,38 +196,38 @@ export function PatientList({
         </View>
       </Animated.View>
 
-      {/* <ScrollShadow
+      <ScrollShadow
         LinearGradientComponent={LinearGradient}
         className="flex-1 z-10"
         size={40}
-        isEnabled> */}
-      <FlashList
-        contentContainerClassName="px-2 py-v-3 h-full"
-        data={patients}
-        showsVerticalScrollIndicator={false}
-        renderItem={renderItem}
-        ItemSeparatorComponent={() => <View className="h-v-2" />}
-        keyExtractor={(item) => item.id}
-        ListHeaderComponent={() => <Animated.View style={animatedListHeaderStyle} />}
-        ListFooterComponent={() => <View className="h-v-20 w-full" />}
-        onScroll={onScroll as never}
-        scrollEventThrottle={16}
-        ListEmptyComponent={
-          <View className="flex-1 justify-center px-2 h-full py-v-4">
-            <EmptyState
-              onPressIcon={!isSearched ? onPressEmptyStateBtn : undefined}
-              iconName={isSearched ? 'SearchSlash' : 'UserPlus'}
-              title={isSearched ? 'Aucun résultat' : 'Aucun patient enregistré'}
-              description={
-                isSearched
-                  ? 'Aucun patient ne correspond à votre recherche.'
-                  : 'Ajoutez un patient pour commencer.'
-              }
-            />
-          </View>
-        }
-      />
-      {/* </ScrollShadow> */}
+        isEnabled>
+        <FlashList
+          contentContainerClassName="px-2 py-v-3 grow"
+          data={patients}
+          showsVerticalScrollIndicator={false}
+          renderItem={renderItem}
+          ItemSeparatorComponent={() => <View className="h-v-2" />}
+          keyExtractor={(item) => item.id}
+          ListHeaderComponent={() => <Animated.View style={animatedListHeaderStyle} />}
+          ListFooterComponent={() => <View className="h-v-20 w-full" />}
+          onScroll={onScroll as never}
+          scrollEventThrottle={16}
+          ListEmptyComponent={
+            <View className="flex-1 justify-center px-2 h-full py-v-4">
+              <EmptyState
+                onPressIcon={!isSearched ? onPressEmptyStateBtn : undefined}
+                iconName={isSearched ? 'SearchSlash' : 'UserPlus'}
+                title={isSearched ? 'Aucun résultat' : 'Aucun patient enregistré'}
+                description={
+                  isSearched
+                    ? 'Aucun patient ne correspond à votre recherche.'
+                    : 'Ajoutez un patient pour commencer.'
+                }
+              />
+            </View>
+          }
+        />
+      </ScrollShadow>
     </View>
   );
 }

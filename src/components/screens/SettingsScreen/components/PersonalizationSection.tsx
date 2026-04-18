@@ -54,7 +54,7 @@ export const PersonalizationSection = () => {
       <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2 ml-2">
         Personnalisation
       </Text>
-      <Surface className="rounded-3xl mb-6 overflow-hidden">
+      <Surface className="mb-6 overflow-hidden p-2">
         <SettingRow
           iconName="Clock"
           iconBgClass="bg-default/10"

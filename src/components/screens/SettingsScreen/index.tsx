@@ -104,7 +104,7 @@ export function SettingsScreen() {
         <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2 ml-2">
           À propos
         </Text>
-        <Surface className="rounded-3xl mb-6 overflow-hidden">
+        <Surface className="mb-6 overflow-hidden p-2">
           <SettingRow
             iconName="Globe"
             iconBgClass="bg-accent/10"
@@ -127,7 +127,7 @@ export function SettingsScreen() {
         <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2 ml-2">
           Zone de danger
         </Text>
-        <Surface className="rounded-3xl mb-4 overflow-hidden bg-red-500/5">
+        <Surface className="mb-4 overflow-hidden p-2 bg-red-500/5">
           <SettingRow
             iconName="DatabaseZap"
             iconBgClass="bg-red-500/10"
@@ -144,7 +144,7 @@ export function SettingsScreen() {
         <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2 ml-2">
           Compte
         </Text>
-        <Surface className="rounded-3xl overflow-hidden bg-red-500/5">
+        <Surface className="overflow-hidden p-2 bg-red-500/5">
           <SettingRow
             iconName="LogOut"
             iconBgClass="bg-red-500/10"
