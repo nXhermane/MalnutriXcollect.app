@@ -23,10 +23,18 @@ if (!version) {
 
 try {
   console.log(`Fetching EAS builds for platform=${platform}...`);
-  const stdout = execSync(
-    `bunx eas-cli build:list --json --limit 15 --platform ${platform} --non-interactive`,
-    { encoding: 'utf-8' },
-  );
+
+  let stdout;
+  try {
+    stdout = execSync(`eas build:list --json --limit 15 --platform ${platform} --non-interactive`, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (err) {
+    console.error('eas build:list stderr:', err.stderr || '(no stderr)');
+    console.error('eas build:list stdout:', err.stdout || '(no stdout)');
+    throw new Error(`build:list command failed.\n${err.message}`);
+  }
 
   const builds = JSON.parse(stdout);
 

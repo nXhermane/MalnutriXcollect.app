@@ -39,9 +39,15 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: Install dependencies
+        if: steps.check_draft.outputs.has_draft == 'true'
+        run: bun install
+
       - name: Check EAS Build Status
         if: steps.check_draft.outputs.has_draft == 'true'
         id: check_build
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: bun run scripts/check-eas-build.mjs ${{ steps.check_draft.outputs.draft_version }} android
 
       - name: Download EAS Artifact
