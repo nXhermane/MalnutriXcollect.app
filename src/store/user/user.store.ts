@@ -1,3 +1,4 @@
+import { logger } from '@/lib/utils/logger';
 import { supabase } from '@/services/supabase';
 import ObservablePersistMMKV from '@/store/config/mmkv';
 import { computed, observable } from '@legendapp/state';
@@ -46,8 +47,8 @@ export const userProfile$ = observable<UserProfile | null>(
       if (!id) return null;
       const { data, error } = await supabase.from('v_soignants').select('*').eq('id', id).single();
       if (error) {
-        console.warn('[userProfile$] Failed to fetch profile:', error.message);
-        return null;
+        logger.warn('[userProfile$] Failed to fetch profile:', error.message);
+        throw new Error(error.message);
       }
       return data as UserProfile;
     },

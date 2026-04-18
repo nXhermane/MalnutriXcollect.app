@@ -23,7 +23,7 @@ export const AppSettingsSection = () => {
       <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2 ml-2">
         Application
       </Text>
-      <Surface className="rounded-3xl mb-6 overflow-hidden">
+      <Surface className="mb-6 overflow-hidden p-2">
         <SettingRow
           iconName={themeMode === 'dark' ? 'Moon' : 'Sun'}
           iconBgClass="bg-accent/10"
@@ -48,7 +48,7 @@ export const AppSettingsSection = () => {
             />
           }
         />
-        <SettingRow
+        {/* <SettingRow
           iconName="Eye"
           iconBgClass="bg-default/10"
           iconColorClass="text-foreground"
@@ -64,7 +64,7 @@ export const AppSettingsSection = () => {
               }}
             />
           }
-        />
+        /> */}
       </Surface>
     </>
   );

@@ -18,7 +18,9 @@ export function HomeBottom() {
   // });
 
   return (
-    <Surface variant="transparent" className="absolute bottom-0 w-full overflow-hidden z-50 p-0">
+    <Surface
+      variant="transparent"
+      className="absolute bottom-0 w-full overflow-hidden z-50 p-0 bottom-t-0">
       <BlurView />
       <View className="px-4 py-4 flex-row gap-4">
         {patientCount > 0 && (

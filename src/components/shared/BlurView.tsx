@@ -11,17 +11,6 @@ interface Props extends Omit<BlurViewProps, 'blurTarget'> {
   blurTarget?: React.RefObject<View | null>;
 }
 
-/**
- * Shared BlurView overlay — position absolute, covers parent entirely.
- *
- * Android: pass `blurTarget` (ref to a `BlurTargetView`) for real blur.
- * Without it, falls back to semi-transparent background on Android.
- *
- * Usage with target:
- *   const blurRef = useRef<View>(null);
- *   <BlurTargetView ref={blurRef} style={StyleSheet.absoluteFill}>...</BlurTargetView>
- *   <BlurView blurTarget={blurRef} />
- */
 export const BlurView = ({ children, blurTarget, style, ...props }: Props) => {
   const isDark = useValue(() => isDark$.get());
   const blurEnabled = useValue(settings$.ui.blurEnabled);

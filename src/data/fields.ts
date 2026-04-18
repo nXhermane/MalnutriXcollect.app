@@ -131,15 +131,19 @@ export const dataFieldRefs: DataFieldRefDto[] = [
     defaultValue: false,
   },
   {
-    label: 'Degré de sévérité des œdèmes',
     category: DataFieldCategory.OBSERVATION,
     context: FieldContext.CLINICAL,
     code: OBSERVATIONS.EDEMA_GODET_COUNT,
-    question:
-      'Quel est le degré de sévérité des œdèmes ? (0=Absent, 1=Léger/pieds, 2=Modéré/jambes et mains, 3=Sévère/généralisé)',
-    type: FieldDataType.RANGE,
-    range: [0, 3],
-    defaultValue: 0,
+    label: "Grade d'œdème",
+    question: "Quel est le grade d'œdème bilatéral ?",
+    type: FieldDataType.ENUM,
+    enum: [
+      { label: 'Absent', value: '0' },
+      { label: '+', value: '1' },
+      { label: '++', value: '2' },
+      { label: '+++', value: '3' },
+    ],
+    defaultValue: '0',
     condition: {
       field: OBSERVATIONS.EDEMA_PRESENCE,
       fieldType: FieldDataType.BOOL,

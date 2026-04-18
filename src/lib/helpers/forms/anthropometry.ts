@@ -103,7 +103,6 @@ const LengthField: QuantityField = {
   validation: { required: false },
   alwaysShow: false,
   condition: (values) => {
-    console.log('evaluate condition on length', values);
     if (
       typeof values === 'object' &&
       values !== null &&
