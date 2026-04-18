@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.0-beta.2] - 2026-04-18
+
+- **3d3a318 - Merge branch 'develop' into beta (nXhermane)**
+
+- **83e1f0b - fix: resolve ui styling, disable blur effect, and update schemas (nXhermane)**
+  > - Remove hardcoded borders and `rounded-3xl` classes from Surface components in Settings and DynamicForm, adding `p-2` padding.
+  > - Disable `blurEnabled` in UI settings by default pending refactoring and remove `BlurView` from `VisitFormScreen`.
+  > - Change `EDEMA_GODET_COUNT` observation field type from `RANGE` to `ENUM` for discrete grade selection (Absent to +++).
+  > - Implement structured `logger.warn` replacing `console.warn` in the user store and ensure it throws explicit errors.
+  > - Remove leftover debugging `console.log` in anthropometry form conditions and formatting adjustments.
+
+- **2fee5b5 - fix: resolve ui styling, disable blur effect, and update schemas (nXhermane)**
+  > - Remove hardcoded borders and `rounded-3xl` classes from Surface components in Settings and DynamicForm, adding `p-2` padding.
+  > - Disable `blurEnabled` in UI settings by default pending refactoring and remove `BlurView` from `VisitFormScreen`.
+  > - Change `EDEMA_GODET_COUNT` observation field type from `RANGE` to `ENUM` for discrete grade selection (Absent to +++).
+  > - Implement structured `logger.warn` replacing `console.warn` in the user store and ensure it throws explicit errors.
+  > - Remove leftover debugging `console.log` in anthropometry form conditions and formatting adjustments.
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [v2.0.0-beta.1] - 2026-04-18
 
 - **1656978 - Merge branch 'develop' into beta (nXhermane)**
