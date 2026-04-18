@@ -1,0 +1,139 @@
+@import 'tailwindcss';
+@import 'uniwind';
+
+@import 'heroui-native/styles';
+
+@source './../node_modules/heroui-native/lib';
+
+@theme {
+  --text-2xs: 8px;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 60px;
+
+  --leading-2xs: 14px;
+  --leading-xs: 16px;
+  --leading-sm: 20px;
+  --leading-base: 24px;
+  --leading-lg: 28px;
+  --leading-xl: 28px;
+  --leading-2xl: 32px;
+  --leading-3xl: 36px;
+  --leading-4xl: 40px;
+  --leading-5xl: 48px;
+  --leading-6xl: 60px;
+
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 28px;
+  --spacing-8: 32px;
+  --spacing-9: 36px;
+  --spacing-10: 40px;
+  --spacing-11: 44px;
+  --spacing-12: 48px;
+  --spacing-14: 56px;
+  --spacing-16: 64px;
+  --spacing-18: 72px;
+  --spacing-20: 80px;
+  --spacing-22: 100px;
+  --spacing-24: 96px;
+  --spacing-28: 112px;
+  --spacing-32: 128px;
+  --spacing-36: 144px;
+  --spacing-40: 160px;
+  --spacing-44: 176px;
+  --spacing-48: 192px;
+  --spacing-52: 208px;
+  --spacing-56: 224px;
+  --spacing-60: 240px;
+  --spacing-64: 256px;
+  --spacing-72: 288px;
+  --spacing-80: 320px;
+  --spacing-96: 384px;
+
+  --spacing-v-0: 0px;
+  --spacing-v-1: 4px;
+  --spacing-v-2: 8px;
+  --spacing-v-3: 12px;
+  --spacing-v-4: 16px;
+  --spacing-v-5: 20px;
+  --spacing-v-6: 24px;
+  --spacing-v-7: 28px;
+  --spacing-v-8: 32px;
+  --spacing-v-9: 36px;
+  --spacing-v-10: 40px;
+  --spacing-v-11: 44px;
+  --spacing-v-12: 48px;
+  --spacing-v-14: 56px;
+  --spacing-v-16: 64px;
+  --spacing-v-18: 72px;
+  --spacing-v-20: 80px;
+  --spacing-v-22: 100px;
+  --spacing-v-24: 96px;
+  --spacing-v-28: 112px;
+  --spacing-v-32: 128px;
+  --spacing-v-36: 144px;
+  --spacing-v-40: 160px;
+  --spacing-v-44: 176px;
+  --spacing-v-48: 192px;
+  --spacing-v-52: 208px;
+  --spacing-v-56: 224px;
+  --spacing-v-60: 240px;
+  --spacing-v-64: 256px;
+  --spacing-v-72: 288px;
+  --spacing-v-80: 320px;
+  --spacing-v-96: 384px;
+
+  --radius: 0.5rem;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-18: 72px;
+  --radius-full: 9999px;
+
+  --font-normal: 'Lato-Regular';
+  --font-medium: 'Lato-Bold';
+  --font-semibold: 'Lato-Bold';
+  --font-bold: 'Lato-Bold';
+
+  --font-heading: 'Lato-Bold';
+  --font-body: 'Lato-Regular';
+  --font-mono: 'Lato-Light';
+  --font-h1: 'Lato-Black';
+  --font-h2: 'Lato-Bold';
+  --font-h3: 'Lato-BoldItalic';
+  --font-h4: 'Lato-Bold';
+  --font-h1-italic: 'Lato-BlackItalic';
+  --font-light: 'Lato-Light';
+  --font-light-italic: 'Lato-LightItalic';
+  --font-thin: 'Lato-Thin';
+  --font-thin-italic: 'Lato-ThinItalic';
+}
+
+@layer theme {
+  @variant light {
+    --accent: oklch(0.723 0.191 149.58);
+    --accent-foreground: oklch(0.98 0.005 149.58);
+  }
+
+  @variant dark {
+    --accent: oklch(0.723 0.191 149.58);
+    --accent-foreground: oklch(0.15 0.02 149.58);
+  }
+}

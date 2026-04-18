@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'MalnutriX Collect',
   slug: 'malnutrix_collect',
-  version: '1.0.0',
+  version: '1.0.0-beta.7',
   orientation: 'portrait',
   icon: './assets/images/malnutrix.ic.launcher.png',
   scheme: 'malnutrixcollect',
@@ -12,7 +12,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'com.nxhermano.malnutrixcollect',
+    bundleIdentifier: 'com.nxhermano.malnutrix.collect',
     icon: './assets/images/malnutrix.ic.launcher.png',
     infoPlist: {
       NSCameraUsageDescription:
@@ -42,7 +42,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     predictiveBackGestureEnabled: false,
     permissions: ['android.permission.CAMERA', 'android.permission.RECORD_AUDIO'],
-    package: 'com.nxhermano.malnutrixcollect',
+    package: 'com.nxhermano.malnutrix.collect',
   },
 
   web: {
@@ -82,6 +82,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-sqlite',
     '@react-native-community/datetimepicker',
     'expo-image',
+    'react-native-enriched-markdown',
   ],
 
   experiments: {

@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    branches: 
+      - main
+      - beta
+
+jobs:
+  release:
+    name: Auto-bump, Tag, and Start EAS Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      new_tag: ${{ steps.bump.outputs.new_tag }}
+      bumped: ${{ steps.bump.outputs.bumped }}
+      is_beta: ${{ steps.bump.outputs.is_beta }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SECRET_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Expo & EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Bump version & tag
+        id: bump
+        run: bun run scripts/bump-version.mjs
+
+      - name: Generate changelog
+        if: steps.bump.outputs.bumped == 'true'
+        run: bun run scripts/generate-changelog.mjs
+
+      - name: Ensure exact versions
+        if: steps.bump.outputs.bumped == 'true'
+        run: bun install --lockfile-only
+
+      - name: Commit version bump & push tag
+        if: steps.bump.outputs.bumped == 'true'
+        run: |
+          git add CHANGELOG.md package.json app.config.ts bun.lock
+          git commit -m "chore(release): ${{ steps.bump.outputs.new_tag }} [skip ci]"
+          git tag ${{ steps.bump.outputs.new_tag }}
+          # Push the commit and the tag
+          git push origin HEAD:${{ github.ref_name }} --follow-tags
+
+      - name: Pre-install script (Crypto certs)
+        if: steps.bump.outputs.bumped == 'true'
+        run: bun run eas-build-pre-install
+        env:
+          SERVER_CERT_CONTENT: ${{ secrets.SERVER_CERT_CONTENT }}
+
+      - name: Determine EAS Profile
+        if: steps.bump.outputs.bumped == 'true'
+        id: profile
+        run: |
+          if [ "${{ steps.bump.outputs.is_beta }}" == "true" ]; then
+            echo "profile=preview" >> $GITHUB_OUTPUT
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "profile=production" >> $GITHUB_OUTPUT
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Start EAS Build (No Wait)
+        if: steps.bump.outputs.bumped == 'true'
+        run: eas build --profile ${{ steps.profile.outputs.profile }} --platform android --non-interactive --no-wait --message "release: ${{ steps.bump.outputs.new_tag }}"
+
+      - name: Create Draft GitHub Release
+        if: steps.bump.outputs.bumped == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.new_tag }}
+          name: Release ${{ steps.bump.outputs.new_tag }}
+          body_path: CHANGELOG.md 
+          draft: true  # DRAFT is important! finalize-release.yml will pick it up
+          prerelease: ${{ steps.profile.outputs.is_prerelease == 'true' }}

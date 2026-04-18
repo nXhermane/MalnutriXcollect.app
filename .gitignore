@@ -30,8 +30,10 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
+# env files
 .env*.local
+.env*.production
+.env*.preview
 
 # typescript
 *.tsbuildinfo
@@ -42,5 +44,6 @@ app-example
 /ios
 /android
 .qoder
-.env.production
 RELEASE_NOTES.md
+.temp/
+.backup/
