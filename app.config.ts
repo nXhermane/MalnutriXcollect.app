@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'MalnutriX Collect',
   slug: 'malnutrix_collect',
-  version: '1.0.0-beta.7',
+  version: '2.0.0-beta.1',
   orientation: 'portrait',
   icon: './assets/images/malnutrix.ic.launcher.png',
   scheme: 'malnutrixcollect',
