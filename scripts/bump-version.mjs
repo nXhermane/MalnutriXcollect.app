@@ -98,11 +98,7 @@ let newVersion;
 
 if (targetIsBeta) {
   if (parsed.isBeta) {
-    if (!bumpType)
-      newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}-beta.${parsed.beta + 1}`;
-    else if (bumpType === 'major') newVersion = `${parsed.major + 1}.0.0-beta.1`;
-    else if (bumpType === 'minor') newVersion = `${parsed.major}.${parsed.minor + 1}.0-beta.1`;
-    else newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch + 1}-beta.1`;
+    newVersion = `${parsed.major}.${parsed.minor}.${parsed.patch}-beta.${parsed.beta + 1}`;
   } else {
     if (!bumpType) bumpType = 'patch';
     if (bumpType === 'major') newVersion = `${parsed.major + 1}.0.0-beta.1`;
