@@ -1,255 +1,166 @@
 # MalnutriX Collect
 
 ## 🎯 Vision
-Réduire le temps de consultation des nutritionnistes en permettant aux aides-soignants de collecter les données à l'accueil avant la consultation, puis de transmettre facilement ces informations à l'application MalnutriX dédiée aux nutritionnistes.
+
+Réduire le temps de consultation des nutritionnistes en permettant aux aides-soignants de collecter les données patients à l'accueil, puis de les transmettre automatiquement à l'application MalnutriX Pro dédiée aux nutritionnistes.
 
 ## 📊 Contexte
 
 ### Problème actuel
 
 - Les nutritionnistes passent 15-20 minutes par patient à saisir les données
-- Cela ralentit les consultations
-- Des erreurs de saisie fréquentes se produisent
+- Cela ralentit les consultations et génère des erreurs de saisie
+- Les aides-soignants n'ont pas d'outil dédié à la collecte
 
-### Solution proposée
+### Solution
 
-Application mobile pour les aides-soignants qui permet de :
-1. Collecter les données des patients à l'accueil
-2. Transmettre facilement ces informations à l'application MalnutriX via QR code
-3. Améliorer l'efficacité des consultations grâce à une transmission fluide des données
+Application mobile pour les aides-soignants permettant de :
+1. Collecter les données patients (anthropométrie, signes cliniques, tâches)
+2. Authentifier l'opérateur via Google Sign-In avec suivi de session
+3. Transmettre les données au nutritionniste via WiFi/TCP Socket après scan d'un QR code
 
 ### Impact attendu
 
-- Réduction de 90% du temps nécessaire au nutritionniste pour avoir les données dans l'app MalnutriX
-- Réduction des erreurs de saisie
-- Amélioration de l'expérience patient grâce à des consultations plus rapides
+- Réduction de ~90% du temps de saisie côté nutritionniste
+- Réduction des erreurs grâce à la validation stricte avec Valibot
+- Consultations plus rapides et meilleure expérience patient
 
-## 🚀 Fonctionnalités principales
+---
 
-- 🔄 Navigation entre les écrans principaux (Dashboard, Ajout/Édition de patient, Import/Export via QR code)
-- 👤 Visualisation de la liste des patients avec recherche
-- 📋 Formulaire complet pour créer/mettre à jour un patient (nom, sexe, adresse, parents, contact)
-- 📏 Formulaire de mesure (poids, taille, etc.) pour chaque patient
-- 📲 Synchronisation via WiFi/TCP Socket avec l'application MalnutriX (nutritionniste)
-- 📤 Export des patients via séquence de QR codes animés
-- 💾 Stockage local hors ligne (MMKV/LegendState)
-- 🔐 Verrouillage/déverrouillage des patients
-- 📱 Interface responsive avec composants Gluestack UI
-- ✅ Validation des formulaires via `valibot`
-- 📊 Historique des mesures par patient (déjà implémenté)
-- 📏 Scan de codes-barres (déjà implémenté)
+## 🚀 Fonctionnalités
 
-## ✅ Statut du développement
+### ✅ Implémentées
 
-🎉 **Version bêta – Fonctionnalités de base implémentées**
+| Fonctionnalité | Détail |
+|---|---|
+| 👤 Gestion des patients | Création, modification, recherche, verrouillage post-sync |
+| 📏 Mesures anthropométriques | Poids, taille, MUAC, périmètre crânien, TSF, SSF, signes cliniques |
+| 🩺 Données biologiques & cliniques | Champs additionnels par patient |
+| ✅ Tâches patients (Tasks) | Formulaires de tâches spécifiques assignées par le nutritionniste |
+| 🔄 Synchronisation WiFi/TCP | Connexion automatique + transfert via protocole sécurisé (13 handlers) |
+| 📲 QR code de sync | SyncIdleView + QRScannerSheet avec torch toggle et coins animés |
+| 🔐 Authentification Supabase | Google Sign-In, session tracking, profil utilisateur |
+| 👤 Profil utilisateur | EditProfileSheet, LogoutSheet, userProfile$ synchronisé |
+| 💾 Stockage local hors ligne | MMKV + LegendState (stores domaines) |
+| ✅ Validation stricte | Schémas Valibot (patient, visit, task, mesures, profil) |
+| 📊 Historique des visites | Mesures par patient avec horodatage |
+| 🔒 Verrouillage patients | Informations admin verrouillées après synchronisation |
 
-### Fonctionnalités implémentées
+### 🚧 En cours / Planifié
 
-✅ Navigation de base entre les écrans
-✅ Affichage de la liste des patients
-✅ Formulaire de création/mise à jour des patients
-✅ Synchronisation via WiFi et TCP Socket avec l'application MalnutriX (nutritionniste)
-✅ Export des patients via QR codes séquencés (animés)
-✅ Gestion des informations complètes (parents, contact, adresse, etc.)
-✅ Formulaire de mesure pour les patients (`[id]/patient_measure_form`)
-✅ Stockage local hors ligne via LegendState/MMKV
-✅ UI Gluestack UI + animations
-✅ Validation des formulaires via `valibot`
+- Notifications (Notifee)
+- Amélioration de l'accessibilité
+- Dashboard d'administration
+- Génération de rapports PDF
+- Traductions (i18n)
 
-### Fonctionnalités à implémenter
+Pour la vue complète → [ROADMAP.md](./ROADMAP.md)
 
-⬜ Scan de codes-barres
-⬜ Historique des mesures par patient (à affiner)
-⬜ Gestion multi-utilisateurs (rôles)
-⬜ Tests unitaires/intégration
-
-## 🗺️ Roadmap
-
-Pour une vue détaillée de la roadmap, voir le fichier [ROADMAP.md](./ROADMAP.md).
+---
 
 ## 🏗️ Architecture technique
 
-### Stack technique
+### Stack
 
-- **Framework** : React Native avec Expo
-- **Gestion d'état** : Legend State
-- **Navigation** : Expo Router
-- **UI Components** : Gluestack UI
-- **Animations** : Moti & Reanimated
-- **Validation de formulaires** : React Hook Form & Valibot
-- **Stockage local** : MMKV
-- **QR Code** : react-native-qrcode-svg
-- **Styles** : TailwindCSS avec Nativewind
+| Couche | Technologie |
+|---|---|
+| Framework | React Native + Expo SDK 55 |
+| Navigation | Expo Router |
+| UI | HeroUI Native v1 + TailwindCSS v4 + Uniwind |
+| Animations | Moti + Reanimated |
+| État global | LegendState v3 (stores domaines) |
+| Formulaires | React Hook Form + Valibot |
+| Stockage local | MMKV |
+| Authentification | Supabase (Google Sign-In) |
+| Réseau | TCP Socket + WiFi (react-native-tcp-socket, react-native-wifi-reborn) |
+| Caméra / QR | react-native-vision-camera |
+| Rendu texte | react-native-enriched-markdown |
 
-### Schéma de données
+### Structure du projet
 
-```mermaid
-classDiagram
-    class Patient {
-        string id
-        string name
-        string birthdate
-        Sex sex
-        boolean isLocked
-        Contact contact
-        Parent[] parents
-        Address address
-        string createdAt
-        string updatedAt
-    }
-    
-    class PatientMeasure {
-        string id
-        string patientId
-        Anthropometric[] measures
-        DataField[] fields
-        boolean isExported
-        string createdAt
-        string updatedAt
-    }
-    
-    class Contact {
-        string email
-        string tel
-    }
-    
-    class Address {
-        string fullAddress
-        string city
-    }
-    
-    class Parent {
-        ParentRelation relation
-        string name
-        string tel
-    }
-    
-    class ParentRelation {
-        <<enumeration>>
-        MOTHER
-        FATHER
-        GUARDIAN
-    }
-    
-    class Sex {
-        <<enumeration>>
-        MALE
-        FEMALE
-    }
-    
-    class Anthropometric {
-        AnthroSystemCodes code
-        number value
-        AnthroUnit unit
-    }
-    
-    class DataField {
-        string code
-        any value
-    }
-    
-    class AnthroSystemCodes {
-        <<enumeration>>
-        HEIGHT
-        LENGTH
-        WEIGHT
-        HEAD_CIRCUMFERENCE
-        MUAC
-        TSF
-        SSF
-    }
-    
-    class AnthroUnit {
-        <<enumeration>>
-        G
-        KG
-        CM
-        MM
-    }
-    
-    Patient --> Contact
-    Patient --> Address
-    Patient "1" --> "0..3" Parent : has
-    Patient "1" --> "*" PatientMeasure
-    PatientMeasure "1" --> "*" Anthropometric
-    PatientMeasure "1" --> "*" DataField
+```
+src/
+├── app/                   # Pages Expo Router
+├── components/            # Composants UI réutilisables (BlurView, SmartInput, MarkdownText…)
+├── schemas/               # Schémas Valibot (patient, visit, task, measures, auth…)
+├── services/
+│   ├── supabase/          # Auth, stockage, types DB
+│   └── tcp-client/        # TcpClient + Framer (framing de streams TCP)
+├── store/                 # Stores Legend State (patients, measures, visits, tasks, sync, user…)
+├── hooks/                 # Hooks action-based (usePatientActions, useSyncSession, useAuthState…)
+└── lib/
+    ├── utils/             # logger, date, crypto, haptics, sync-qr, random
+    └── helpers/forms/     # Helpers anthropometry, biology, data-fields
 ```
 
-## 🔄 Workflow de transmission des données
-1. **Collecte** : L'aide-soignant saisit les données du patient dans MalnutriX Collect
-2. **Synchronisation** : L'aide-soignant scanne un QR code contenant les informations de connexion (SSID, mot de passe, IP et port) du nutritionniste
-3. **Connexion** : MalnutriX Collect se connecte automatiquement au réseau WiFi du nutritionniste et établit une connexion TCP sécurisée
-4. **Transfert** : Les données des patients non encore synchronisés sont transférées du collecteur vers l'application du nutritionniste via le protocole TCP
-5. **Intégration** : Les données sont automatiquement intégrées dans le dossier du patient et les patients sont verrouillés après synchronisation
+---
 
-## 🛠️ Installation et démarrage
+## 🔄 Workflow de synchronisation
+
+1. **Collecte** — L'aide-soignant saisit les données du patient (mesures, tâches, signes cliniques)
+2. **Scan QR** — Il scanne le QR code du nutritionniste contenant les infos de connexion (SSID, mot de passe WiFi, IP, port TCP)
+3. **Connexion automatique** — L'app se connecte au réseau WiFi du nutritionniste et établit une session TCP sécurisée
+4. **Transfert** — Les données des patients non synchronisés sont envoyées au serveur via le protocole Malnutrix Sync (13 handlers)
+5. **Verrouillage** — Les patients synchronisés sont automatiquement verrouillés côté Collect
+
+---
+
+## 🛠️ Installation
 
 ### Prérequis
 
-- Node.js >= 18
-- Bun (gestionnaire de paquets)
+- Node.js >= 20
+- Bun
 - Expo CLI
+- Compte EAS (Expo Application Services)
 
 ### Installation
 
 ```bash
-# Cloner le dépôt
 git clone https://github.com/nXhermane/MalnutrixCollect.git
-
-# Installer les dépendances
 bun install
 ```
 
 ### Développement
 
 ```bash
-# Démarrer l'application en mode développement
-bun start
-
-# Démarrer sur Android
-bun android
-
-# Démarrer sur iOS
-bun ios
-
-# Démarrer sur Web
-bun web
+bun start        # Démarrer en mode dev
+bun android      # Lancer sur Android
+bun ios          # Lancer sur iOS
+bun lint         # ESLint
+bun typecheck    # TypeScript
+bun format       # Prettier
 ```
 
-### Linting
+### Variables d'environnement
 
 ```bash
-# Vérifier le code avec ESLint
-bun lint
+# Pousser les variables vers EAS (preview)
+bun run env:push:preview
+
+# Pousser les variables vers EAS (production)
+bun run env:push:prod
 ```
 
-## 📁 Structure du projet
+### CI/CD
 
-```
-src/
-├── app/                 # Pages de l'application
-├── components/          # Composants réutilisables
-├── constants/           # Constantes de l'application
-├── models/              # Modèles de données et schémas
-├── providers/           # Context providers
-├── store/               # Configuration du store global
-├── utils/               # Fonctions utilitaires
-└── viewModel/           # Logique métier
-```
-<!-- 
-## 👥 Équipe
+Le pipeline de release est entièrement automatisé :
 
-- **Chef de projet** : Dossou Hermane
-- **Dev lead** : nXhermane
-- **Nutritionnistes** : Dossou Hermane -->
+- **Push sur `beta`** → bump de version bêta, build EAS `preview`, draft GitHub Release
+- **Push sur `main`** → bump stable, build EAS `production`, draft GitHub Release
+- **Cron toutes les 15min** → vérifie si le build EAS est terminé → publie la release avec l'APK
+
+---
 
 ## 📅 Dates clés
 
 - **Kickoff** : 25 novembre 2025
-- **MVP** : 12 décembre 2025
-- **Déploiement** : 26 décembre 2025
+- **MVP (v1.0.0-beta.1)** : 12 décembre 2025
+- **Déploiement bêta (v1.0.0-beta.7)** : 8 janvier 2025
+- **Refactorisation majeure (v2.0.0)** : Avril 2026
 
 ## 🔗 Liens utiles
 
 - [Repo GitHub](https://github.com/nXhermane/MalnutrixCollect)
-- [Documentation pour les aides-soignants](./docs/user-guide.md)
+- [ROADMAP](./ROADMAP.md)
+- [Expo Dashboard](https://expo.dev)

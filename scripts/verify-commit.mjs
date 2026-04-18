@@ -8,7 +8,7 @@ const msg = fs.readFileSync(commitMsgFile, 'utf8').trim();
 
 // Regex for conventional commits: <type>(<scope>): <description>
 const conventionalRegex =
-  /^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+/;
+  /^(feat|fix|perf|refactor|chore|style|test|build|ci|docs|wip)(\([^)]+\))?!?: .+/;
 
 if (!conventionalRegex.test(msg)) {
   console.error(`

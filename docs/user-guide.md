@@ -27,6 +27,8 @@ Voici comment l'application s'intègre dans votre travail quotidien.
 
 **Action :** Recevoir le parent et l'enfant, puis identifier le patient.
 
+![Placeholder: Écran d'accueil avec la liste des patients](https://via.placeholder.com/400x250.png/E8E8E8/000000?text=Écran+d'accueil)
+
 1. **Recherche d'un patient :**
    - Utilisez la **barre de recherche** en haut pour trouver un patient par son nom.
    - Si le patient existe, appuyez sur son nom pour voir sa fiche.
@@ -43,7 +45,6 @@ Voici comment l'application s'intègre dans votre travail quotidien.
    - Une fois terminé, appuyez sur **"Ajouter un nouveau patient"**.
 
    _Note : Une fois les informations nécessaires saisies, vous pouvez ajouter un nouveau patient sinon le bouton d'ajout reste désactivé._
-   
 
 [🎥 Cliquez ici pour voir la vidéo de démonstration](https://img.youtube.com/vi/2aF0BKlBcpo/mqdefault.jpg) [https://youtube.com/shorts/2aF0BKlBcpo](https://youtube.com/shorts/2aF0BKlBcpo)
 
@@ -63,7 +64,6 @@ Voici comment l'application s'intègre dans votre travail quotidien.
    - **Signes cliniques :** Température et autres informations.
 
 [🎥 Cliquez ici pour voir la vidéo de démonstration](https://img.youtube.com/vi/Z4VxHpO7ilk/mqdefault.jpg) [https://youtube.com/shorts/Z4VxHpO7ilk](https://youtube.com/shorts/Z4VxHpO7ilk)
-
 
 4. Validez pour enregistrer la visite.
 

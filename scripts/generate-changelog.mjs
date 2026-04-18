@@ -3,88 +3,85 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-// Get the latest two tags
-const tagsRaw = execSync('git tag --sort=-v:refname', { encoding: 'utf-8' });
-const tags = tagsRaw.trim().split('\n').filter(tag => tag.length > 0);
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+const newVersion = pkg.version;
+const newTag = `v${newVersion}`;
 
-const date = new Date().toISOString().split('T')[0];
-let newEntry = '';
-
-if (tags.length < 2) {
-  console.warn('Not enough tags to generate full changelog. Creating initial entry.');
-  
-  const currentTag = tags[0] || 'v1.0.0-beta.1';
-  const isBeta = currentTag.includes('-beta');
-  
-  // Get all commits if this is the first tag
-  let commits = '';
-  try {
-    commits = execSync(
-      `git log --pretty=format:"%h - %s (%an)"`,
-      { encoding: 'utf-8' }
-    );
-  } catch (error) {
-    commits = 'Initial release';
-  }
-  
-  newEntry = `
-## [${currentTag}] - ${date}
-${commits ? commits.split('\n').map(line => `- ${line}`).join('\n') : '- Initial beta release'}
-`;
-} else {
-  const [latestTag, previousTag] = tags;
-  
-  console.log(`Generating changelog between ${previousTag} and ${latestTag}`);
-  
-  // Fetch commits between tags
-  const commits = execSync(
-    `git log --pretty=format:"%h - %s (%an)" ${previousTag}..${latestTag}`,
-    { encoding: 'utf-8' }
-  );
-  
-  const isBeta = latestTag.includes('-beta');
-  
-  newEntry = `
-## [${latestTag}] - ${date}
-${commits.split('\n').filter(line => line.length > 0).map(line => `- ${line}`).join('\n')}
-`;
+let tagsRaw = '';
+try {
+  tagsRaw = execSync('git tag --sort=-v:refname', { encoding: 'utf-8' });
+} catch (_) {
+  tagsRaw = '';
 }
 
-// Read existing changelog if it exists
+const tags = tagsRaw
+  .trim()
+  .split('\n')
+  .filter((tag) => tag.length > 0);
+const latestGitTag = tags[0];
+
+const date = new Date().toISOString().split('T')[0];
+console.log(`Generating changelog for upcoming release ${newTag}...`);
+
+const range = latestGitTag ? `${latestGitTag}..HEAD` : '';
+
+let rawGitLog = '';
+try {
+  const logCmd = range
+    ? `git log ${range} --pretty=format:"%h - %s (%an)%n%b%n---COMMIT_DELIMITER---"`
+    : `git log --pretty=format:"%h - %s (%an)%n%b%n---COMMIT_DELIMITER---"`;
+  rawGitLog = execSync(logCmd, { encoding: 'utf-8' });
+} catch (error) {
+  console.warn('Could not fetch git log.', error.message);
+}
+
+function formatCommits(rawLog) {
+  if (!rawLog) return '- Initial release or no readable commits';
+
+  const blocks = rawLog
+    .split('---COMMIT_DELIMITER---')
+    .map((c) => c.trim())
+    .filter(Boolean);
+
+  if (blocks.length === 0) return '- No notable changes.';
+
+  return blocks
+    .map((block) => {
+      const lines = block.split('\n').filter((l) => l.trim().length > 0);
+      if (lines.length === 0) return '';
+
+      const subject = lines[0];
+      const body = lines.slice(1);
+
+      let formatted = `- **${subject}**`;
+      if (body.length > 0) {
+        formatted += '\n' + body.map((line) => `  > ${line}`).join('\n');
+      }
+      return formatted;
+    })
+    .filter(Boolean)
+    .join('\n\n');
+}
+
+const formattedCommits = formatCommits(rawGitLog);
+
+const newEntry = `## [${newTag}] - ${date}\n\n${formattedCommits}\n`;
+
 let existingChangelog = '';
 const changelogPath = 'CHANGELOG.md';
 
 if (fs.existsSync(changelogPath)) {
   existingChangelog = fs.readFileSync(changelogPath, 'utf8');
-  console.log('Existing CHANGELOG.md found, prepending new entry...');
 } else {
-  console.log('Creating new CHANGELOG.md...');
-  // Add header for new changelog
-  existingChangelog = `# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-`;
+  existingChangelog = `# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n`;
 }
 
-// Prepend new entry to existing changelog
 const updatedChangelog = existingChangelog.includes('# Changelog')
   ? existingChangelog.replace(
-      /# Changelog[\s\S]*?\n\n/,
-      `# Changelog
-
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-${newEntry}
-`
+      /# Changelog[\s\S]*?\n(\n)?/,
+      `# Changelog\n\nAll notable changes to this project will be documented in this file.\n\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n\n${newEntry}\n`,
     )
   : `${newEntry}\n${existingChangelog}`;
 
-// Write updated changelog
 fs.writeFileSync(changelogPath, updatedChangelog);
-
-console.log('✅ Changelog updated successfully!');
+console.log('✅ Changelog generated successfully!');
