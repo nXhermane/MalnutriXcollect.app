@@ -1,6 +1,7 @@
 import { createLogger } from '@/lib/utils/logger';
 import net from 'react-native-tcp-socket';
 import { Framer } from './framer';
+// eslint-disable-next-line import/no-unresolved
 import serverCert from '@/../assets/crypto/server-cert.pem';
 
 export type TcpClientStatus = 'connected' | 'closed';
