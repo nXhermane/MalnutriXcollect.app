@@ -16,6 +16,7 @@ import {
   ParentRelation,
   parentSchema,
   Patient,
+  PatientStatus,
   Sex,
 } from '@/schemas/patient.schema';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -40,6 +41,7 @@ const transformData = (data: { [x: string]: unknown }): CreatePatientDto => {
     name: data.name as string,
     birthdate: data.birthdate as string,
     sex: data.sex as Sex,
+    status: (data.status as PatientStatus | undefined) ?? PatientStatus.NEW,
     contact: { email: data.email as string | undefined, tel: data.tel as string | undefined },
     address: { fullAddress: data.fullAddress as string, city: data.city as string },
     parents,
@@ -50,6 +52,7 @@ const transformDataBack = (p: Patient): { [x: string]: unknown } => ({
   name: p.name,
   birthdate: toDatetime(new Date(p.birthdate)),
   sex: p.sex,
+  status: p.status ?? PatientStatus.NEW,
   email: p.contact?.email ?? '',
   tel: p.contact?.tel ?? '',
   fullAddress: p.address?.fullAddress ?? '',

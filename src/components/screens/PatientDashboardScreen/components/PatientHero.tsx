@@ -1,10 +1,23 @@
 import { Icon } from '@/components/shared/icons';
+import { STATUS_CONFIG } from '@/constants/patient';
 import { formatAgeInMonths } from '@/lib/utils/date';
 import { vibrate } from '@/lib/utils/haptics';
 import { Patient, Sex } from '@/schemas/patient.schema';
+import { tasks$ } from '@/store/tasks/tasks.store';
+import { useValue } from '@legendapp/state/react';
 import { useRouter } from 'expo-router';
-import { Avatar, Surface } from 'heroui-native';
+import { Avatar, Surface, cn } from 'heroui-native';
 import { Pressable, Text, View } from 'react-native';
+
+function isTodayTask(receivedAt: string): boolean {
+  const d = new Date(receivedAt);
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+}
 
 interface PatientHeroProps {
   patient: Patient;
@@ -18,16 +31,34 @@ export function PatientHero({ patient }: PatientHeroProps) {
     .map((n, i) => (i <= 1 ? n.charAt(0).toUpperCase() : ''))
     .join('');
 
+  const cfg = STATUS_CONFIG[patient.status ?? 'NEW'];
+
+  const { todayDone, todayTotal } = useValue(() => {
+    const all = Object.values(tasks$.get()).filter(
+      (t) => t.patientId === patient.id && isTodayTask(t.receivedAt),
+    );
+    return {
+      todayTotal: all.length,
+      todayDone: all.filter((t) => t.localStatus === 'completed').length,
+    };
+  });
+
+  const taskColor =
+    todayTotal === 0
+      ? 'text-muted/40'
+      : todayDone === todayTotal
+        ? 'text-accent'
+        : todayDone === 0
+          ? 'text-red-400'
+          : 'text-amber-400';
+
   return (
     <Pressable
       onPress={() => {
         vibrate('soft');
         router.push({
           pathname: '/patient-form',
-          params: {
-            id: patient.id,
-            readonly: '1',
-          },
+          params: { id: patient.id, readonly: '1' },
         });
       }}>
       <Surface>
@@ -41,6 +72,7 @@ export function PatientHero({ patient }: PatientHeroProps) {
           </Avatar>
 
           <View className="flex-1 gap-1">
+            {/* Name + status pill */}
             <View className="flex-row items-center gap-2">
               <Text className="text-base font-bold text-foreground flex-1" numberOfLines={1}>
                 {patient.name}
@@ -48,14 +80,33 @@ export function PatientHero({ patient }: PatientHeroProps) {
               {patient.isLocked && (
                 <Icon name="LockKeyhole" sizeClassName="text-xs" className="text-muted" />
               )}
+              <View className={cn('px-2 py-0.5 rounded-lg border', cfg.pillBg, cfg.pillBorder)}>
+                <Text className={cn('text-[10px] font-black tracking-wide', cfg.pillText)}>
+                  {cfg.label}
+                </Text>
+              </View>
             </View>
 
+            {/* Age + sex */}
             <View className="flex-row items-center gap-1.5">
               <Icon name="Calendar" sizeClassName="text-xs" className="text-muted" />
               <Text className="text-xs text-muted font-light">
-                {formatAgeInMonths(new Date(patient.birthdate))} • {isMale ? 'Masculin' : 'Féminin'}
+                {formatAgeInMonths(new Date(patient.birthdate))} · {isMale ? 'Masculin' : 'Féminin'}
               </Text>
             </View>
+
+            {/* Today tasks badge */}
+            {todayTotal > 0 && (
+              <View className="flex-row items-center gap-1.5">
+                <Icon name="ClipboardList" sizeClassName="text-xs" className="text-muted" />
+                <Text className="text-xs font-light text-muted">
+                  Tâches du jour :{' '}
+                  <Text className={cn('font-bold', taskColor)}>
+                    {todayDone}/{todayTotal}
+                  </Text>
+                </Text>
+              </View>
+            )}
 
             {patient.contact?.tel && (
               <View className="flex-row items-center gap-1.5">

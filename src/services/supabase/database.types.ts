@@ -712,6 +712,148 @@ export type Database = {
           },
         ];
       };
+      departments: {
+        Row: {
+          chief_town: string;
+          code: string;
+          id: string;
+          name: string;
+        };
+        Insert: {
+          chief_town: string;
+          code: string;
+          id: string;
+          name: string;
+        };
+        Update: {
+          chief_town?: string;
+          code?: string;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [];
+      };
+      facilities: {
+        Row: {
+          city: string;
+          department_id: string;
+          has_cna: boolean;
+          has_cnt: boolean;
+          health_zone_id: string | null;
+          id: string;
+          level: string;
+          name: string;
+          sector: string;
+          short_name: string;
+          type: string;
+        };
+        Insert: {
+          city: string;
+          department_id: string;
+          has_cna: boolean;
+          has_cnt: boolean;
+          health_zone_id?: string | null;
+          id: string;
+          level: string;
+          name: string;
+          sector: string;
+          short_name: string;
+          type: string;
+        };
+        Update: {
+          city?: string;
+          department_id?: string;
+          has_cna?: boolean;
+          has_cnt?: boolean;
+          health_zone_id?: string | null;
+          id?: string;
+          level?: string;
+          name?: string;
+          sector?: string;
+          short_name?: string;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'facilities_department_id_fkey';
+            columns: ['department_id'];
+            isOneToOne: false;
+            referencedRelation: 'departments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'facilities_health_zone_id_fkey';
+            columns: ['health_zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'health_zones';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      health_zones: {
+        Row: {
+          communes: string[];
+          department_id: string;
+          id: string;
+          name: string;
+        };
+        Insert: {
+          communes: string[];
+          department_id: string;
+          id: string;
+          name: string;
+        };
+        Update: {
+          communes?: string[];
+          department_id?: string;
+          id?: string;
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'health_zones_department_id_fkey';
+            columns: ['department_id'];
+            isOneToOne: false;
+            referencedRelation: 'departments';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      hospital_services: {
+        Row: {
+          facility_id: string;
+          id: string;
+          is_mas_capable: boolean;
+          name: string;
+          nutrition_unit_type: string | null;
+          service_type: string;
+        };
+        Insert: {
+          facility_id: string;
+          id: string;
+          is_mas_capable: boolean;
+          name: string;
+          nutrition_unit_type?: string | null;
+          service_type: string;
+        };
+        Update: {
+          facility_id?: string;
+          id?: string;
+          is_mas_capable?: boolean;
+          name?: string;
+          nutrition_unit_type?: string | null;
+          service_type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'hospital_services_facility_id_fkey';
+            columns: ['facility_id'];
+            isOneToOne: false;
+            referencedRelation: 'facilities';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       medical_decision_requests: {
         Row: {
           config_json: string;
@@ -1242,40 +1384,81 @@ export type Database = {
         Row: {
           bio: string | null;
           created_at: number;
+          department_id: string | null;
           display_name: string | null;
+          facility_id: string | null;
+          health_zone_id: string | null;
           id: string;
           is_active: boolean;
           origin_app: string;
           phone: string | null;
           profession: string | null;
           role: string;
+          service_id: string | null;
           specialty: string | null;
         };
         Insert: {
           bio?: string | null;
           created_at?: number;
+          department_id?: string | null;
           display_name?: string | null;
+          facility_id?: string | null;
+          health_zone_id?: string | null;
           id: string;
           is_active?: boolean;
           origin_app?: string;
           phone?: string | null;
           profession?: string | null;
           role?: string;
+          service_id?: string | null;
           specialty?: string | null;
         };
         Update: {
           bio?: string | null;
           created_at?: number;
+          department_id?: string | null;
           display_name?: string | null;
+          facility_id?: string | null;
+          health_zone_id?: string | null;
           id?: string;
           is_active?: boolean;
           origin_app?: string;
           phone?: string | null;
           profession?: string | null;
           role?: string;
+          service_id?: string | null;
           specialty?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_department_id_fkey';
+            columns: ['department_id'];
+            isOneToOne: false;
+            referencedRelation: 'departments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'profiles_facility_id_fkey';
+            columns: ['facility_id'];
+            isOneToOne: false;
+            referencedRelation: 'facilities';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'profiles_health_zone_id_fkey';
+            columns: ['health_zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'health_zones';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'profiles_service_id_fkey';
+            columns: ['service_id'];
+            isOneToOne: false;
+            referencedRelation: 'hospital_services';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       treatment_actions: {
         Row: {
@@ -1642,17 +1825,58 @@ export type Database = {
           avatar_url: string | null;
           bio: string | null;
           created_at: number | null;
+          department_id: string | null;
+          department_name: string | null;
           display_name: string | null;
           email: string | null;
+          facility_id: string | null;
+          facility_level: string | null;
+          facility_name: string | null;
+          facility_short_name: string | null;
+          facility_type: string | null;
           full_name: string | null;
+          health_zone_id: string | null;
+          health_zone_name: string | null;
           id: string | null;
           is_active: boolean | null;
+          nutrition_unit_type: string | null;
           phone: string | null;
           profession: string | null;
           role: string | null;
+          service_id: string | null;
+          service_name: string | null;
           specialty: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'profiles_department_id_fkey';
+            columns: ['department_id'];
+            isOneToOne: false;
+            referencedRelation: 'departments';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'profiles_facility_id_fkey';
+            columns: ['facility_id'];
+            isOneToOne: false;
+            referencedRelation: 'facilities';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'profiles_health_zone_id_fkey';
+            columns: ['health_zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'health_zones';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'profiles_service_id_fkey';
+            columns: ['service_id'];
+            isOneToOne: false;
+            referencedRelation: 'hospital_services';
+            referencedColumns: ['id'];
+          },
+        ];
       };
     };
     Functions: {

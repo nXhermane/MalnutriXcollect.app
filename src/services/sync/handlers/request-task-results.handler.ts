@@ -35,7 +35,7 @@ export function handleTaskResultRequest(_content: null, send: SendFn): void {
   sync_session_state$.currentPhaseMessage.set('Export des résultats de tâches...');
   const nonPendingAndExportableTasks = getNonPendingAndExportableTasks();
   send({
-    type: MessageType.CLIENT_TASK_RESULT_EXPORT,
+    type: MessageType.CLIENT_SEND_TASK_RESULTS,
     content: {
       results: nonPendingAndExportableTasks.map(toTaskResult),
     },
