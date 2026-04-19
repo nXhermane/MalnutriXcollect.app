@@ -19,8 +19,8 @@ if [ -z "$DISPATCH_PROXY_API_KEY" ]; then
   exit 1
 fi
 
-if [ -z "$EAS_BUILD_ARTIFACT_URL" ]; then
-  echo "❌ EAS_BUILD_ARTIFACT_URL is not set. Aborting."
+if [ -z "$EAS_BUILD_ID" ]; then
+  echo "❌ EAS_BUILD_ID is not set. Aborting."
   exit 1
 fi
 
@@ -30,7 +30,8 @@ if [ -z "$EAS_BUILD_APP_VERSION" ]; then
 fi
 
 VERSION="$EAS_BUILD_APP_VERSION"
-ARTIFACT_URL="$EAS_BUILD_ARTIFACT_URL"
+# EAS_BUILD_ARTIFACT_URL is not reliably available in hooks — compose from build ID instead
+ARTIFACT_URL="https://expo.dev/artifacts/eas/${EAS_BUILD_ID}"
 
 echo "🚀 Triggering finalize-release dispatch..."
 echo "   Version     : $VERSION"
