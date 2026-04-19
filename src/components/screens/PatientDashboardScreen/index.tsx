@@ -64,23 +64,25 @@ export function PatientDashboardScreen() {
             </Text>
           </View>
 
-          <PressableFeedback
-            className={`p-3 rounded-2xl shadow-sm ${patient.isLocked ? 'bg-muted/10' : 'bg-surface/80 active:bg-surface'}`}
-            accessibilityLabel="Modifier le patient"
-            isDisabled={patient.isLocked}
-            onPress={() => {
-              vibrate('soft');
-              router.push({
-                pathname: '/patient-form',
-                params: { id },
-              });
-            }}>
-            <Icon
-              name="SquarePen"
-              sizeClassName="text-lg"
-              className={patient.isLocked ? 'text-muted/40' : 'text-foreground'}
-            />
-          </PressableFeedback>
+          {!patient.isLocked && (
+            <PressableFeedback
+              className={`p-3 rounded-2xl shadow-sm ${patient.isLocked ? 'bg-muted/10' : 'bg-surface/80 active:bg-surface'}`}
+              accessibilityLabel="Modifier le patient"
+              isDisabled={patient.isLocked}
+              onPress={() => {
+                vibrate('soft');
+                router.push({
+                  pathname: '/patient-form',
+                  params: { id },
+                });
+              }}>
+              <Icon
+                name="SquarePen"
+                sizeClassName="text-lg"
+                className={patient.isLocked ? 'text-muted/40' : 'text-foreground'}
+              />
+            </PressableFeedback>
+          )}
         </View>
       </View>
       <View className="mt-v-18 px-2 mb-v-3">

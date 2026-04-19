@@ -14,6 +14,7 @@
     "supabase:login": "bunx supabase login",
     "supabase:generate": "bun --env-file=.env.local x supabase gen types typescript --project-id \"$EXPO_PUBLIC_SUPABASE_PROJECT_REF\" --schema public > src/services/supabase/database.types.ts",
     "eas-build-pre-install": "./scripts/eas-build-pre-install.sh",
+    "eas-build-on-success": "./scripts/eas-build-on-success.sh",
     "release:bump": "bun run scripts/bump-version.mjs",
     "release:changelog": "bun run scripts/generate-changelog.mjs",
     "env:push:preview": "bunx eas-cli env:push --environment preview",

@@ -7,7 +7,7 @@ interface SyncStartRequestContent {
 }
 export function handleSyncStartRequest(content: SyncStartRequestContent, send: SendFn): void {
   send({
-    type: MessageType.SYNC_START_REQUEST,
+    type: MessageType.CLIENT_REQUEST_SYNC,
     content,
   });
 }

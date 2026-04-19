@@ -1,13 +1,16 @@
+import { useLocationPrompt } from '@/hooks/useLocationPrompt';
 import { vibrate } from '@/lib/utils/haptics';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
-import { HomeBottom, HomeHeader, PatientList } from './components';
+import { HomeBottom, HomeHeader, LocationPromptSheet, PatientList } from './components';
 
 export function HomeScreen() {
   const scrollY = useSharedValue(0);
   const router = useRouter();
+
+  useLocationPrompt();
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -36,6 +39,7 @@ export function HomeScreen() {
         />
         <HomeBottom />
       </View>
+      <LocationPromptSheet />
     </React.Fragment>
   );
 }

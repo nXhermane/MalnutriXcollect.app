@@ -11,7 +11,7 @@ export function handleMeasuresCompleted(
   _send: SendFn,
 ): void {
   logger.info(
-    `[MeasuresCompleted] Server confirmed measures (timestamp: ${content.timestamp}). Waiting for SERVER_PATIENT_IMPORT.`,
+    `[MeasuresCompleted] Server confirmed measures (timestamp: ${content.timestamp}). Waiting for SERVER_SEND_PRO_PATIENTS.`,
   );
   sync_session_state$.currentPhase.set('passive_wait');
   sync_session_state$.currentPhaseMessage.set('En attente des instructions du serveur...');

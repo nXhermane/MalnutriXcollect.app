@@ -15,6 +15,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { BlurView } from '../shared/BlurView';
+import { CopyrightNotice } from '../shared/CopyrightNotice';
 
 export function AuthScreen() {
   const toast = useToast();
@@ -91,9 +92,7 @@ export function AuthScreen() {
           </View>
         </View>
 
-        <Text className="mt-8 text-center text-2xs font-light text-muted">
-          {'© 2025 Malnutrix — Tous droits réservés'}
-        </Text>
+        <CopyrightNotice />
       </View>
     </View>
   );

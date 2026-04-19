@@ -11,7 +11,7 @@ export function handleCacheManifestRequest(_content: null, send: SendFn): void {
   const knownPatientIds = Object.keys(patients$.peek());
 
   send({
-    type: MessageType.CLIENT_CACHE_MANIFEST,
+    type: MessageType.CLIENT_SEND_CACHE_MANIFEST,
     content: {
       cachedRefs,
       knownPatientIds,

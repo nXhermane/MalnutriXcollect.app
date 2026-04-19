@@ -27,7 +27,7 @@ export function handlePatientImport(content: PatientImportContent, send: SendFn)
   }
 
   send({
-    type: MessageType.CLIENT_ACK_SERVER_PATIENT,
+    type: MessageType.CLIENT_ACK_PRO_PATIENTS,
     content: { receivedPatientIds },
   });
 

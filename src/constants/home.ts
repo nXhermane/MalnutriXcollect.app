@@ -1,0 +1,4 @@
+export const HEADER_EXPANDED_HEIGHT = 350;
+export const HEADER_COLLAPSED_HEIGHT = 68;
+export const SCROLL_THRESHOLD = 100;
+export const SEARCH_BAR_EXTRA = 70;

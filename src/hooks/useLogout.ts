@@ -2,6 +2,8 @@ import { signOut } from '@/services/supabase/auth';
 import { user$ } from '@/store/user/user.store';
 import { useCallback, useState } from 'react';
 import { useToast } from './useToast';
+import { locationPrompt$ } from '@/store/ui/home.store';
+import { batch } from '@legendapp/state';
 
 export interface UseLogoutReturn {
   isSheetOpen: boolean;
@@ -27,10 +29,10 @@ export function useLogout(): UseLogoutReturn {
         toast.show('Error', 'Erreur de déconnexion', error);
         return;
       }
-      // On réinitialise uniquement la session en mémoire.
-      // Les données locales (patients, visites, mesures, settings) restent
-      // sur l'appareil — l'app est offline-first, pas besoin de tout effacer.
-      user$.set({ isLoggedIn: false, isLoading: false, user: null });
+      batch(() => {
+        locationPrompt$.locationPromptShownThisSession.set(false);
+        user$.set({ isLoggedIn: false, isLoading: false, user: null });
+      });
     } finally {
       setIsLoggingOut(false);
       setIsSheetOpen(false);

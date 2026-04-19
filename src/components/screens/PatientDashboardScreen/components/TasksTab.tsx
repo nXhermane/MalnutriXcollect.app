@@ -68,6 +68,24 @@ export function TasksTab({ patientId }: Props) {
   const monitoringTasks = allTasks.filter((t) => t.taskType === 'monitoring_task');
   const dataCollectionTasks = allTasks.filter((t) => t.taskType === 'data_collection_task');
 
+  const treatmentDone = treatmentTasks.filter((t) => t.localStatus === 'completed').length;
+  const monitoringDone = monitoringTasks.filter((t) => t.localStatus === 'completed').length;
+  const dataCollectionDone = dataCollectionTasks.filter(
+    (t) => t.localStatus === 'completed',
+  ).length;
+
+  function badgeColor(done: number, total: number) {
+    if (total === 0) return 'bg-accent/15 text-accent';
+    if (done === total) return 'bg-accent/15 text-accent';
+    if (done === 0) return 'bg-red-500/15 text-red-400';
+    return 'bg-amber-500/15 text-amber-400';
+  }
+
+  function badgeLabel(done: number, total: number) {
+    if (total === 0) return '0';
+    return `${done}/${total}`;
+  }
+
   return (
     <Tabs
       value={activeTab}
@@ -89,8 +107,18 @@ export function TasksTab({ patientId }: Props) {
                 Trait.
               </Tabs.Label>
               {treatmentTasks.length > 0 && (
-                <View className="min-w-4 h-4 px-1 rounded-full bg-accent/15 items-center justify-center">
-                  <Text className="text-2xs text-accent font-bold">{treatmentTasks.length}</Text>
+                <View
+                  className={cn(
+                    'min-w-4 h-4 px-1 rounded-full items-center justify-center',
+                    badgeColor(treatmentDone, treatmentTasks.length),
+                  )}>
+                  <Text
+                    className={cn(
+                      'text-2xs font-bold',
+                      badgeColor(treatmentDone, treatmentTasks.length).split(' ')[1],
+                    )}>
+                    {badgeLabel(treatmentDone, treatmentTasks.length)}
+                  </Text>
                 </View>
               )}
             </>
@@ -110,8 +138,18 @@ export function TasksTab({ patientId }: Props) {
                 Surv.
               </Tabs.Label>
               {monitoringTasks.length > 0 && (
-                <View className="min-w-4 h-4 px-1 rounded-full bg-accent/15 items-center justify-center">
-                  <Text className="text-2xs text-accent font-bold">{monitoringTasks.length}</Text>
+                <View
+                  className={cn(
+                    'min-w-4 h-4 px-1 rounded-full items-center justify-center',
+                    badgeColor(monitoringDone, monitoringTasks.length),
+                  )}>
+                  <Text
+                    className={cn(
+                      'text-2xs font-bold',
+                      badgeColor(monitoringDone, monitoringTasks.length).split(' ')[1],
+                    )}>
+                    {badgeLabel(monitoringDone, monitoringTasks.length)}
+                  </Text>
                 </View>
               )}
             </>
@@ -131,9 +169,17 @@ export function TasksTab({ patientId }: Props) {
                 Coll.
               </Tabs.Label>
               {dataCollectionTasks.length > 0 && (
-                <View className="min-w-4 h-4 px-1 rounded-full bg-accent/15 items-center justify-center">
-                  <Text className="text-2xs text-accent font-bold">
-                    {dataCollectionTasks.length}
+                <View
+                  className={cn(
+                    'min-w-4 h-4 px-1 rounded-full items-center justify-center',
+                    badgeColor(dataCollectionDone, dataCollectionTasks.length),
+                  )}>
+                  <Text
+                    className={cn(
+                      'text-2xs font-bold',
+                      badgeColor(dataCollectionDone, dataCollectionTasks.length).split(' ')[1],
+                    )}>
+                    {badgeLabel(dataCollectionDone, dataCollectionTasks.length)}
                   </Text>
                 </View>
               )}
