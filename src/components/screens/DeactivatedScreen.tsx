@@ -35,9 +35,9 @@ export function DeactivatedScreen() {
         <View className="overflow-hidden rounded-[40px] border border-border/50 shadow-2xl">
           <BlurView />
           <View className="gap-y-3 px-4 py-8">
-            <Button onPress={openContact} className="h-14 rounded-2xl bg-primary shadow-sm">
-              <Icon name={'ExternalLink'} size={18} className="text-primary-foreground" />
-              <Button.Label className="ml-2 font-semibold text-primary-foreground">
+            <Button onPress={openContact} className="h-14 rounded-2xl shadow-sm">
+              <Icon name={'ExternalLink'} size={18} className="text-white" />
+              <Button.Label className="ml-2 font-semibold text-white">
                 {"Contacter l'administrateur"}
               </Button.Label>
             </Button>
