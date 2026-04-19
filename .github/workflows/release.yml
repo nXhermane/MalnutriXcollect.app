@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: 
+    branches:
       - main
       - beta
 
@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      models: read
     outputs:
       new_tag: ${{ steps.bump.outputs.new_tag }}
       bumped: ${{ steps.bump.outputs.bumped }}
@@ -56,6 +57,68 @@ jobs:
         if: steps.bump.outputs.bumped == 'true'
         run: bun run scripts/generate-changelog.mjs
 
+      - name: Polish release notes with AI
+        if: steps.bump.outputs.bumped == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ steps.bump.outputs.new_tag }}
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          RAW_NOTES=$(cat RELEASE_NOTES.md)
+          TEMPLATE=$(cat .github/release-notes-template.md)
+
+          # Build payload entirely via jq to safely handle special characters in commits
+          PAYLOAD=$(jq -n \
+            --arg system  "$TEMPLATE" \
+            --arg version "$NEW_TAG" \
+            --arg branch  "$BRANCH_NAME" \
+            --arg notes   "$RAW_NOTES" \
+            '{
+              model: "gpt-4o-mini",
+              temperature: 0.3,
+              max_tokens: 1024,
+              messages: [
+                { role: "system", content: $system },
+                {
+                  role: "user",
+                  content: (
+                    "Version : " + $version + " (branche : " + $branch + ")\n\n" +
+                    "Voici la liste brute des commits inclus dans cette release. " +
+                    "Génère les release notes en français en suivant **strictement** le prompt système (template, règles, format, exemples).\n\n" +
+                    "Ne commente pas ta réponse. Produis uniquement le contenu final des release notes.\n\n" +
+                    "---\n\n" +
+                    $notes
+                  )
+                }
+              ]
+            }')
+
+          RESPONSE=$(curl -s -w "\n__HTTP_STATUS__:%{http_code}" \
+            https://models.inference.ai.azure.com/chat/completions \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+
+          HTTP_STATUS=$(echo "$RESPONSE" | grep -o '__HTTP_STATUS__:[0-9]*' | cut -d: -f2)
+          BODY=$(echo "$RESPONSE" | sed 's/__HTTP_STATUS__:[0-9]*$//')
+
+          POLISHED=$(echo "$BODY" | jq -r '.choices[0].message.content // empty')
+
+          if [ -z "$POLISHED" ] || [ "$HTTP_STATUS" != "200" ]; then
+            echo "⚠️ AI polishing failed (HTTP $HTTP_STATUS) — using raw release notes as fallback."
+            echo "--- API Response ---"
+            echo "$BODY" | jq '.' || echo "$BODY"
+            echo "--------------------"
+          else
+            # Strip any accidental markdown code fences the model may have added
+            POLISHED=$(echo "$POLISHED" | sed '/^```/d')
+            echo "$POLISHED" > RELEASE_NOTES.md
+            echo "✅ Release notes polished by AI (HTTP $HTTP_STATUS)."
+            echo "--- Preview (first 20 lines) ---"
+            head -20 RELEASE_NOTES.md
+            echo "--------------------------------"
+          fi
+
       - name: Ensure exact versions
         if: steps.bump.outputs.bumped == 'true'
         run: bun install --lockfile-only
@@ -98,6 +161,6 @@ jobs:
         with:
           tag_name: ${{ steps.bump.outputs.new_tag }}
           name: Release ${{ steps.bump.outputs.new_tag }}
-          body_path: CHANGELOG.md 
-          draft: true  # DRAFT is important! finalize-release.yml will pick it up
+          body_path: RELEASE_NOTES.md
+          draft: true # DRAFT is important! finalize-release.yml will pick it up
           prerelease: ${{ steps.profile.outputs.is_prerelease == 'true' }}
