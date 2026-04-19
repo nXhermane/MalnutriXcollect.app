@@ -1,5 +1,4 @@
 import { Icon } from '@/components/shared/icons';
-import { MeasureCategory } from '@/constants';
 import { vibrate } from '@/lib/utils/haptics';
 import { AnthropometricMeasure } from '@/schemas/anthropometric-measure.schema';
 import { BiologicalMeasure } from '@/schemas/biological-measure.schema';
@@ -15,6 +14,7 @@ import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated
 import { AnthropometricMeasureCard } from './measures/AnthropometricMeasureCard';
 import { BiologicalMeasureCard } from './measures/BiologicalMeasureCard';
 import { ClinicalFieldMeasureCard } from './measures/ClinicalFieldMeasureCard';
+import { MeasureCategory } from '@/constants';
 
 function SectionHeader({
   iconName,
@@ -109,10 +109,6 @@ export function VisitCard({ visit, index, total, patientId, onDelete }: VisitCar
     month: 'short',
     year: 'numeric',
   });
-  const timeLabel = new Date(visit.createdAt).toLocaleTimeString('fr-FR', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 
   return (
     <Swipeable
@@ -147,9 +143,6 @@ export function VisitCard({ visit, index, total, patientId, onDelete }: VisitCar
                   <View className="flex-row items-center gap-1">
                     <Icon name="Calendar" sizeClassName="text-2xs" className="text-muted" />
                     <Text className="text-2xs text-muted">{dateLabel}</Text>
-                    <Text className="text-2xs text-muted/40">·</Text>
-                    <Icon name="Clock" sizeClassName="text-2xs" className="text-muted/60" />
-                    <Text className="text-2xs text-muted/60">{timeLabel}</Text>
                   </View>
                   {hasMeasures && (
                     <View className="flex-row items-center gap-1">

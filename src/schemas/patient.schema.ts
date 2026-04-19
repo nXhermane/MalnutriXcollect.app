@@ -12,19 +12,6 @@ export enum Sex {
   FEMALE = 'F',
 }
 
-export enum PatientStatus {
-  NORMAL = 'NORMAL',
-  NEW = 'NEW',
-  SEVERE_ACUTE_MALNUTRITION = 'SEVERE_ACUTE_MALNUTRITION',
-  MODERATE_ACUTE_MALNUTRITION = 'MODERATE_ACUTE_MALNUTRITION',
-  SEVERE_CHRONIC_MALNUTRITION = 'SEVERE_CHRONIC_MALNUTRITION',
-  MODERATE_CHRONIC_MALNUTRITION = 'MODERATE_CHRONIC_MALNUTRITION',
-  SEVERE_UNDERWEIGHT = 'SEVERE_UNDERWEIGHT',
-  MODERATE_UNDERWEIGHT = 'MODERATE_UNDERWEIGHT',
-  OBESITY = 'OBESITY',
-  OVERWEIGHT = 'OVERWEIGHT',
-}
-
 const contactSchema = v.object({
   email: v.optional(
     v.pipe(
@@ -101,7 +88,6 @@ export const patientSchema = v.object({
   birthdate: v.pipe(v.string(), v.isoDateTime(), birthdateInPastCheck, birthdatePediatricCheck),
   sex: v.enum(Sex, 'Le sexe du patient est invalide'),
   isLocked: v.optional(v.boolean(), false),
-  status: v.optional(v.enum(PatientStatus), PatientStatus.NEW),
   contact: v.optional(contactSchema),
   parents: v.pipe(v.array(parentSchema), uniqueParentsCheck),
   address: addressSchema,
@@ -117,7 +103,6 @@ export const createPatientSchema = v.object({
   ),
   birthdate: v.pipe(v.string(), v.isoDateTime(), birthdateInPastCheck, birthdatePediatricCheck),
   sex: v.enum(Sex),
-  status: v.optional(v.enum(PatientStatus), PatientStatus.NEW),
   contact: v.optional(contactSchema),
   parents: v.pipe(v.array(parentSchema), uniqueParentsCheck),
   address: addressSchema,
@@ -129,7 +114,6 @@ export const updatePatientSchema = v.partial(
     birthdate: v.pipe(v.string(), v.isoDateTime(), birthdateInPastCheck, birthdatePediatricCheck),
     sex: v.enum(Sex),
     isLocked: v.boolean(),
-    status: v.enum(PatientStatus),
     contact: contactSchema,
     parents: v.pipe(v.array(parentSchema), uniqueParentsCheck),
     address: addressSchema,

@@ -2,6 +2,7 @@ import { BlurView } from '@/components/shared/BlurView';
 import { Icon } from '@/components/shared/icons';
 import { vibrate } from '@/lib/utils/haptics';
 import { patients$ } from '@/store/patients/patients.store';
+// import { visits$ } from '@/store/visits/visits.store';
 import { useValue } from '@legendapp/state/react';
 import { useRouter } from 'expo-router';
 import { Button, cn, Surface } from 'heroui-native';
@@ -10,6 +11,11 @@ import { View } from 'react-native';
 export function HomeBottom() {
   const router = useRouter();
   const patientCount = useValue(() => Object.keys(patients$.get()).length);
+
+  // const nonExportedCount = useValue(() => {
+  //   const allVisits = visits$.get();
+  //   return Object.values(allVisits).filter((visits) => visits.some((v) => !v.isExported)).length;
+  // });
 
   return (
     <Surface
@@ -36,9 +42,7 @@ export function HomeBottom() {
               router.push('/sync');
             }}>
             <Icon name="RotateCcw" size={16} className="text-accent" />
-            {patientCount === 0 && (
-              <Button.Label className="text-accent text-xs font-medium">Synchroniser</Button.Label>
-            )}
+            <Button.Label className="text-accent text-xs font-medium">Sync</Button.Label>
           </Button>
         </View>
       </View>

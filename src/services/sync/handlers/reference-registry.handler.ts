@@ -7,7 +7,7 @@ import { sync_session_state$ } from '@/store/sync/sync-session.store';
 export function handleReferenceRegistry(content: ServerRegistryPayload, send: SendFn): void {
   const updatedCodes = mergeRegistryDiff(content);
   send({
-    type: MessageType.CLIENT_ACK_REFERENCES,
+    type: MessageType.CLIENT_REGISTRY_ACK,
     content: { updatedCodes },
   });
 

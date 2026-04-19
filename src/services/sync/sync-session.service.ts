@@ -1,23 +1,22 @@
-import { createLogger } from '@/lib/utils/logger';
 import tcpClient from '@/services/tcp-client/tcp-client';
-import { sync_session_state$, initialSessionState } from '@/store/sync/sync-session.store';
 import { user$, userProfile$ } from '@/store/user/user.store';
-import { handlePatientExportCompleted } from './handlers/ack-new-patients.handler';
-import { handleMeasuresCompleted } from './handlers/ack-patient-measures.handler';
-import { handleAckSyncRequest } from './handlers/ack-sync-request.handler';
-import { handleTaskResultExportCompleted } from './handlers/ack-task-results.handler';
-import { handleSyncCompleted } from './handlers/close-sync-session.handler';
-import { handleSyncStartRequest } from './handlers/request-sync.handler';
-import { handleTaskResultRequest } from './handlers/request-task-results.handler';
-import { handleTaskImport } from './handlers/send-active-tasks.handler';
-import { handleCacheManifestRequest } from './handlers/send-cache-manifest.handler';
-import { handleReferenceRegistry } from './handlers/send-missing-references.handler';
-import { handleMeasuresExport } from './handlers/send-patient-measures.handler';
-import { handlePatientImport } from './handlers/send-pro-patients.handler';
-import { handleUpdatedPatients } from './handlers/updated-patients.handler';
+import { handleCacheManifestRequest } from './handlers/cache-manifest.handler';
+import { handlePatientImport } from './handlers/patient-import.handler';
+import { handleReferenceRegistry } from './handlers/reference-registry.handler';
+import { handleSyncCompleted } from './handlers/sync-completed.handler';
+import { handleSyncReady } from './handlers/sync-ready.handler';
+import { handleTaskImport } from './handlers/task-import.handler';
+import { handleTaskResultRequest } from './handlers/task-result-request.handler';
+import { handleMeasuresExport } from './handlers/measures-export.handler';
 import { HandlerRegistry } from './protocol/message-handler';
 import { MessageType } from './protocol/message-types';
-import { SendFn, ProtocolMessage } from './protocol/protocol-message';
+import type { ProtocolMessage, SendFn } from './protocol/protocol-message';
+import { createLogger } from '@/lib/utils/logger';
+import { handleSyncStartRequest } from './handlers/sync-start-request.handler';
+import { initialSessionState, sync_session_state$ } from '@/store/sync/sync-session.store';
+import { handlePatientExportCompleted } from './handlers/patient-export-completed.handler';
+import { handleMeasuresCompleted } from './handlers/measures-completed.handler';
+import { handleTaskResultExportCompleted } from './handlers/task-result-export-completed.handler';
 
 const logger = createLogger('SyncSessionService');
 
@@ -32,19 +31,24 @@ class SyncSessionService {
   start(host: string, port: number): void {
     this.registry = new HandlerRegistry();
     // register handlers
-    this.registry.register(MessageType.CLIENT_REQUEST_SYNC, handleSyncStartRequest);
-    this.registry.register(MessageType.SERVER_ACK_SYNC_REQUEST, handleAckSyncRequest);
-    this.registry.register(MessageType.SERVER_SEND_UPDATED_PATIENTS, handleUpdatedPatients);
-    this.registry.register(MessageType.SERVER_ACK_NEW_PATIENTS, handlePatientExportCompleted);
-    this.registry.register(MessageType.SERVER_REQUEST_PATIENT_MEASURES, handleMeasuresExport);
-    this.registry.register(MessageType.SERVER_ACK_PATIENT_MEASURES, handleMeasuresCompleted);
-    this.registry.register(MessageType.SERVER_SEND_PRO_PATIENTS, handlePatientImport);
+    this.registry.register(MessageType.SYNC_START_REQUEST, handleSyncStartRequest);
+    this.registry.register(MessageType.SYNC_READY_FOR_CLIENT_DATA, handleSyncReady);
+    this.registry.register(
+      MessageType.SERVER_CLIENT_EXPORT_COMPLETED,
+      handlePatientExportCompleted,
+    );
+    this.registry.register(MessageType.SERVER_REQUEST_MEASURES, handleMeasuresExport);
+    this.registry.register(MessageType.SERVER_MEASURES_COMPLETED, handleMeasuresCompleted);
+    this.registry.register(MessageType.SERVER_PATIENT_IMPORT, handlePatientImport);
     this.registry.register(MessageType.SERVER_REQUEST_CACHE_MANIFEST, handleCacheManifestRequest);
-    this.registry.register(MessageType.SERVER_SEND_MISSING_REFERENCES, handleReferenceRegistry);
-    this.registry.register(MessageType.SERVER_SEND_ACTIVE_TASKS, handleTaskImport);
+    this.registry.register(MessageType.SERVER_REFERENCE_REGISTRY, handleReferenceRegistry);
+    this.registry.register(MessageType.SERVER_TASK_IMPORT, handleTaskImport);
     this.registry.register(MessageType.SERVER_REQUEST_TASK_RESULTS, handleTaskResultRequest);
-    this.registry.register(MessageType.SERVER_ACK_TASK_RESULTS, handleTaskResultExportCompleted);
-    this.registry.register(MessageType.SERVER_CLOSE_SYNC_SESSION, handleSyncCompleted);
+    this.registry.register(
+      MessageType.SERVER_TASK_RESULT_COMPLETED,
+      handleTaskResultExportCompleted,
+    );
+    this.registry.register(MessageType.SYNC_PROCESS_COMPLETED, handleSyncCompleted);
 
     tcpClient.subscribe({
       onStatusChange: (status) => {
@@ -54,7 +58,7 @@ class SyncSessionService {
           sync_session_state$.currentPhaseMessage.set('Négociation de connexion...');
           this.registry.dispatch(
             {
-              type: MessageType.CLIENT_REQUEST_SYNC,
+              type: MessageType.SYNC_START_REQUEST,
               content: {
                 client_id: user$.user.id.peek() ?? '',
                 name: userProfile$.display_name.peek() ?? 'Collect',

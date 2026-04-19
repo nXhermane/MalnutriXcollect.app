@@ -85,7 +85,7 @@ export function handleMeasuresExport(content: ServerRequestMeasuresContent, send
   });
 
   send({
-    type: MessageType.CLIENT_SEND_PATIENT_MEASURES,
+    type: MessageType.CLIENT_MEASURES_EXPORT,
     content: { measures: measuresPayload },
   });
 }

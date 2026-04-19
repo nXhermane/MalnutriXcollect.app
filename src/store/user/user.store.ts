@@ -38,19 +38,6 @@ export interface UserProfile {
   bio: string | null;
   role: string | null;
   avatar_url: string | null;
-  is_active: boolean;
-  department_id: string | null;
-  department_name: string | null;
-  facility_id: string | null;
-  facility_level: string | null;
-  facility_name: string | null;
-  facility_short_name: string | null;
-  facility_type: string | null;
-  health_zone_id: string | null;
-  health_zone_name: string | null;
-  nutrition_unit_type: string | null;
-  service_id: string | null;
-  service_name: string | null;
 }
 
 export const userProfile$ = observable<UserProfile | null>(
@@ -76,17 +63,13 @@ export const userProfile$ = observable<UserProfile | null>(
           specialty: value.specialty,
           phone: value.phone,
           bio: value.bio,
-          department_id: value.department_id,
-          facility_id: value.facility_id,
-          health_zone_id: value.health_zone_id,
-          service_id: value.service_id,
         })
         .eq('id', id);
       if (error) {
-        logger.warn('[userProfile$] Failed to update profile:', error.message);
+        console.warn('[userProfile$] Failed to update profile:', error.message);
       }
     },
-    waitFor: () => user$.user.get() !== null && user$.user.id.get() !== undefined,
+    waitFor: () => user$.user.id.get() !== undefined,
     persist: {
       plugin: ObservablePersistMMKV,
       name: 'profile',
@@ -96,5 +79,3 @@ export const userProfile$ = observable<UserProfile | null>(
 );
 
 export const isProfileLoaded$ = computed(() => userProfile$.get() !== null);
-
-export const isAccountActive$ = computed(() => userProfile$.get()?.is_active ?? true);

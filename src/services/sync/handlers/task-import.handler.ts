@@ -53,7 +53,7 @@ export function handleTaskImport(content: TaskImportContent, send: SendFn): void
   }
 
   send({
-    type: MessageType.CLIENT_ACK_ACTIVE_TASKS,
+    type: MessageType.CLIENT_ACK_TASK_IMPORT,
     content: {
       receivedTaskIds,
       timestamp: Date.now(),

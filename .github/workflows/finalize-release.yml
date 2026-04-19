@@ -1,20 +1,13 @@
 name: Finalize Release
 
 on:
-  repository_dispatch:
-    types: [finalize-release]
-  workflow_dispatch: 
-    inputs:
-      version:
-        description: 'App version (e.g. 2.0.0-beta.2)'
-        required: true
-      artifact_url:
-        description: 'Direct URL to the APK artifact'
-        required: true
+  schedule:
+    - cron: '*/15 * * * *'  # Runs every 15 minutes
+  workflow_dispatch:        # Keep manual trigger as fallback
 
 jobs:
   finalize:
-    name: Publish Release
+    name: Check EAS Build and Publish Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -22,63 +15,51 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Resolve inputs
-        id: inputs
-        run: |
-          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            echo "version=${{ github.event.client_payload.version }}" >> $GITHUB_OUTPUT
-            echo "artifact_url=${{ github.event.client_payload.artifact_url }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-            echo "artifact_url=${{ inputs.artifact_url }}" >> $GITHUB_OUTPUT
-          fi
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
 
-      - name: Validate inputs
-        run: |
-          if [ -z "${{ steps.inputs.outputs.version }}" ]; then
-            echo "❌ version is empty. Aborting."
-            exit 1
-          fi
-          if [ -z "${{ steps.inputs.outputs.artifact_url }}" ]; then
-            echo "❌ artifact_url is empty. Aborting."
-            exit 1
-          fi
-          echo "✅ version=${{ steps.inputs.outputs.version }}"
-          echo "✅ artifact_url=${{ steps.inputs.outputs.artifact_url }}"
+      - name: Check for Draft Releases
+        id: check_draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run scripts/parse-draft-release.mjs
 
-      - name: Find matching draft release
-        id: find_draft
+      - name: Setup Node
+        if: steps.check_draft.outputs.has_draft == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Expo & EAS CLI
+        if: steps.check_draft.outputs.has_draft == 'true'
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        if: steps.check_draft.outputs.has_draft == 'true'
+        run: bun install
+
+      - name: Check EAS Build Status
+        if: steps.check_draft.outputs.has_draft == 'true'
+        id: check_build
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: bun run scripts/check-eas-build.mjs ${{ steps.check_draft.outputs.draft_version }} android
+
+      - name: Download EAS Artifact
+        if: steps.check_draft.outputs.has_draft == 'true' && steps.check_build.outputs.build_status == 'FINISHED'
+        run: curl -L -o app-release.apk "${{ steps.check_build.outputs.artifact_url }}"
+
+      - name: Finalize GitHub Release
+        if: steps.check_draft.outputs.has_draft == 'true' && steps.check_build.outputs.build_status == 'FINISHED'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${{ steps.inputs.outputs.version }}"
-          TAG="v${VERSION}"
-          echo "Looking for draft release with tag: $TAG"
-
-          DRAFT_TAG=$(gh release list --json tagName,isDraft --limit 20 \
-            | jq -r --arg tag "$TAG" '.[] | select(.isDraft == true and .tagName == $tag) | .tagName')
-
-          if [ -z "$DRAFT_TAG" ]; then
-            echo "❌ No draft release found for tag $TAG. Aborting."
-            exit 1
-          fi
-
-          echo "✅ Found draft release: $DRAFT_TAG"
-          echo "draft_tag=$DRAFT_TAG" >> $GITHUB_OUTPUT
-
-      - name: Download EAS artifact
-        run: |
-          echo "⬇️ Downloading APK from EAS..."
-          curl -L -o app-release.apk "${{ steps.inputs.outputs.artifact_url }}"
-          echo "✅ APK downloaded ($(du -sh app-release.apk | cut -f1))"
-
-      - name: Upload artifact and publish release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${{ steps.find_draft.outputs.draft_tag }}"
-          echo "📦 Uploading APK to release $TAG..."
-          gh release upload "$TAG" app-release.apk
-          echo "🚀 Publishing release $TAG..."
-          gh release edit "$TAG" --draft=false
-          echo "✅ Release $TAG successfully published!"
+          echo "Uploading artifact and publishing release..."
+          gh release upload ${{ steps.check_draft.outputs.draft_tag }} app-release.apk
+          gh release edit ${{ steps.check_draft.outputs.draft_tag }} --draft=false
+          echo "✅ Release successfully published!"

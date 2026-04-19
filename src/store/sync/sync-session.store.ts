@@ -6,7 +6,6 @@ export type SyncPhaseId =
   | 'wifi_ready'
   | 'tcp_connecting'
   | 'handshake'
-  | 'update_locked'
   | 'export_patients'
   | 'export_measures'
   | 'import_patients'

@@ -57,6 +57,7 @@ export function SyncScreen() {
               Synchronisation
             </Text>
           </View>
+          <View className="w-12 -mr-3" />
         </View>
       </View>
 

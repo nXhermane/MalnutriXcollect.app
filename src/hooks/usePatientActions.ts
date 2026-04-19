@@ -1,11 +1,6 @@
 import { logger } from '@/lib/utils/logger';
 import { generateRandomId } from '@/lib/utils/random';
-import {
-  CreatePatientDto,
-  Patient,
-  PatientStatus,
-  UpdatePatientDto,
-} from '@/schemas/patient.schema';
+import { CreatePatientDto, Patient, UpdatePatientDto } from '@/schemas/patient.schema';
 import { initPatientMeasures, measures$ } from '@/store/measures/measures.store';
 import { patients$ } from '@/store/patients/patients.store';
 import { getTasksForPatient, tasks$ } from '@/store/tasks/tasks.store';
@@ -19,7 +14,6 @@ export function usePatientActions() {
     const patient: Patient = {
       id,
       ...dto,
-      status: PatientStatus.NEW,
       isLocked: false,
       createdAt: now,
       updatedAt: now,

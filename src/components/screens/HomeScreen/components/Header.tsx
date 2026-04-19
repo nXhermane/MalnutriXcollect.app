@@ -1,33 +1,34 @@
 import { BlurView } from '@/components/shared/BlurView';
 import { Icon } from '@/components/shared/icons';
-import {
-  HEADER_COLLAPSED_HEIGHT,
-  HEADER_EXPANDED_HEIGHT,
-  SCROLL_THRESHOLD,
-} from '@/constants/home';
 import { currentTime } from '@/lib/observables/current-time';
 import { vibrate } from '@/lib/utils/haptics';
 import { home$ } from '@/store/ui/home.store';
 import { userProfile$ } from '@/store/user/user.store';
 import { useValue } from '@legendapp/state/react';
 import { useRouter } from 'expo-router';
-import { Avatar, cn, PressableFeedback } from 'heroui-native';
+import { Avatar, PressableFeedback, SearchField } from 'heroui-native';
 import React, { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Easing,
   Extrapolation,
-  interpolate,
+  FadeInDown,
+  FadeOutUp,
+  LinearTransition,
   SharedValue,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DailyProgressCard } from './DailyProgressCard';
 
-const ANIMATION_CONFIG = { duration: 500, easing: Easing.out(Easing.cubic) };
+export const HEADER_EXPANDED_HEIGHT = 180;
+export const HEADER_COLLAPSED_HEIGHT = 68;
+export const SCROLL_THRESHOLD = 100;
+
+const ANIMATION_CONFIG = { duration: 200, easing: Easing.out(Easing.cubic) };
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -39,24 +40,6 @@ function getGreeting(): string {
 function getFirstName(fullName?: string | null): string {
   if (!fullName) return '';
   return fullName.split(' ')[0];
-}
-
-function getHealthLocation(
-  profile: {
-    service_name?: string | null;
-    facility_name?: string | null;
-    facility_short_name?: string | null;
-    department_name?: string | null;
-  } | null,
-): string | null {
-  if (!profile) return null;
-
-  if (profile.service_name) {
-    const facility = profile.facility_short_name || profile.facility_name;
-    return facility ? `${facility} · ${profile.service_name}` : profile.service_name;
-  }
-
-  return profile.facility_short_name || profile.facility_name || profile.department_name || null;
 }
 
 function getTodayLabel(): string {
@@ -122,52 +105,52 @@ interface HomeHeaderProps {
 export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
   const profile = useValue(userProfile$);
   const showSearchBar = useValue(() => home$.showSearchBar.get());
+  const searchQuery = useValue(() => home$.searchQuery.get());
   const { top } = useSafeAreaInsets();
   const startY = useSharedValue(0);
   const router = useRouter();
-
-  useEffect(() => {
-    if (showSearchBar && scrollY.value < SCROLL_THRESHOLD) {
-      scrollY.value = withTiming(SCROLL_THRESHOLD, ANIMATION_CONFIG);
-    }
-  }, [showSearchBar, scrollY]);
 
   const panGesture = Gesture.Pan()
     .onStart(() => {
       startY.value = scrollY.value;
     })
     .onUpdate((event) => {
+      const extra = showSearchBar ? 70 : 0;
       const newValue = startY.value - event.translationY;
-      scrollY.value = Math.max(0, Math.min(newValue, SCROLL_THRESHOLD));
+      scrollY.value = Math.max(0, Math.min(newValue, SCROLL_THRESHOLD + extra));
     })
     .onEnd((event) => {
-      if (event.velocityY < -300 || scrollY.value > SCROLL_THRESHOLD / 2) {
-        scrollY.value = withTiming(SCROLL_THRESHOLD, ANIMATION_CONFIG);
+      const extra = showSearchBar ? 70 : 0;
+      if (event.velocityY < -300 || scrollY.value > (SCROLL_THRESHOLD + extra) / 2) {
+        scrollY.value = withTiming(SCROLL_THRESHOLD + extra, ANIMATION_CONFIG);
       } else {
         scrollY.value = withTiming(0, ANIMATION_CONFIG);
       }
     });
 
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    height: interpolate(
-      scrollY.value,
-      [0, SCROLL_THRESHOLD],
-      [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT + top],
-      Extrapolation.CLAMP,
-    ),
-    borderBottomLeftRadius: interpolate(
-      scrollY.value,
-      [0, SCROLL_THRESHOLD],
-      [24, 12],
-      Extrapolation.CLAMP,
-    ),
-    borderBottomRightRadius: interpolate(
-      scrollY.value,
-      [0, SCROLL_THRESHOLD],
-      [24, 12],
-      Extrapolation.CLAMP,
-    ),
-  }));
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    const extra = showSearchBar ? 70 : 0;
+    return {
+      height: interpolate(
+        scrollY.value,
+        [0, SCROLL_THRESHOLD + extra],
+        [HEADER_EXPANDED_HEIGHT + extra, HEADER_COLLAPSED_HEIGHT + top],
+        Extrapolation.CLAMP,
+      ),
+      borderBottomLeftRadius: interpolate(
+        scrollY.value,
+        [0, SCROLL_THRESHOLD],
+        [24, 12],
+        Extrapolation.CLAMP,
+      ),
+      borderBottomRightRadius: interpolate(
+        scrollY.value,
+        [0, SCROLL_THRESHOLD],
+        [24, 12],
+        Extrapolation.CLAMP,
+      ),
+    };
+  });
 
   const animatedContentStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
@@ -191,6 +174,7 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
 
   const animatedLogoStyle = useAnimatedStyle(() => ({
     transform: [
+      { scale: interpolate(scrollY.value, [0, SCROLL_THRESHOLD], [1, 0.92], Extrapolation.CLAMP) },
       {
         translateY: interpolate(scrollY.value, [0, SCROLL_THRESHOLD], [0, 3], Extrapolation.CLAMP),
       },
@@ -202,6 +186,7 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
       {
         translateY: interpolate(scrollY.value, [0, SCROLL_THRESHOLD], [0, 5], Extrapolation.CLAMP),
       },
+      { scale: interpolate(scrollY.value, [0, SCROLL_THRESHOLD], [1, 0.9], Extrapolation.CLAMP) },
     ],
   }));
 
@@ -213,7 +198,7 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
         <BlurView />
         <View className="flex-1 px-4 pb-4">
           <View className="flex-row items-center justify-between h-v-16">
-            <Animated.View style={animatedLogoStyle} className="flex-row">
+            <Animated.View style={animatedLogoStyle} className="flex-row ">
               <Text className="text-2xl font-bold tracking-tighter text-accent">MalnutriX</Text>
               <Text className="font-light ml-1 text-sm text-muted/70 top-0">collect</Text>
             </Animated.View>
@@ -221,16 +206,16 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
             <Animated.View style={animatedActionsStyle} className="gap-3 flex-row items-center">
               <PressableFeedback
                 onPress={() => home$.showSearchBar.set((prev) => !prev)}
-                className={cn(
-                  'h-v-8 w-v-8 items-center justify-center rounded-2xl ring-2 ring-accent/20',
+                className={`size-v-8 items-center justify-center rounded-2xl ${
                   showSearchBar
                     ? 'bg-accent shadow-lg shadow-accent/20'
-                    : 'bg-surface/90 border border-border/20 shadow-sm',
-                )}>
-                <Icon
-                  name={showSearchBar ? 'X' : 'Search'}
-                  className={cn('h-5 w-5', showSearchBar ? 'text-white' : 'text-muted')}
-                />
+                    : 'bg-surface/90 border border-border/20 shadow-sm'
+                }`}>
+                {!showSearchBar ? (
+                  <Icon name="Search" className="text-muted h-5 w-5" />
+                ) : (
+                  <Icon name="X" className="text-white h-5 w-5" />
+                )}
               </PressableFeedback>
               <PressableFeedback
                 onPress={() => {
@@ -238,7 +223,7 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
                   router.push('/settings');
                 }}>
                 <Avatar
-                  className="h-v-8 w-v-8 rounded-2xl ring-2 ring-accent/20"
+                  className="size-v-8 rounded-2xl ring-2 ring-accent/20"
                   alt={profile?.display_name || 'User'}>
                   {profile?.avatar_url ? (
                     <Avatar.Image source={{ uri: profile.avatar_url }} />
@@ -258,11 +243,12 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
             </Animated.View>
           </View>
 
-          <Animated.View style={animatedContentStyle} className="gap-3 flex-1">
-            <View className="gap-1">
-              <View className="flex-row items-center justify-between">
+          <Animated.View style={animatedContentStyle} className="gap-4 flex-1">
+            <View>
+              <View className="flex-row items-center justify-between mb-1">
                 <View className="flex-row items-center gap-1.5">
                   <Icon name="CalendarDays" sizeClassName="text-xs" className="text-muted" />
+
                   <Text className="text-muted text-xs font-light capitalize">
                     {getTodayLabel()}
                   </Text>
@@ -273,17 +259,25 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
                 {getGreeting()}
                 {profile?.display_name ? `, ${getFirstName(profile.display_name)}` : ''}
               </Text>
-              {getHealthLocation(profile) ? (
-                <View className="flex-row items-center gap-1">
-                  <Icon name="Building2" sizeClassName="text-xs" className="text-muted/60" />
-                  <Text className="text-muted/70 text-xs font-light" numberOfLines={1}>
-                    {getHealthLocation(profile)}
-                  </Text>
-                </View>
-              ) : null}
             </View>
 
-            <DailyProgressCard />
+            {showSearchBar && (
+              <Animated.View
+                layout={LinearTransition}
+                entering={FadeInDown.duration(300)}
+                exiting={FadeOutUp.duration(200)}
+                className="w-full">
+                <SearchField
+                  value={searchQuery}
+                  onChange={(text: string) => home$.searchQuery.set(text)}>
+                  <SearchField.Group>
+                    <SearchField.SearchIcon />
+                    <SearchField.Input placeholder="Chercher un patient par nom..." autoFocus />
+                    <SearchField.ClearButton />
+                  </SearchField.Group>
+                </SearchField>
+              </Animated.View>
+            )}
           </Animated.View>
         </View>
       </Animated.View>

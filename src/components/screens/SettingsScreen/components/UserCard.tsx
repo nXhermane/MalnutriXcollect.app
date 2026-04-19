@@ -25,6 +25,7 @@ export const UserCard = ({ onEditPress }: UserCardProps) => {
         <View className="items-center gap-3">
           <View className="h-24 w-24 rounded-full bg-surface-secondary animate-pulse" />
           <View className="h-5 w-40 rounded-xl bg-surface-secondary animate-pulse" />
+          <View className="h-4 w-28 rounded-xl bg-surface-secondary animate-pulse" />
           <View className="h-3 w-48 rounded-xl bg-surface-secondary animate-pulse" />
         </View>
       </Surface>
