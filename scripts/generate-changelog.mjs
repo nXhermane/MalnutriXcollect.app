@@ -84,4 +84,9 @@ const updatedChangelog = existingChangelog.includes('# Changelog')
   : `${newEntry}\n${existingChangelog}`;
 
 fs.writeFileSync(changelogPath, updatedChangelog);
-console.log('✅ Changelog generated successfully!');
+console.log('✅ Changelog updated successfully!');
+
+// Write release notes for the current version only (used as GitHub release body)
+const releaseNotesPath = 'RELEASE_NOTES.md';
+fs.writeFileSync(releaseNotesPath, newEntry);
+console.log(`✅ Release notes written to ${releaseNotesPath}`);
