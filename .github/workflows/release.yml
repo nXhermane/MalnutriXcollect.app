@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: 
+    branches:
       - main
       - beta
 
@@ -13,6 +13,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      models: read
     outputs:
       new_tag: ${{ steps.bump.outputs.new_tag }}
       bumped: ${{ steps.bump.outputs.bumped }}
@@ -56,6 +57,40 @@ jobs:
         if: steps.bump.outputs.bumped == 'true'
         run: bun run scripts/generate-changelog.mjs
 
+      - name: Polish release notes with AI
+        if: steps.bump.outputs.bumped == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RAW_NOTES=$(cat RELEASE_NOTES.md)
+
+          RESPONSE=$(curl -s https://models.inference.ai.azure.com/chat/completions \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg notes "$RAW_NOTES" \
+              '{
+                model: "gpt-4o-mini",
+                messages: [{
+                  role: "system",
+                  content: "Tu es un rédacteur technique. Tu reformules des release notes brutes (liste de commits) en notes de version claires, structurées et lisibles pour des utilisateurs finaux non-techniques (aides-soignants, infirmiers). Utilise des sections markdown si pertinent. Sois concis. Ne mentionne pas les hash de commits."
+                }, {
+                  role: "user",
+                  content: $notes
+                }]
+              }'
+            )")
+
+          # Fallback to raw notes if AI call fails
+          POLISHED=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
+          if [ -z "$POLISHED" ]; then
+            echo "⚠️ AI polishing failed or unavailable, using raw release notes."
+            echo "Response: $RESPONSE"
+          else
+            echo "$POLISHED" > RELEASE_NOTES.md
+            echo "✅ Release notes polished by AI."
+          fi
+
       - name: Ensure exact versions
         if: steps.bump.outputs.bumped == 'true'
         run: bun install --lockfile-only
@@ -98,6 +133,6 @@ jobs:
         with:
           tag_name: ${{ steps.bump.outputs.new_tag }}
           name: Release ${{ steps.bump.outputs.new_tag }}
-          body_path: CHANGELOG.md 
-          draft: true  # DRAFT is important! finalize-release.yml will pick it up
+          body_path: RELEASE_NOTES.md
+          draft: true # DRAFT is important! finalize-release.yml will pick it up
           prerelease: ${{ steps.profile.outputs.is_prerelease == 'true' }}
