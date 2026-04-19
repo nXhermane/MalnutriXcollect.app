@@ -29,7 +29,9 @@ async function trackAppActivity(userId: string): Promise<void> {
 
   await supabase
     .from('profiles')
-    .upsert({ id: userId, origin_app: APP_NAME }, { onConflict: 'id', ignoreDuplicates: true });
+    .update({ origin_app: APP_NAME })
+    .eq('id', userId)
+    .is('origin_app', null);
 
   const { data: existing } = await supabase
     .from('user_app_activity')

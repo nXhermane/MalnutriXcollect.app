@@ -19,18 +19,24 @@ if [ -z "$DISPATCH_PROXY_API_KEY" ]; then
   exit 1
 fi
 
-if [ -z "$EAS_BUILD_ARTIFACT_URL" ]; then
-  echo "❌ EAS_BUILD_ARTIFACT_URL is not set. Aborting."
+if [ -z "$EAS_BUILD_ID" ]; then
+  echo "❌ EAS_BUILD_ID is not set. Aborting."
   exit 1
 fi
 
-if [ -z "$EAS_BUILD_APP_VERSION" ]; then
-  echo "❌ EAS_BUILD_APP_VERSION is not set. Aborting."
+PKG_JSON="$(dirname "$0")/../package.json"
+if [ ! -f "$PKG_JSON" ]; then
+  echo "❌ package.json not found at $PKG_JSON. Aborting."
   exit 1
 fi
 
-VERSION="$EAS_BUILD_APP_VERSION"
-ARTIFACT_URL="$EAS_BUILD_ARTIFACT_URL"
+VERSION=$(jq -r '.version' "$PKG_JSON")
+if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+  echo "❌ Could not read version from package.json. Aborting."
+  exit 1
+fi
+
+ARTIFACT_URL="https://expo.dev/artifacts/eas/${EAS_BUILD_ID}"
 
 echo "🚀 Triggering finalize-release dispatch..."
 echo "   Version     : $VERSION"
