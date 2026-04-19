@@ -5,6 +5,86 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.0-beta.3] - 2026-04-19
+
+- **3bd441c - Merge branch 'develop' into beta (nXhermane)**
+
+- **b340541 - ci(release): replace EAS polling with on-success dispatch hook (nXhermane)**
+  > - Add eas-build-on-success.sh to trigger finalize-release via Cloudflare
+  >   dispatch proxy on preview/production builds
+  > - Register hook in eas.json for preview and production profiles only
+  > - Refactor finalize-release.yml to use repository_dispatch instead of
+  >   scheduled polling; version and artifact_url come from client_payload
+  > - Remove check-eas-build.mjs and parse-draft-release.mjs (no longer needed)
+
+- **9bab759 - ci(release): replace EAS polling with on-success dispatch hook (nXhermane)**
+  > - Add eas-build-on-success.sh to trigger finalize-release via Cloudflare
+  >   dispatch proxy on preview/production builds
+  > - Register hook in eas.json for preview and production profiles only
+  > - Refactor finalize-release.yml to use repository_dispatch instead of
+  >   scheduled polling; version and artifact_url come from client_payload
+  > - Remove check-eas-build.mjs and parse-draft-release.mjs (no longer needed)
+
+- **9e03656 - feat(app): account deactivation guard, location setup, sync v2 protocol, and home screen redesign (nXhermane)**
+  > auth & account:
+  > - add isAccountActive$ computed from profile.is_active
+  > - add Stack.Protected guard for deactivated accounts
+  > - add DeactivatedScreen with contact and logout actions
+  > - add CopyrightNotice shared component (replaces inline text)
+  > - reset locationPromptShownThisSession on logout
+  > profile & location:
+  > - add facility, service, department, health_zone fields to UserProfile
+  > - add location cascade component (department → facility → service)
+  > - add location tab to EditProfileSheet with step-by-step selection
+  > - add useLocationPrompt hook to prompt users missing department_id
+  > - add LocationPromptSheet to HomeScreen
+  > - add reference data store (departments$, facilities$, services$)
+  > - add Supabase migrations for reference tables and profile location columns
+  > sync protocol v2:
+  > - rename all MessageType enum values to explicit CLIENT_/SERVER_ prefixes
+  > - rename sync handler files to match new message type naming
+  > - add SERVER_ACK_SYNC_REQUEST and updated-patients handler
+  > - add ack-sync-request handler
+  > - remove sync-ready handler (replaced by ack-sync-request)
+  > - update SyncSessionService to register handlers with new message types
+  > home screen redesign:
+  > - add DailyProgressCard with animated today's task progress to header
+  > - add health center/service display in header greeting
+  > - replace header search bar with inline search in patient list subheader
+  > - auto-collapse header when search opens
+  > - interpolate subheader background color on scroll (bg → surface)
+  > - add status filter to patient list bottom sheet
+  > - enrich PatientCard with status pill, task breakdown by type, and progress bar
+  > - move STATUS_CONFIG to constants/patient.ts
+  > - add status field to home filters store
+  > - remove scale animation on header logo and actions on collapse
+  > patient dashboard:
+  > - add status pill and today's task badge to PatientHero
+  > - add colored done/total badges to TasksTab sub-tabs
+  > - add visit time to VisitCard date display
+  > schema & data:
+  > - add PatientStatus enum to patient schema
+  > - add status field to patientSchema, createPatientSchema, updatePatientSchema
+  > - add constants/patient.ts with STATUS_CONFIG
+  > - remove tasks.mock.ts
+  > - update Supabase database types
+
+- **f567308 - chore(release): v2.0.0-beta.2 [skip ci] (github-actions[bot])**
+
+- **3d3a318 - Merge branch 'develop' into beta (nXhermane)**
+
+- **2fee5b5 - fix: resolve ui styling, disable blur effect, and update schemas (nXhermane)**
+  > - Remove hardcoded borders and `rounded-3xl` classes from Surface components in Settings and DynamicForm, adding `p-2` padding.
+  > - Disable `blurEnabled` in UI settings by default pending refactoring and remove `BlurView` from `VisitFormScreen`.
+  > - Change `EDEMA_GODET_COUNT` observation field type from `RANGE` to `ENUM` for discrete grade selection (Absent to +++).
+  > - Implement structured `logger.warn` replacing `console.warn` in the user store and ensure it throws explicit errors.
+  > - Remove leftover debugging `console.log` in anthropometry form conditions and formatting adjustments.
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [v2.0.0-beta.2] - 2026-04-18
 
 - **3d3a318 - Merge branch 'develop' into beta (nXhermane)**
