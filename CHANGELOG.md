@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.0-beta.4] - 2026-04-19
+
+- **0a11e15 - merge(develop): fix origin_app tracking and EAS build hook (nXhermane)**
+
+- **bdcd015 - fix(auth): set origin_app only when null; fix DeactivatedScreen button styles; read version from package.json in EAS hook (nXhermane)**
+  > - auth: replace upsert(ignoreDuplicates) with update().is('origin_app', null)
+  >   so origin_app is stamped on first login and never overwritten
+  > - DeactivatedScreen: remove explicit bg-primary class and use text-white on
+  >   button icon and label for correct theming
+  > - eas-build-on-success: read version from package.json via jq instead of
+  >   unreliable EAS_BUILD_APP_VERSION env var
+
+- **870d20a - ci(scripts): fix eas build on success execution error . use eas build id to build artefact url. (nXhermane)**
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [v2.0.0-beta.3] - 2026-04-19
 
 - **3bd441c - Merge branch 'develop' into beta (nXhermane)**
