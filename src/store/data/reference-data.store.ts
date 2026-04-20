@@ -28,6 +28,7 @@ export const departments$ = observable(
       plugin: ObservablePersistMMKV,
       name: 'departments',
     },
+    initial: [],
   }),
 );
 
@@ -49,6 +50,7 @@ export const facilities$ = observable(
       plugin: ObservablePersistMMKV,
       name: 'facilities',
     },
+    initial: [],
   }),
 );
 
@@ -70,6 +72,7 @@ export const services$ = observable(
       plugin: ObservablePersistMMKV,
       name: 'services',
     },
+    initial: [],
   }),
 );
 

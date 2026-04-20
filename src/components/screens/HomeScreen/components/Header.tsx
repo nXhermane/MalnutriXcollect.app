@@ -158,13 +158,13 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
     borderBottomLeftRadius: interpolate(
       scrollY.value,
       [0, SCROLL_THRESHOLD],
-      [24, 12],
+      [12, 30],
       Extrapolation.CLAMP,
     ),
     borderBottomRightRadius: interpolate(
       scrollY.value,
       [0, SCROLL_THRESHOLD],
-      [24, 12],
+      [12, 30],
       Extrapolation.CLAMP,
     ),
   }));
@@ -245,7 +245,7 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
                   ) : null}
                   {profile?.display_name && (
                     <Avatar.Fallback className="bg-accent/10">
-                      <Text className="text-accent font-black text-xs">
+                      <Text className="text-accent font-bold text-xs">
                         {profile.display_name
                           .split(' ')
                           .map((n, i) => (i <= 1 ? n.charAt(0).toUpperCase() : ''))

@@ -163,15 +163,10 @@ export function VisitCard({ visit, index, total, patientId, onDelete }: VisitCar
               </View>
 
               <View className="flex-row items-center gap-2">
-                {visit.isExported ? (
+                {visit.isExported && (
                   <View className="flex-row items-center gap-1 px-2 py-1 rounded-xl bg-green-500/10">
                     <Icon name="CircleCheck" sizeClassName="text-xs" className="text-green-600" />
                     <Text className="text-xs text-green-600 font-medium">Exporté</Text>
-                  </View>
-                ) : (
-                  <View className="flex-row items-center gap-1 px-2 py-1 rounded-xl bg-orange-500/10">
-                    <Icon name="Clock" sizeClassName="text-xs" className="text-orange-500" />
-                    <Text className="text-xs text-orange-500 font-medium">Non sync</Text>
                   </View>
                 )}
                 <Accordion.Indicator />

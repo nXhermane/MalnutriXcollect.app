@@ -7,15 +7,15 @@ import { vibrate } from '@/lib/utils/haptics';
 import { useRouter } from 'expo-router';
 import { Surface } from 'heroui-native';
 import { useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View, Alert } from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppSettingsSection } from './components/AppSettingsSection';
+import { DangerSection } from './components/DangerSection';
 import { EditProfileSheet } from './components/EditProfileSheet';
 import { LogoutSheet } from './components/LogoutSheet';
 import { PersonalizationSection } from './components/PersonalizationSection';
 import { SettingRow } from './components/SettingRow';
 import { UserCard } from './components/UserCard';
-import { resetAndReseedRegistry } from '@/store/registry/registry.seed';
 
 export function SettingsScreen() {
   const { top } = useSafeAreaInsets();
@@ -27,38 +27,19 @@ export function SettingsScreen() {
 
   const [base, betaSuffix] = APP_VERSION.split('-beta.');
 
-  const handleResetRegistry = () => {
-    vibrate('heavy');
-    Alert.alert(
-      'Réinitialiser le registre ?',
-      'Toutes les références médicales synchronisées (médicaments, indicateurs, champs...) seront supprimées et remplacées par les données intégrées par défaut. Cette action est irréversible.',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Réinitialiser',
-          style: 'destructive',
-          onPress: () => {
-            resetAndReseedRegistry();
-            toast.show(
-              'Success',
-              'Registre réinitialisé',
-              'Les données ont été effacées et le seed par défaut a été appliqué.',
-            );
-          },
-        },
-      ],
-    );
-  };
-
   const VersionBadge = () => (
-    <View className="flex-row items-center gap-2">
-      <Text className="text-sm font-medium text-foreground">v{base}</Text>
+    <View className="bg-surface-secondary/60 border border-border/40 rounded-xl px-3 py-1.5 flex-row items-center gap-2">
+      <Text className="text-xs font-bold text-foreground/80 tracking-tight">v{base}</Text>
       {IS_BETA && (
-        <View className="bg-warning/15 border border-warning/30 rounded-full px-2 py-0.5">
-          <Text className="text-xs font-semibold text-warning tracking-wide">
-            BETA{betaSuffix ? ` .${betaSuffix}` : ''}
-          </Text>
-        </View>
+        <>
+          <View className="w-px h-3 bg-border/60" />
+          <View className="flex-row items-center gap-1">
+            <View className="w-1.5 h-1.5 rounded-full bg-warning" />
+            <Text className="text-xs font-extrabold text-warning tracking-widest uppercase">
+              Beta{betaSuffix ? ` ${betaSuffix}` : ''}
+            </Text>
+          </View>
+        </>
       )}
     </View>
   );
@@ -71,13 +52,18 @@ export function SettingsScreen() {
     }
   };
 
+  const handleLogoutPress = () => {
+    vibrate('heavy');
+    openLogoutSheet();
+  };
+
   return (
     <View className="flex-1 bg-background pt-safe-offset-0">
       <View className="absolute z-30 w-full overflow-hidden" style={{ top }}>
         <BlurView />
         <View className="flex-row items-center gap-3 px-4 pb-2 pt-2">
           <Pressable
-            className="bg-surface/80 p-3 rounded-2xl shadow-sm active:bg-surface"
+            className="bg-surface/80 p-2.5 rounded-2xl shadow-sm active:bg-surface"
             accessibilityLabel="Retour"
             onPress={() => {
               vibrate('soft');
@@ -119,45 +105,13 @@ export function SettingsScreen() {
             iconBgClass="bg-surface-secondary/50"
             iconColorClass="text-muted"
             label="Version"
+            description="MalnutriX Collect"
             isLast
             rightElement={<VersionBadge />}
           />
         </Surface>
 
-        <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2 ml-2">
-          Zone de danger
-        </Text>
-        <Surface className="mb-4 overflow-hidden p-2 bg-red-500/5">
-          <SettingRow
-            iconName="DatabaseZap"
-            iconBgClass="bg-red-500/10"
-            iconColorClass="text-red-500"
-            label="Réinitialiser le registre"
-            description="Efface le cache et relance le seed par défaut"
-            onPress={handleResetRegistry}
-            rightElement={
-              <Icon name="RotateCcw" className="text-red-500/60" sizeClassName="text-base" />
-            }
-          />
-        </Surface>
-
-        <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2 ml-2">
-          Compte
-        </Text>
-        <Surface className="overflow-hidden p-2 bg-red-500/5">
-          <SettingRow
-            iconName="LogOut"
-            iconBgClass="bg-red-500/10"
-            iconColorClass="text-red-500"
-            label="Se déconnecter"
-            description="Quitter votre session locale"
-            isLast
-            onPress={() => {
-              vibrate('heavy');
-              openLogoutSheet();
-            }}
-          />
-        </Surface>
+        <DangerSection onLogoutPress={handleLogoutPress} />
       </ScrollView>
 
       <EditProfileSheet isOpen={isEditOpen} onOpenChange={setIsEditOpen} />

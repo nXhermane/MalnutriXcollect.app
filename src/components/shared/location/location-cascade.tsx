@@ -11,7 +11,6 @@ import { UserProfile } from '@/store/user/user.store';
 import { useValue } from '@legendapp/state/react';
 import { PressableFeedback, Surface } from 'heroui-native';
 import { Text, View } from 'react-native';
-import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 
 export type LocationStep = 'department' | 'facility' | 'service';
 
@@ -133,15 +132,15 @@ export function LocationBreadcrumb({ selection }: { selection: LocationSelection
     <View className="flex-row items-center gap-1.5 flex-wrap">
       {selection.department && (
         <View className="flex-row items-center gap-1 bg-accent/10 px-2.5 py-1 rounded-full">
-          <Icon name="MapPin" className="text-accent" sizeClassName="text-[10px]" />
+          <Icon name="MapPin" className="text-accent" sizeClassName="text-xs" />
           <Text className="text-accent text-[11px] font-semibold">{selection.department.name}</Text>
         </View>
       )}
       {selection.facility && (
         <>
-          <Icon name="ChevronRight" className="text-muted/40" sizeClassName="text-[10px]" />
+          <Icon name="ChevronRight" className="text-muted/40" sizeClassName="text-xs" />
           <View className="flex-row items-center gap-1 bg-surface-secondary px-2.5 py-1 rounded-full">
-            <Icon name="Building2" className="text-muted" sizeClassName="text-[10px]" />
+            <Icon name="Building2" className="text-muted" sizeClassName="text-xs" />
             <Text className="text-muted text-[11px] font-medium">
               {selection.facility.short_name}
             </Text>
@@ -193,7 +192,7 @@ export function RowItem({
         </View>
         {badge ? (
           <View className={`px-2 py-0.5 rounded-full mr-2 ${badgeClass ?? 'bg-muted/10'}`}>
-            <Text className={`text-[10px] font-bold ${badgeClass ?? 'text-muted'}`}>{badge}</Text>
+            <Text className={`text-xs font-bold ${badgeClass ?? 'text-muted'}`}>{badge}</Text>
           </View>
         ) : null}
         {isSelected ? (
@@ -240,7 +239,7 @@ export function LocationCascade({
   return (
     <>
       {step === 'department' && (
-        <Animated.View entering={FadeInRight.duration(200)}>
+        <View>
           {departments.length === 0 ? (
             <View className="items-center py-v-8 gap-2">
               <Icon name="Loader" className="text-muted/40" sizeClassName="text-3xl" />
@@ -257,11 +256,11 @@ export function LocationCascade({
               />
             ))
           )}
-        </Animated.View>
+        </View>
       )}
 
       {step === 'facility' && (
-        <Animated.View entering={FadeInRight.duration(200)} exiting={FadeOutLeft.duration(150)}>
+        <View>
           {facilities.length === 0 ? (
             <View className="items-center py-v-8 gap-2">
               <Icon name="Building2" className="text-muted/40" sizeClassName="text-3xl" />
@@ -282,11 +281,11 @@ export function LocationCascade({
               />
             ))
           )}
-        </Animated.View>
+        </View>
       )}
 
       {step === 'service' && (
-        <Animated.View entering={FadeInRight.duration(200)} exiting={FadeOutLeft.duration(150)}>
+        <View>
           {services.length === 0 ? (
             <View className="items-center py-v-8 gap-2">
               <Icon name="Stethoscope" className="text-muted/40" sizeClassName="text-3xl" />
@@ -317,7 +316,7 @@ export function LocationCascade({
               </View>
             </PressableFeedback>
           )}
-        </Animated.View>
+        </View>
       )}
     </>
   );

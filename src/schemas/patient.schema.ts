@@ -1,4 +1,4 @@
-import { DAY_IN_MONTHS, MAX_AGE_IN_MONTH_IN_PEDIATRIC } from '@/constants';
+import { DAY_IN_MONTHS, MAX_AGE_IN_MONTH_IN_PEDIATRIC } from '@/constants/patient';
 import * as v from 'valibot';
 
 export enum ParentRelation {

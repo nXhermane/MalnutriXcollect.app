@@ -37,7 +37,7 @@ export function SplashScreen() {
       </Animated.View>
       <View className="absolute bottom-12 items-center">
         <View className="flex-row items-start">
-          <Text className="text-2xl font-bold text-foreground tracking-tighter">MalnutriX</Text>
+          <Text className="text-2xl font-black text-foreground">MalnutriX</Text>
           <Text className="ml-1 text-xs font-light text-accent">collect</Text>
         </View>
       </View>
