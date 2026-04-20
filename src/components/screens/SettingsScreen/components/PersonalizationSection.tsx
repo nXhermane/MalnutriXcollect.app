@@ -56,11 +56,11 @@ export const PersonalizationSection = () => {
       </Text>
       <Surface className="mb-6 overflow-hidden p-2">
         <SettingRow
-          iconName="Clock"
-          iconBgClass="bg-default/10"
-          iconColorClass="text-foreground"
-          label="Heure de début"
-          description="Début de votre plage de travail"
+          iconName="Sunrise"
+          iconBgClass="bg-amber-400/10"
+          iconColorClass="text-amber-400"
+          label="Début de service"
+          description="Heure de début de votre plage de travail"
           rightElement={
             <TimeInput
               value={settings.personalization.workHours.start}
@@ -69,11 +69,11 @@ export const PersonalizationSection = () => {
           }
         />
         <SettingRow
-          iconName="Clock"
-          iconBgClass="bg-default/10"
-          iconColorClass="text-foreground"
-          label="Heure de fin"
-          description="Fin de votre plage de travail"
+          iconName="Sunset"
+          iconBgClass="bg-orange-500/10"
+          iconColorClass="text-orange-400"
+          label="Fin de service"
+          description="Heure de fin de votre plage de travail"
           isLast
           rightElement={
             <TimeInput

@@ -26,10 +26,10 @@ export const AppSettingsSection = () => {
       <Surface className="mb-6 overflow-hidden p-2">
         <SettingRow
           iconName={themeMode === 'dark' ? 'Moon' : 'Sun'}
-          iconBgClass="bg-accent/10"
-          iconColorClass="text-accent"
-          label="Mode Sombre"
-          description={`Basculer le thème de l'application`}
+          iconBgClass={themeMode === 'dark' ? 'bg-violet-500/10' : 'bg-amber-400/10'}
+          iconColorClass={themeMode === 'dark' ? 'text-violet-400' : 'text-amber-400'}
+          label="Thème"
+          description={themeMode === 'dark' ? 'Mode sombre activé' : 'Mode clair activé'}
           rightElement={<Switch isSelected={themeMode === 'dark'} onSelectedChange={toggleTheme} />}
         />
         <SettingRow
@@ -37,7 +37,8 @@ export const AppSettingsSection = () => {
           iconBgClass="bg-accent/10"
           iconColorClass="text-accent"
           label="Retours Haptiques"
-          description="Activer les vibrations au toucher"
+          description="Vibrations au toucher"
+          isLast
           rightElement={
             <Switch
               isSelected={settings.haptics.enabled}
@@ -48,23 +49,6 @@ export const AppSettingsSection = () => {
             />
           }
         />
-        {/* <SettingRow
-          iconName="Eye"
-          iconBgClass="bg-default/10"
-          iconColorClass="text-foreground"
-          label="Effets visuels (Flou)"
-          description="Activer les superpositions translucides"
-          isLast
-          rightElement={
-            <Switch
-              isSelected={settings.ui.blurEnabled}
-              onSelectedChange={(v) => {
-                settings$.ui.blurEnabled.set(v);
-                vibrate('soft');
-              }}
-            />
-          }
-        /> */}
       </Surface>
     </>
   );

@@ -2,12 +2,12 @@ import { BlurView } from '@/components/shared/BlurView';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Icon } from '@/components/shared/icons';
 import { SelectionChips } from '@/components/shared/SelectionChip';
+import { STATUS_CONFIG } from '@/constants';
 import {
   HEADER_COLLAPSED_HEIGHT,
   HEADER_EXPANDED_HEIGHT,
   SCROLL_THRESHOLD,
 } from '@/constants/home';
-import { STATUS_CONFIG } from '@/constants/patient';
 import { Patient, PatientStatus, Sex } from '@/schemas/patient.schema';
 import { patients$ } from '@/store/patients/patients.store';
 import { home$ } from '@/store/ui/home.store';
@@ -27,7 +27,9 @@ import {
 import { useCallback, useEffect } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Text, View } from 'react-native';
 import Animated, {
+  cancelAnimation,
   Extrapolation,
+  FadeIn,
   FadeInDown,
   FadeInUp,
   FadeOutDown,
@@ -36,9 +38,64 @@ import Animated, {
   interpolateColor,
   SharedValue,
   useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PatientCard } from './PatientCard';
+import { useIsFocused } from 'expo-router';
+
+const DOT_COUNT = 6;
+const DOT_DURATION = 600;
+const DOT_STAGGER = 120;
+
+function AnimatedDot({ index, isActive }: { index: number; isActive: boolean }) {
+  const opacity = useSharedValue(0.15);
+
+  useEffect(() => {
+    if (isActive) {
+      opacity.value = withDelay(
+        index * DOT_STAGGER,
+        withRepeat(
+          withSequence(
+            withTiming(0.9, { duration: DOT_DURATION }),
+            withTiming(0.15, { duration: DOT_DURATION }),
+          ),
+          -1,
+          false,
+        ),
+      );
+    } else {
+      cancelAnimation(opacity);
+      opacity.value = 0.15;
+    }
+  }, [index, isActive, opacity]);
+
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+
+  return <Animated.View style={style} className="w-1 h-1 rounded-full bg-muted" />;
+}
+
+function ListFooter({ count, isScreenFocused }: { count: number; isScreenFocused: boolean }) {
+  const label =
+    count === 1 ? 'Un seul patient enregistré' : `Tous les ${count} patients sont affichés`;
+
+  return (
+    <Animated.View
+      entering={FadeIn.duration(500).delay(200)}
+      className="items-center gap-3 pt-v-4 pb-v-20">
+      <View className="flex-row items-center gap-2">
+        {Array.from({ length: DOT_COUNT }).map((_, i) => (
+          <AnimatedDot key={i} index={i} isActive={isScreenFocused} />
+        ))}
+      </View>
+      <Text className="text-muted/40 text-2xs font-medium">{label}</Text>
+    </Animated.View>
+  );
+}
 
 interface PatientListProps {
   onPatientPress: (id: string) => void;
@@ -88,7 +145,7 @@ export function PatientList({
     return list;
   });
   const [surfaceColor, bgColor] = useThemeColor(['surface', 'background']);
-
+  const isScreenFocused = useIsFocused();
   const { top } = useSafeAreaInsets();
 
   useEffect(() => {
@@ -109,6 +166,7 @@ export function PatientList({
       [0, SCROLL_THRESHOLD],
       [bgColor, surfaceColor],
     ),
+    opacity: interpolate(scrollY.value, [0, SCROLL_THRESHOLD], [1, 0.8], Extrapolation.CLAMP),
   }));
 
   const animatedListHeaderStyle = useAnimatedStyle(() => ({
@@ -213,7 +271,7 @@ export function PatientList({
                       )}
                     </View>
                     <View className="gap-3">
-                      <Text className="text-muted font-bold text-[10px] uppercase tracking-widest opacity-60">
+                      <Text className="text-muted font-bold text-xs uppercase tracking-widest opacity-60">
                         Trier par
                       </Text>
                       <RadioGroup
@@ -241,7 +299,7 @@ export function PatientList({
                       </RadioGroup>
                     </View>
                     <View className="gap-3">
-                      <Text className="text-muted font-bold text-[10px] uppercase tracking-widest opacity-60">
+                      <Text className="text-muted font-bold text-xs uppercase tracking-widest opacity-60">
                         Filtrer par Sexe
                       </Text>
                       <SelectionChips
@@ -255,7 +313,7 @@ export function PatientList({
                       />
                     </View>
                     <View className="gap-3">
-                      <Text className="text-muted font-bold text-[10px] uppercase tracking-widest opacity-60">
+                      <Text className="text-muted font-bold text-xs uppercase tracking-widest opacity-60">
                         Filtrer par Statut
                       </Text>
                       <View className="flex-row flex-wrap gap-2">
@@ -314,12 +372,19 @@ export function PatientList({
           ItemSeparatorComponent={() => <View className="h-v-2" />}
           keyExtractor={(item) => item.id}
           ListHeaderComponent={() => <Animated.View style={animatedListHeaderStyle} />}
-          ListFooterComponent={() => <View className="h-v-20 w-full" />}
+          ListFooterComponent={() =>
+            patients.length > 0 ? (
+              <ListFooter count={patients.length} isScreenFocused={isScreenFocused} />
+            ) : (
+              <View className="h-v-20 w-full" />
+            )
+          }
           onScroll={onScroll as never}
           scrollEventThrottle={16}
           ListEmptyComponent={
             <View className="flex-1 justify-center px-2 h-full py-v-4">
               <EmptyState
+                isAnimated={true}
                 onPressIcon={!isSearched ? onPressEmptyStateBtn : undefined}
                 iconName={isSearched ? 'SearchSlash' : 'UserPlus'}
                 title={isSearched ? 'Aucun résultat' : 'Aucun patient enregistré'}

@@ -52,9 +52,9 @@ function TaskTypeRow({
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-1">
           <Icon name={icon as never} size={9} className="text-muted/50" />
-          <Text className="text-2xs font-bold uppercase tracking-wider text-muted/50">{label}</Text>
+          <Text className="text-2xs font-bold uppercase  text-muted/50">{label}</Text>
         </View>
-        <Text className={cn('text-xs font-black', countColor)}>
+        <Text className={cn('text-xs font-bold', countColor)}>
           {done}/{total}
         </Text>
       </View>
@@ -233,7 +233,7 @@ const PatientCardComponent = ({ patient$, onPress }: PatientCardProps) => {
                     )}>
                     <Text
                       className={cn(
-                        'text-2xs font-bold uppercase tracking-wider',
+                        'text-2xs font-bold uppercase',
                         isMale ? 'text-blue-400' : 'text-pink-400',
                       )}>
                       {isMale ? 'Masculin' : 'Féminin'}
@@ -246,18 +246,14 @@ const PatientCardComponent = ({ patient$, onPress }: PatientCardProps) => {
                   </View>
                   {patient.isLocked && (
                     <View className="px-1.5 py-0.5 rounded-md bg-muted/10 border border-muted/20">
-                      <Text className="text-2xs font-bold text-muted/60 uppercase tracking-wider">
-                        Exporté
-                      </Text>
+                      <Text className="text-2xs font-bold text-muted/60 uppercase">Exporté</Text>
                     </View>
                   )}
                 </View>
               </View>
 
               <View className={cn('px-2.5 py-1 rounded-lg border', cfg.pillBg, cfg.pillBorder)}>
-                <Text className={cn('text-[10px] font-black tracking-wide', cfg.pillText)}>
-                  {cfg.label}
-                </Text>
+                <Text className={cn('text-xs font-bold', cfg.pillText)}>{cfg.label}</Text>
               </View>
             </View>
 
@@ -266,10 +262,8 @@ const PatientCardComponent = ({ patient$, onPress }: PatientCardProps) => {
                 <View className="h-px bg-border/50" />
 
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-2xs font-bold uppercase tracking-widest text-muted/50">
-                    Tâches du jour
-                  </Text>
-                  <Text className="text-[10px] font-black">
+                  <Text className="text-2xs font-bold uppercase text-muted/50">Tâches du jour</Text>
+                  <Text className="text-xs font-bold">
                     <Text
                       className={
                         doneTasks === totalTasks

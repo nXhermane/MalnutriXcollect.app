@@ -43,10 +43,8 @@ function StatItem({
 }) {
   return (
     <View className="flex-1 gap-0.5">
-      <Text className={`text-xl font-black tracking-tight ${valueClassName ?? 'text-foreground'}`}>
-        {value}
-      </Text>
-      <Text className="text-2xs font-bold uppercase tracking-widest text-muted/70">{label}</Text>
+      <Text className={`text-xl font-bold ${valueClassName ?? 'text-foreground'}`}>{value}</Text>
+      <Text className="text-2xs font-bold uppercase  text-muted/70">{label}</Text>
     </View>
   );
 }
@@ -75,12 +73,10 @@ export function DailyProgressCard() {
           <Text className="text-2xs font-bold uppercase tracking-widest text-muted/60">
             Progression du jour
           </Text>
-          <Text className="text-sm font-black tracking-tight text-foreground">
-            Collecte de données
-          </Text>
+          <Text className="text-sm font-bold  text-foreground">Collecte de données</Text>
         </View>
         <View className="flex-row items-baseline gap-0.5">
-          <Text className="text-2xl font-black tracking-tight text-accent">{pct}</Text>
+          <Text className="text-2xl font-bold text-accent">{pct}</Text>
           <Text className="text-xs font-semibold text-muted/60">%</Text>
         </View>
       </View>

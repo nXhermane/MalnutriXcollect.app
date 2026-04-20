@@ -1,15 +1,15 @@
 import { Icon, IconName } from '@/components/shared/icons';
-import { Pressable, Text, View } from 'react-native';
 import type { SyncPhaseId } from '@/store/sync/sync-session.store';
 import { useEffect } from 'react';
+import { Alert, Pressable, Text, View } from 'react-native';
 import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSpring,
-  withSequence,
-  withTiming,
   Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 
 interface SyncProgressViewProps {
@@ -196,7 +196,20 @@ export function SyncProgressView({
         )}
 
         <Pressable
-          onPress={onDisconnect}
+          onPress={() => {
+            if (hasError || isCompleted) {
+              onDisconnect();
+            } else {
+              Alert.alert(
+                'Interrompre la synchronisation ?',
+                'La synchronisation est en cours. Déconnecter maintenant peut laisser les données dans un état incomplet.',
+                [
+                  { text: 'Continuer', style: 'cancel' },
+                  { text: 'Déconnecter', style: 'destructive', onPress: onDisconnect },
+                ],
+              );
+            }
+          }}
           className="w-full border border-danger/25 bg-danger/5 rounded-2xl h-12 items-center justify-center flex-row gap-2 active:opacity-60">
           <Icon
             name={hasError ? 'RefreshCw' : 'WifiOff'}
@@ -204,7 +217,7 @@ export function SyncProgressView({
             sizeClassName="text-sm"
           />
           <Text className="text-danger font-semibold text-sm">
-            {hasError ? 'Réessayer' : 'Déconnecter'}
+            {hasError ? 'Réessayer' : isCompleted ? 'Fermer' : 'Déconnecter'}
           </Text>
         </Pressable>
       </View>

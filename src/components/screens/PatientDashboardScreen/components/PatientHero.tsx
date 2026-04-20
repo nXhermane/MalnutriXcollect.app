@@ -1,5 +1,5 @@
 import { Icon } from '@/components/shared/icons';
-import { STATUS_CONFIG } from '@/constants/patient';
+import { STATUS_CONFIG } from '@/constants';
 import { formatAgeInMonths } from '@/lib/utils/date';
 import { vibrate } from '@/lib/utils/haptics';
 import { Patient, Sex } from '@/schemas/patient.schema';
@@ -72,7 +72,6 @@ export function PatientHero({ patient }: PatientHeroProps) {
           </Avatar>
 
           <View className="flex-1 gap-1">
-            {/* Name + status pill */}
             <View className="flex-row items-center gap-2">
               <Text className="text-base font-bold text-foreground flex-1" numberOfLines={1}>
                 {patient.name}
@@ -81,13 +80,12 @@ export function PatientHero({ patient }: PatientHeroProps) {
                 <Icon name="LockKeyhole" sizeClassName="text-xs" className="text-muted" />
               )}
               <View className={cn('px-2 py-0.5 rounded-lg border', cfg.pillBg, cfg.pillBorder)}>
-                <Text className={cn('text-[10px] font-black tracking-wide', cfg.pillText)}>
+                <Text className={cn('text-xs font-bold tracking-wide', cfg.pillText)}>
                   {cfg.label}
                 </Text>
               </View>
             </View>
 
-            {/* Age + sex */}
             <View className="flex-row items-center gap-1.5">
               <Icon name="Calendar" sizeClassName="text-xs" className="text-muted" />
               <Text className="text-xs text-muted font-light">
@@ -95,7 +93,6 @@ export function PatientHero({ patient }: PatientHeroProps) {
               </Text>
             </View>
 
-            {/* Today tasks badge */}
             {todayTotal > 0 && (
               <View className="flex-row items-center gap-1.5">
                 <Icon name="ClipboardList" sizeClassName="text-xs" className="text-muted" />
@@ -124,6 +121,8 @@ export function PatientHero({ patient }: PatientHeroProps) {
               </View>
             )}
           </View>
+
+          <Icon name="ChevronRight" sizeClassName="text-sm" className="text-muted/30 shrink-0" />
         </View>
       </Surface>
     </Pressable>
