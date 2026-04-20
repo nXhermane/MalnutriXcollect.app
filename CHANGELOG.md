@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.0.0-beta.5] - 2026-04-20
+
+- **cc45366 - merge(develop): UX/UI improvements, Reanimated crash fixes, and auth fix (nXhermane)**
+
+- **50300b5 - feat(ui): improve UX across settings, home, dashboard, and sync screens (nXhermane)**
+  > - Settings: refactor into DangerSection component, redesign UserCard
+  >   (horizontal layout, location CTA), update AppSettingsSection and
+  >   PersonalizationSection icons/colors, improve SettingRow hierarchy
+  > - Home: add animated ListFooter with focus-aware pulse dots, add
+  >   isAnimated prop to EmptyState with Reanimated pulse button
+  > - PatientDashboard: add task badge on Tâches tab, fix id guard on
+  >   useValue calls, add ChevronRight affordance on PatientHero
+  > - VisitCard: replace orange "Non sync" badge with neutral "En attente"
+  > - SyncProgressView: add disconnect confirmation alert during active sync
+  > - PatientCard: remove LayoutAnimation to prevent Android native crash
+  > - Constants: split patient-status into dedicated file
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [v2.0.0-beta.4] - 2026-04-19
 
 - **0a11e15 - merge(develop): fix origin_app tracking and EAS build hook (nXhermane)**
