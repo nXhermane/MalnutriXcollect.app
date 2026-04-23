@@ -131,7 +131,7 @@ export function evaluateMissedTask(taskId: string): void {
   if (!window) return;
 
   if (new Date() > window.expiresAt) {
-    tasks$[taskId].set({ ...task, localStatus: 'missed' });
+    tasks$[taskId].set({ ...task, localStatus: 'missed', missedAt: new Date().toISOString() });
     logger.info('[evaluateMissedTask] Task auto-missed', taskId);
   }
 }

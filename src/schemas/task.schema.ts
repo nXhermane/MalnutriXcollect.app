@@ -222,6 +222,7 @@ export const localTaskSchema = v.object({
   completedAt: v.nullable(v.string()),
   skippedAt: v.nullable(v.string()),
   skippedReason: v.nullable(v.string()),
+  missedAt: v.nullable(v.string()),
   reportedOccurrenceAt: v.nullable(v.string()),
   isLateEntry: v.boolean(),
   receivedAt: v.string(),

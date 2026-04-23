@@ -11,11 +11,11 @@ export interface SyncConnectionInfo {
 
 export function decodeSyncQR(raw: string): SyncConnectionInfo | null {
   try {
-    const decoded = cryptoDecode(raw);
+    if (!raw.startsWith(QR_PREFIX)) return null;
+    const encodedString = raw.slice(QR_PREFIX.length);
+    const decoded = cryptoDecode(encodedString);
     if (!decoded) return null;
-    if (!decoded.startsWith(QR_PREFIX)) return null;
-    const json = decoded.slice(QR_PREFIX.length);
-    const parsed = JSON.parse(json) as Record<string, unknown>;
+    const parsed = JSON.parse(decoded) as Record<string, unknown>;
     const host = parsed['host'];
     const port = parsed['port'];
     const ssid = parsed['ssid'];

@@ -83,3 +83,15 @@ export function getFacilitiesByDepartment(departmentId: string) {
 export function getServicesByFacility(facilityId: string) {
   return services$.get().filter((service) => service.facility_id === facilityId);
 }
+
+export function getDepartmentName(departmentId: string) {
+  return departments$.peek().find((d) => d.id === departmentId)?.name;
+}
+
+export function getFacilityName(facilityId: string) {
+  return facilities$.peek().find((f) => f.id === facilityId)?.name;
+}
+
+export function getServiceName(serviceId: string) {
+  return services$.peek().find((s) => s.id === serviceId)?.name;
+}

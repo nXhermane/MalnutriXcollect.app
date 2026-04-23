@@ -3,6 +3,7 @@ import { supabase } from '@/services/supabase';
 import ObservablePersistMMKV from '@/store/config/mmkv';
 import { computed, observable } from '@legendapp/state';
 import { synced } from '@legendapp/state/sync';
+import { getDepartmentName, getFacilityName, getServiceName } from '../data/reference-data.store';
 
 export interface User {
   id: string;
@@ -98,3 +99,21 @@ export const userProfile$ = observable<UserProfile | null>(
 export const isProfileLoaded$ = computed(() => userProfile$.get() !== null);
 
 export const isAccountActive$ = computed(() => userProfile$.get()?.is_active ?? true);
+
+export const userProfileDepartmentName$ = computed(() => {
+  const departmentId = userProfile$.department_id.get();
+  if (!departmentId) return null;
+  return getDepartmentName(departmentId);
+});
+
+export const userProfileFacilityName$ = computed(() => {
+  const facilityId = userProfile$.facility_id.get();
+  if (!facilityId) return null;
+  return getFacilityName(facilityId);
+});
+
+export const userProfileServiceName$ = computed(() => {
+  const serviceId = userProfile$.service_id.get();
+  if (!serviceId) return null;
+  return getServiceName(serviceId);
+});

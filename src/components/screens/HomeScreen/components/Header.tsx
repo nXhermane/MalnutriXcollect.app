@@ -8,7 +8,12 @@ import {
 import { currentTime } from '@/lib/observables/current-time';
 import { vibrate } from '@/lib/utils/haptics';
 import { home$ } from '@/store/ui/home.store';
-import { userProfile$ } from '@/store/user/user.store';
+import {
+  userProfile$,
+  userProfileDepartmentName$,
+  userProfileFacilityName$,
+  userProfileServiceName$,
+} from '@/store/user/user.store';
 import { useValue } from '@legendapp/state/react';
 import { useRouter } from 'expo-router';
 import { Avatar, cn, PressableFeedback } from 'heroui-native';
@@ -43,20 +48,19 @@ function getFirstName(fullName?: string | null): string {
 
 function getHealthLocation(
   profile: {
-    service_name?: string | null;
-    facility_name?: string | null;
-    facility_short_name?: string | null;
-    department_name?: string | null;
+    departmentName?: string | null;
+    facilityName?: string | null;
+    serviceName?: string | null;
   } | null,
 ): string | null {
   if (!profile) return null;
 
-  if (profile.service_name) {
-    const facility = profile.facility_short_name || profile.facility_name;
-    return facility ? `${facility} · ${profile.service_name}` : profile.service_name;
+  if (profile.serviceName) {
+    const facility = profile.facilityName;
+    return facility ? `${facility} · ${profile.serviceName}` : profile.serviceName;
   }
 
-  return profile.facility_short_name || profile.facility_name || profile.department_name || null;
+  return profile.facilityName || profile.departmentName || null;
 }
 
 function getTodayLabel(): string {
@@ -121,6 +125,9 @@ interface HomeHeaderProps {
 
 export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
   const profile = useValue(userProfile$);
+  const departmentName = useValue(userProfileDepartmentName$);
+  const facilityName = useValue(userProfileFacilityName$);
+  const serviceName = useValue(userProfileServiceName$);
   const showSearchBar = useValue(() => home$.showSearchBar.get());
   const { top } = useSafeAreaInsets();
   const startY = useSharedValue(0);
@@ -273,11 +280,11 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
                 {getGreeting()}
                 {profile?.display_name ? `, ${getFirstName(profile.display_name)}` : ''}
               </Text>
-              {getHealthLocation(profile) ? (
+              {getHealthLocation({ departmentName, facilityName, serviceName }) ? (
                 <View className="flex-row items-center gap-1">
                   <Icon name="Building2" sizeClassName="text-xs" className="text-muted/60" />
                   <Text className="text-muted/70 text-xs font-light" numberOfLines={1}>
-                    {getHealthLocation(profile)}
+                    {getHealthLocation({ departmentName, facilityName, serviceName })}
                   </Text>
                 </View>
               ) : null}

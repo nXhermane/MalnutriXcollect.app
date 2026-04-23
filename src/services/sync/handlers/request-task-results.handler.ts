@@ -12,6 +12,7 @@ interface TaskResult {
   completedAt: string | null;
   skippedAt: string | null;
   skippedReason: string | null;
+  missedAt: string | null;
   reportedOccurrenceAt: string | null;
   isLateEntry: boolean;
 }
@@ -25,6 +26,7 @@ function toTaskResult(task: LocalTask): TaskResult {
     completedAt: task.completedAt,
     skippedAt: task.skippedAt,
     skippedReason: task.skippedReason,
+    missedAt: task.missedAt,
     reportedOccurrenceAt: task.reportedOccurrenceAt,
     isLateEntry: task.isLateEntry,
   };
