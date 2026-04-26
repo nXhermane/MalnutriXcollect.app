@@ -58,11 +58,18 @@ const statusConfig = {
 } as const;
 
 function getMonitoringLabel(payload: SyncMonitoringTask): string {
-  for (const cat of [MeasureCategory.FIELD, MeasureCategory.BIOLOGICAL, MeasureCategory.ANTHRO]) {
-    const label = getMeasureLabel(payload.monitoringCode, cat);
-    if (label !== payload.monitoringCode) return label;
+  switch (payload.category) {
+    case MonitoringElementCategory.DATA_FIELD:
+      return getMeasureLabel(payload.monitoringCode, MeasureCategory.FIELD);
+    case MonitoringElementCategory.ANTHROPOMETRIC:
+      return getMeasureLabel(payload.monitoringCode, MeasureCategory.ANTHRO);
+    case MonitoringElementCategory.BIOCHEMICAL:
+      return getMeasureLabel(payload.monitoringCode, MeasureCategory.BIOLOGICAL);
+    case MonitoringElementCategory.CLINICAL_SIGNS:
+      return getMeasureLabel(payload.monitoringCode, MeasureCategory.CLINICAL);
+    default:
+      return payload.monitoringCode;
   }
-  return payload.monitoringCode;
 }
 
 export function MonitoringTaskCard({ task, patientId }: Props) {

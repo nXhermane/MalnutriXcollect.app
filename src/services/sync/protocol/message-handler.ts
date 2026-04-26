@@ -1,4 +1,5 @@
 import { createLogger } from '@/lib/utils/logger';
+import { logSyncMessage } from '@/store/sync/sync-debug.store';
 import type { MessageType } from './message-types';
 import type { ProtocolMessage, SendFn } from './protocol-message';
 
@@ -20,6 +21,7 @@ export class HandlerRegistry {
       return;
     }
     logger.debug('Dispatching message: ', message);
+    logSyncMessage('received', message.type, message.content);
     handler(message.content, send);
   }
 }

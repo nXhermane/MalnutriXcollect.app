@@ -16,6 +16,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BlurView } from '../shared/BlurView';
 import { CopyrightNotice } from '../shared/CopyrightNotice';
+import { syncRefData } from '@/store/data/reference-data.store';
 
 export function AuthScreen() {
   const toast = useToast();
@@ -41,10 +42,11 @@ export function AuthScreen() {
     if (result.error) {
       toast.show('Error', 'Erreur de connexion', result.error);
     }
+    await syncRefData();
   }, [toast]);
 
   return (
-    <View className="flex-1 overflow-hidden bg-background">
+    <View className="flex-1 overflow-hidden bg-background p-safe-offset-0">
       <MeshGradientBackground />
 
       <View className="flex-[0.6] items-center justify-center">

@@ -4,10 +4,9 @@ import { vibrate } from '@/lib/utils/haptics';
 import { Patient } from '@/schemas/patient.schema';
 import { Visit } from '@/schemas/visit.schema';
 import { patients$ } from '@/store/patients/patients.store';
-import { tasks$ } from '@/store/tasks/tasks.store';
+import { patientDayStats$ } from '@/store/tasks/tasks.store';
 import { visits$ } from '@/store/visits/visits.store';
-import { observable } from '@legendapp/state';
-import { useValue } from '@legendapp/state/react';
+import { useObservable, useValue } from '@legendapp/state/react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { cn, PressableFeedback, Tabs } from 'heroui-native';
 import { Pressable, Text, View } from 'react-native';
@@ -19,35 +18,21 @@ import { VisitsTab } from './components/VisitsTab';
 
 type TabName = 'visits' | 'tasks' | 'measures';
 
-const active_tab$ = observable<TabName>('visits');
-
-function isTodayTask(receivedAt: string): boolean {
-  const d = new Date(receivedAt);
-  const now = new Date();
-  return (
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
-}
-
 export function PatientDashboardScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { top } = useSafeAreaInsets();
-  const activeTab = useValue(active_tab$);
+
+  const activeTab$ = useObservable<TabName>('visits');
+  const activeTab = useValue(activeTab$);
+
   const patient = useValue(() => (id ? patients$[id].get() : undefined) as Patient | undefined);
   const visits = useValue(() => (id ? (visits$[id].get() ?? []) : []) as Visit[]);
 
   const { taskTotal, taskDone } = useValue(() => {
     if (!id) return { taskTotal: 0, taskDone: 0 };
-    const all = Object.values(tasks$.get()).filter(
-      (t) => t.patientId === id && isTodayTask(t.receivedAt),
-    );
-    return {
-      taskTotal: all.length,
-      taskDone: all.filter((t) => t.localStatus === 'completed').length,
-    };
+    const stats = patientDayStats$[id].get();
+    return { taskTotal: stats?.total ?? 0, taskDone: stats?.done ?? 0 };
   });
 
   const taskBadgeColor =
@@ -75,7 +60,7 @@ export function PatientDashboardScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: top }}>
+    <View className="flex-1 bg-background pb-safe-offset-0" style={{ paddingTop: top }}>
       <View className="absolute z-30 w-full overflow-hidden" style={{ top }}>
         <BlurView />
         <View className="flex-row items-center gap-3 px-4 pb-2 pt-2">
@@ -121,7 +106,7 @@ export function PatientDashboardScreen() {
       </View>
       <Tabs
         value={activeTab}
-        onValueChange={(value) => active_tab$.set(value as TabName)}
+        onValueChange={(value) => activeTab$.set(value as TabName)}
         className="flex-1">
         <Tabs.List className="mx-2">
           <Tabs.Indicator />

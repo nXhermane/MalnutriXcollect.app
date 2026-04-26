@@ -4,7 +4,7 @@
 
 set -e
 
-PROXY_URL="https://github-dispatch-proxy.nxhermane.workers.dev/nXhermane/MalnutriXcollect"
+PROXY_URL="https://github-dispatch-proxy.nxhermane.workers.dev/nXhermane/MalnutriXcollect.app"
 EVENT_TYPE="finalize-release"
 
 if [ "$EAS_BUILD_PROFILE" = "development" ]; then
@@ -41,7 +41,7 @@ ARTIFACT_URL="https://expo.dev/artifacts/eas/${EAS_BUILD_ID}"
 echo "🚀 Triggering finalize-release dispatch..."
 echo "   Version     : $VERSION"
 echo "   Artifact URL: $ARTIFACT_URL"
-echo "   Target repo : nXhermane/MalnutriXcollect"
+echo "   Target repo : nXhermane/MalnutriXcollect.app"
 
 PAYLOAD=$(cat <<EOF
 {

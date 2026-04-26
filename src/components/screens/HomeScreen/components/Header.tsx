@@ -212,6 +212,8 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
     ],
   }));
 
+  const healthLocation = getHealthLocation({ departmentName, facilityName, serviceName });
+
   return (
     <GestureDetector gesture={panGesture}>
       <Animated.View
@@ -280,11 +282,11 @@ export const HomeHeader = ({ scrollY }: HomeHeaderProps) => {
                 {getGreeting()}
                 {profile?.display_name ? `, ${getFirstName(profile.display_name)}` : ''}
               </Text>
-              {getHealthLocation({ departmentName, facilityName, serviceName }) ? (
+              {healthLocation ? (
                 <View className="flex-row items-center gap-1">
                   <Icon name="Building2" sizeClassName="text-xs" className="text-muted/60" />
                   <Text className="text-muted/70 text-xs font-light" numberOfLines={1}>
-                    {getHealthLocation({ departmentName, facilityName, serviceName })}
+                    {healthLocation}
                   </Text>
                 </View>
               ) : null}

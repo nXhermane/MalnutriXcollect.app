@@ -5,11 +5,13 @@ import { useVisitActions } from '@/hooks/useVisitActions';
 import { vibrate, vibrateError, vibrateSuccess } from '@/lib/utils/haptics';
 import { logger } from '@/lib/utils/logger';
 import { Visit } from '@/schemas/visit.schema';
-// import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
+import { measures$ } from '@/store/measures/measures.store';
+import { useValue } from '@legendapp/state/react';
 import { Accordion, Button } from 'heroui-native';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { LayoutAnimation, ScrollView, View } from 'react-native';
 import { VisitCard } from './VisitCard';
+import { PatientMeasures } from '@/schemas';
 
 interface VisitsTabProps {
   visits: Visit[];
@@ -21,8 +23,12 @@ export function VisitsTab({ visits, patientId, onNewVisit }: VisitsTabProps) {
   const toast = useToast();
   const { deleteVisit } = useVisitActions();
 
-  const sorted = [...visits].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  const patientMeasures = useValue(() => measures$[patientId].get() as PatientMeasures | undefined);
+
+  const sorted = useMemo(
+    () =>
+      [...visits].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+    [visits],
   );
 
   const handleDelete = useCallback(
@@ -70,24 +76,6 @@ export function VisitsTab({ visits, patientId, onNewVisit }: VisitsTabProps) {
         )}
         {sorted.length !== 0 && (
           <Accordion variant="surface" selectionMode={'single'}>
-            {/* <FlashList
-          data={sorted}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          ItemSeparatorComponent={() => <View className="h-v-2" />}
-          contentContainerClassName="px-4 pt-4 pb-v-18"
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View className="px-2 py-v-4">
-              <EmptyState
-                iconName="Activity"
-                title="Aucune visite enregistrée"
-                description="Appuyez sur le bouton ci-dessous pour démarrer la première collecte."
-              />
-            </View>
-          }
-        /> */}
-
             {sorted.map((item, index) => (
               <VisitCard
                 visit={item}
@@ -95,6 +83,7 @@ export function VisitsTab({ visits, patientId, onNewVisit }: VisitsTabProps) {
                 index={index}
                 total={sorted.length}
                 patientId={patientId}
+                patientMeasures={patientMeasures}
                 onDelete={() => handleDelete(item.id)}
               />
             ))}

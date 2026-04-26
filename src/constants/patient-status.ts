@@ -68,7 +68,7 @@ export const STATUS_CONFIG: Record<
     pulse: false,
   },
   [PatientStatus.MODERATE_UNDERWEIGHT]: {
-    label: 'Sous-poids',
+    label: 'Insuffis. P.',
     pillBg: 'bg-orange-500/10',
     pillText: 'text-orange-300',
     pillBorder: 'border-orange-300/30',

@@ -1,12 +1,13 @@
 import { getOfflineSession, subscribeToAuthStateChanges } from '@/services/supabase';
-import { user$ } from '@/store/user/user.store';
+import { user$, userProfile$ } from '@/store/user/user.store';
+import { syncState } from '@legendapp/state';
 import { useValue } from '@legendapp/state/react';
 import { useEffect } from 'react';
 
 export function useAuthState() {
   const isLoggedIn = useValue(() => user$.isLoggedIn.get());
   const isLoading = useValue(() => user$.isLoading.get());
-
+  const userProfileState = syncState(userProfile$);
   useEffect(() => {
     const cached = getOfflineSession();
     if (cached) {
@@ -32,6 +33,7 @@ export function useAuthState() {
             phone: session.user.phone,
           },
         });
+        userProfileState.sync().then();
       } else {
         user$.set({ isLoggedIn: false, isLoading: false, user: null });
       }

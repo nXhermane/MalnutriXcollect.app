@@ -1,9 +1,8 @@
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Icon } from '@/components/shared/icons';
 import type { LocalTask } from '@/schemas/task.schema';
-import { tasks$ } from '@/store/tasks/tasks.store';
-import { observable } from '@legendapp/state';
-import { useValue } from '@legendapp/state/react';
+import { allTasksByPatient$ } from '@/store/tasks/tasks.store';
+import { useObservable, useValue } from '@legendapp/state/react';
 import { FlashList } from '@shopify/flash-list';
 import { cn, Tabs } from 'heroui-native';
 import { useCallback } from 'react';
@@ -14,7 +13,27 @@ import { TreatmentActionCard } from './tasks/TreatmentActionCard';
 
 type TaskTabName = 'treatments' | 'monitoring' | 'data_collection';
 
-const active_task_tab$ = observable<TaskTabName>('treatments');
+function badgeColor(done: number, total: number): string {
+  if (total === 0) return 'bg-accent/15 text-accent';
+  if (done === total) return 'bg-accent/15 text-accent';
+  if (done === 0) return 'bg-red-500/15 text-red-400';
+  return 'bg-amber-500/15 text-amber-400';
+}
+
+function badgeLabel(done: number, total: number): string {
+  if (total === 0) return '0';
+  return `${done}/${total}`;
+}
+
+function renderTreatment(item: LocalTask, patientId: string) {
+  return <TreatmentActionCard task={item} patientId={patientId} />;
+}
+function renderMonitoring(item: LocalTask, patientId: string) {
+  return <MonitoringTaskCard task={item} patientId={patientId} />;
+}
+function renderDataCollection(item: LocalTask, patientId: string) {
+  return <DataCollectionTaskCard task={item} patientId={patientId} />;
+}
 
 interface Props {
   patientId: string;
@@ -59,37 +78,47 @@ function TaskList<T extends LocalTask>({
 }
 
 export function TasksTab({ patientId }: Props) {
-  const allTasks = useValue(() =>
-    Object.values(tasks$.get()).filter((t) => t.patientId === patientId),
-  );
-  const activeTab = useValue(active_task_tab$);
+  const activeTab$ = useObservable<TaskTabName>('treatments');
+  const activeTab = useValue(activeTab$);
 
-  const treatmentTasks = allTasks.filter((t) => t.taskType === 'treatment_action');
-  const monitoringTasks = allTasks.filter((t) => t.taskType === 'monitoring_task');
-  const dataCollectionTasks = allTasks.filter((t) => t.taskType === 'data_collection_task');
-
-  const treatmentDone = treatmentTasks.filter((t) => t.localStatus === 'completed').length;
-  const monitoringDone = monitoringTasks.filter((t) => t.localStatus === 'completed').length;
-  const dataCollectionDone = dataCollectionTasks.filter(
-    (t) => t.localStatus === 'completed',
-  ).length;
-
-  function badgeColor(done: number, total: number) {
-    if (total === 0) return 'bg-accent/15 text-accent';
-    if (done === total) return 'bg-accent/15 text-accent';
-    if (done === 0) return 'bg-red-500/15 text-red-400';
-    return 'bg-amber-500/15 text-amber-400';
-  }
-
-  function badgeLabel(done: number, total: number) {
-    if (total === 0) return '0';
-    return `${done}/${total}`;
-  }
+  const {
+    treatmentTasks,
+    monitoringTasks,
+    dataCollectionTasks,
+    treatmentDone,
+    monitoringDone,
+    dataCollectionDone,
+  } = useValue(() => {
+    const all = allTasksByPatient$[patientId].get() ?? [];
+    return all.reduce(
+      (acc, t) => {
+        if (t.taskType === 'treatment_action') {
+          acc.treatmentTasks.push(t);
+          if (t.localStatus === 'completed') acc.treatmentDone++;
+        } else if (t.taskType === 'monitoring_task') {
+          acc.monitoringTasks.push(t);
+          if (t.localStatus === 'completed') acc.monitoringDone++;
+        } else if (t.taskType === 'data_collection_task') {
+          acc.dataCollectionTasks.push(t);
+          if (t.localStatus === 'completed') acc.dataCollectionDone++;
+        }
+        return acc;
+      },
+      {
+        treatmentTasks: [] as LocalTask[],
+        monitoringTasks: [] as LocalTask[],
+        dataCollectionTasks: [] as LocalTask[],
+        treatmentDone: 0,
+        monitoringDone: 0,
+        dataCollectionDone: 0,
+      },
+    );
+  });
 
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(v) => active_task_tab$.set(v as TaskTabName)}
+      onValueChange={(v) => activeTab$.set(v as TaskTabName)}
       className="flex-1">
       <Tabs.List className="mx-2 mt-2">
         <Tabs.Indicator />
@@ -192,7 +221,7 @@ export function TasksTab({ patientId }: Props) {
         <TaskList
           data={treatmentTasks}
           patientId={patientId}
-          renderItem={(item, pid) => <TreatmentActionCard task={item} patientId={pid} />}
+          renderItem={renderTreatment}
           emptyTitle="Aucun traitement assigné"
           emptyDescription="Les traitements apparaîtront ici après la prochaine synchronisation."
         />
@@ -202,7 +231,7 @@ export function TasksTab({ patientId }: Props) {
         <TaskList
           data={monitoringTasks}
           patientId={patientId}
-          renderItem={(item, pid) => <MonitoringTaskCard task={item} patientId={pid} />}
+          renderItem={renderMonitoring}
           emptyTitle="Aucune surveillance assignée"
           emptyDescription="Les tâches de monitoring apparaîtront ici après la prochaine synchronisation."
         />
@@ -212,7 +241,7 @@ export function TasksTab({ patientId }: Props) {
         <TaskList
           data={dataCollectionTasks}
           patientId={patientId}
-          renderItem={(item, pid) => <DataCollectionTaskCard task={item} patientId={pid} />}
+          renderItem={renderDataCollection}
           emptyTitle="Aucune collecte assignée"
           emptyDescription="Les tâches de collecte apparaîtront ici après la prochaine synchronisation."
         />

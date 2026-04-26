@@ -58,7 +58,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background pt-safe-offset-0">
+    <View className="flex-1 bg-background pt-safe-offset-0 pb-safe-offset-0">
       <View className="absolute z-30 w-full overflow-hidden" style={{ top }}>
         <BlurView />
         <View className="flex-row items-center gap-3 px-4 pb-2 pt-2">

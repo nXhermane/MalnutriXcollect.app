@@ -45,6 +45,7 @@ export function handleTaskImport(content: TaskImportContent, send: SendFn): void
           skippedReason: null,
           reportedOccurrenceAt: null,
           isLateEntry: false,
+          missedAt: null,
           receivedAt: now,
         };
         tasks$[task.id].set(localTask);

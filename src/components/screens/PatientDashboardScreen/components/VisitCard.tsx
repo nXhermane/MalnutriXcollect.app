@@ -1,14 +1,14 @@
 import { Icon } from '@/components/shared/icons';
 import { MeasureCategory } from '@/constants';
 import { vibrate } from '@/lib/utils/haptics';
+import { PatientMeasures } from '@/schemas';
 import { AnthropometricMeasure } from '@/schemas/anthropometric-measure.schema';
 import { BiologicalMeasure } from '@/schemas/biological-measure.schema';
 import { ClinicalFieldMeasure } from '@/schemas/clinical-field-measure.schema';
 import { Visit } from '@/schemas/visit.schema';
-import { measures$ } from '@/store/measures/measures.store';
-import { useValue } from '@legendapp/state/react';
 import { useRouter } from 'expo-router';
 import { Accordion, Button, PressableFeedback, Surface } from 'heroui-native';
+import { useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
@@ -81,35 +81,50 @@ interface VisitCardProps {
   index: number;
   total: number;
   patientId: string;
+  patientMeasures: PatientMeasures | undefined;
   onDelete: () => void;
 }
 
-export function VisitCard({ visit, index, total, patientId, onDelete }: VisitCardProps) {
+export function VisitCard({
+  visit,
+  index,
+  total,
+  patientId,
+  patientMeasures,
+  onDelete,
+}: VisitCardProps) {
   const router = useRouter();
 
-  const patientMeasures = useValue(() => measures$[patientId].get());
+  const { anthros, clinicals, biologicals } = useMemo(() => {
+    const anthroIds = new Set(visit.measureIds[MeasureCategory.ANTHRO]);
+    const fieldIds = new Set(visit.measureIds[MeasureCategory.FIELD]);
+    const bioIds = new Set(visit.measureIds[MeasureCategory.BIOLOGICAL]);
 
-  const anthros: AnthropometricMeasure[] = (patientMeasures?.[MeasureCategory.ANTHRO] ?? []).filter(
-    (m) => visit.measureIds[MeasureCategory.ANTHRO].includes(m.id),
-  );
-  const clinicals: ClinicalFieldMeasure[] = (patientMeasures?.[MeasureCategory.FIELD] ?? []).filter(
-    (m) => visit.measureIds[MeasureCategory.FIELD].includes(m.id),
-  );
-  const biologicals: BiologicalMeasure[] = (
-    patientMeasures?.[MeasureCategory.BIOLOGICAL] ?? []
-  ).filter((m) => visit.measureIds[MeasureCategory.BIOLOGICAL].includes(m.id));
+    return {
+      anthros: (
+        (patientMeasures?.[MeasureCategory.ANTHRO] ?? []) as AnthropometricMeasure[]
+      ).filter((m) => anthroIds.has(m.id)),
+      clinicals: (
+        (patientMeasures?.[MeasureCategory.FIELD] ?? []) as ClinicalFieldMeasure[]
+      ).filter((m) => fieldIds.has(m.id)),
+      biologicals: (
+        (patientMeasures?.[MeasureCategory.BIOLOGICAL] ?? []) as BiologicalMeasure[]
+      ).filter((m) => bioIds.has(m.id)),
+    };
+  }, [visit.measureIds, patientMeasures]);
 
   const totalMeasures = anthros.length + clinicals.length + biologicals.length;
   const hasMeasures = totalMeasures > 0;
 
   const visitNumber = total - index;
-  const isToday = new Date(visit.createdAt).toDateString() === new Date().toDateString();
-  const dateLabel = new Date(visit.createdAt).toLocaleDateString('fr-FR', {
+  const visitDate = new Date(visit.createdAt);
+  const isToday = visitDate.toDateString() === new Date().toDateString();
+  const dateLabel = visitDate.toLocaleDateString('fr-FR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
-  const timeLabel = new Date(visit.createdAt).toLocaleTimeString('fr-FR', {
+  const timeLabel = visitDate.toLocaleTimeString('fr-FR', {
     hour: '2-digit',
     minute: '2-digit',
   });

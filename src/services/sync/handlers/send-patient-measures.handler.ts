@@ -41,11 +41,10 @@ interface PatientMeasuresExport {
 export function handleMeasuresExport(content: ServerRequestMeasuresContent, send: SendFn): void {
   sync_session_state$.currentPhase.set('export_measures');
   sync_session_state$.currentPhaseMessage.set('Export des mesures en cours...');
-
   const lastSyncTimestamp = sync_session_state$.lastSyncTimestamp.peek();
 
   const measuresPayload: PatientMeasuresExport[] = content.patientIds.map((patientId) => {
-    const patientMeasures = measures$[patientId].peek();
+    const patientMeasures = measures$[patientId]?.peek();
 
     if (!patientMeasures) {
       return { patientId, anthropometric: [], biological: [], clinical: [] };

@@ -30,7 +30,7 @@ export function SplashScreen() {
   }));
 
   return (
-    <View className="flex-1 items-center justify-center overflow-hidden bg-background">
+    <View className="flex-1 items-center justify-center overflow-hidden bg-background p-safe-offset-0">
       <MeshGradientBackground />
       <Animated.View style={logoAnimatedStyle} className="items-center">
         <AppLogo style={{ width: 128, height: 128 }} />

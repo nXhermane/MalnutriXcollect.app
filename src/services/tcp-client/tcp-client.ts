@@ -1,8 +1,8 @@
 import { createLogger } from '@/lib/utils/logger';
 import net from 'react-native-tcp-socket';
 import { Framer } from './framer';
-// eslint-disable-next-line import/no-unresolved
-import serverCert from '@/../assets/crypto/server-cert.pem';
+// // eslint-disable-next-line import/no-unresolved
+// import serverCert from '@/../assets/crypto/server-cert.pem';
 
 export type TcpClientStatus = 'connected' | 'closed';
 
@@ -37,12 +37,12 @@ class TcpClient {
       if (this.callbacks.onError) this.callbacks.onError(err);
     };
 
-    this.client = net.connectTLS(
+    this.client = net.createConnection(
       {
         port,
         host,
         reuseAddress: true,
-        ca: serverCert,
+        // ca: serverCert,
       },
       () => {
         console.log('Connected !');
@@ -53,6 +53,12 @@ class TcpClient {
     );
     this.client.on('data', (data) => {
       if (this.framer) this.framer.feed(data.toString());
+    });
+    this.client.on('close', () => {
+      logger.info('TCP connection closed');
+      if (this.callbacks.onStatusChange) {
+        this.callbacks.onStatusChange('closed');
+      }
     });
     this.client.on('error', (error) => {
       if (this.callbacks.onError) {
@@ -80,6 +86,7 @@ class TcpClient {
   disconnect() {
     if (this.client) {
       this.client.destroy();
+      this.callbacks = {};
       this.client = null;
       this.framer = null;
     }

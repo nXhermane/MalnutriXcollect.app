@@ -100,6 +100,13 @@ export const isProfileLoaded$ = computed(() => userProfile$.get() !== null);
 
 export const isAccountActive$ = computed(() => userProfile$.get()?.is_active ?? true);
 
+export function clearUserProfile(): void {
+  userProfile$.set(null);
+  const storage = new ObservablePersistMMKV({ id: 'obsPersist' });
+  storage.deleteTable('profile', { plugin: ObservablePersistMMKV, name: 'profile' });
+  storage.deleteMetadata('profile', { plugin: ObservablePersistMMKV, name: 'profile' });
+}
+
 export const userProfileDepartmentName$ = computed(() => {
   const departmentId = userProfile$.department_id.get();
   if (!departmentId) return null;

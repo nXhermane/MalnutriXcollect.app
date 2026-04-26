@@ -3,6 +3,7 @@ import { DynamicForm, useDynamicFormHelpers } from '@/components/shared/forms';
 import { Icon } from '@/components/shared/icons';
 import { AnthroSystemCodes, MonitoringElementCategory } from '@/constants';
 import { useMeasureActions } from '@/hooks/useMeasureActions';
+import { collectFieldForTask } from '@/hooks/useTaskActions';
 import { useToast } from '@/hooks/useToast';
 import { getAnthropometryFormField } from '@/lib/helpers/forms/anthropometry';
 import type { LocalTask } from '@/schemas/task.schema';
@@ -10,7 +11,6 @@ import { BottomSheet, Button, Spinner } from 'heroui-native';
 import { useMemo } from 'react';
 import { View } from 'react-native';
 import { getFieldLabel } from '../../../shared/utils';
-import { collectFieldForTask } from '@/hooks/useTaskActions';
 
 interface Props {
   task: LocalTask;
@@ -20,7 +20,17 @@ interface Props {
   onClose: () => void;
 }
 
-export function AnthroCollectModal({ task, patientId, fieldCode, isOpen, onClose }: Props) {
+function AnthroCollectModalContent({
+  task,
+  patientId,
+  fieldCode,
+  onClose,
+}: {
+  task: LocalTask;
+  patientId: string;
+  fieldCode: string;
+  onClose: () => void;
+}) {
   const { props, error, loading, submit } = useDynamicFormHelpers();
   const { addAnthropometricMeasure } = useMeasureActions();
   const toast = useToast();
@@ -58,48 +68,59 @@ export function AnthroCollectModal({ task, patientId, fieldCode, isOpen, onClose
   };
 
   return (
+    <BottomSheet.Content
+      snapPoints={['60%']}
+      enableDynamicSizing={false}
+      contentContainerClassName="py-0 px-0 pb-safe-offset-4 h-full">
+      <View className="flex-row items-center gap-3 px-3 py-3 border-b border-border">
+        <BottomSheet.Title className="flex-1 font-semibold text-base text-foreground">
+          {getFieldLabel(fieldCode, MonitoringElementCategory.ANTHROPOMETRIC)}
+        </BottomSheet.Title>
+        <BottomSheet.Close />
+      </View>
+      <View className="flex-1 px-2 py-3">
+        <DynamicForm
+          {...props}
+          sections={sections}
+          containerClassName="px-0"
+          onSubmit={handleSubmit as never}
+        />
+      </View>
+      <View className="px-3 pb-3 border-t border-border pt-3">
+        <Button
+          variant={error ? 'danger' : 'primary'}
+          isDisabled={loading}
+          className="w-full h-12"
+          onPress={submit}>
+          {loading ? (
+            <Spinner size="sm" color="white" />
+          ) : error ? (
+            <View className="flex-row items-center gap-2">
+              <Icon name="CircleAlert" className="text-white" sizeClassName="text-base" />
+              <Button.Label className="text-white font-bold">Vérifier</Button.Label>
+            </View>
+          ) : (
+            <Button.Label className="text-white font-bold">Enregistrer</Button.Label>
+          )}
+        </Button>
+      </View>
+    </BottomSheet.Content>
+  );
+}
+
+export function AnthroCollectModal({ task, patientId, fieldCode, isOpen, onClose }: Props) {
+  return (
     <BottomSheet isOpen={isOpen} onOpenChange={(v) => !v && onClose()}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay>
           <BlurView />
         </BottomSheet.Overlay>
-        <BottomSheet.Content
-          snapPoints={['60%']}
-          enableDynamicSizing={false}
-          contentContainerClassName="py-0 px-0 pb-safe-offset-4 h-full">
-          <View className="flex-row items-center gap-3 px-3 py-3 border-b border-border">
-            <BottomSheet.Title className="flex-1 font-semibold text-base text-foreground">
-              {getFieldLabel(fieldCode, MonitoringElementCategory.ANTHROPOMETRIC)}
-            </BottomSheet.Title>
-            <BottomSheet.Close />
-          </View>
-          <View className="flex-1 px-2 py-3">
-            <DynamicForm
-              {...props}
-              sections={sections}
-              containerClassName="px-0"
-              onSubmit={handleSubmit as never}
-            />
-          </View>
-          <View className="px-3 pb-3 border-t border-border pt-3">
-            <Button
-              variant={error ? 'danger' : 'primary'}
-              isDisabled={loading}
-              className="w-full h-12"
-              onPress={submit}>
-              {loading ? (
-                <Spinner size="sm" color="white" />
-              ) : error ? (
-                <View className="flex-row items-center gap-2">
-                  <Icon name="CircleAlert" className="text-white" sizeClassName="text-base" />
-                  <Button.Label className="text-white font-bold">Vérifier</Button.Label>
-                </View>
-              ) : (
-                <Button.Label className="text-white font-bold">Enregistrer</Button.Label>
-              )}
-            </Button>
-          </View>
-        </BottomSheet.Content>
+        <AnthroCollectModalContent
+          task={task}
+          patientId={patientId}
+          fieldCode={fieldCode}
+          onClose={onClose}
+        />
       </BottomSheet.Portal>
     </BottomSheet>
   );

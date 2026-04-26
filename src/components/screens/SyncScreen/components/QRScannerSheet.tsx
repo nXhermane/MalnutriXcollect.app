@@ -2,21 +2,21 @@ import { BlurView } from '@/components/shared/BlurView';
 import { Icon } from '@/components/shared/icons';
 import { BottomSheet } from 'heroui-native';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   Camera,
   useCameraDevice,
   useCameraFormat,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  withSequence,
-  Easing,
-} from 'react-native-reanimated';
 
 interface QRScannerSheetProps {
   isOpen: boolean;
@@ -56,7 +56,15 @@ function ScanCorners({ color }: { color: string }) {
   );
 }
 
-export function QRScannerSheet({ isOpen, onScan, onClose }: QRScannerSheetProps) {
+function QRScannerSheetContent({
+  isOpen,
+  onScan,
+  onClose,
+}: {
+  isOpen: boolean;
+  onScan: (value: string) => void;
+  onClose: () => void;
+}) {
   const device = useCameraDevice('back');
   const format = useCameraFormat(device, [{ videoResolution: 'max', photoResolution: 'max' }]);
 
@@ -98,6 +106,96 @@ export function QRScannerSheet({ isOpen, onScan, onClose }: QRScannerSheetProps)
   });
 
   return (
+    <BottomSheet.Content
+      snapPoints={['88%']}
+      enablePanDownToClose
+      handleComponent={null}
+      contentContainerClassName="h-full px-0 pt-0 pb-0">
+      {device && isOpen ? (
+        <View style={{ flex: 1, overflow: 'hidden', borderRadius: 24 }}>
+          <Camera
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={isOpen}
+            codeScanner={codeScanner}
+            format={format}
+            torch={torchOn ? 'on' : 'off'}
+          />
+
+          <View style={StyleSheet.absoluteFillObject}>
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
+
+            <View style={{ flexDirection: 'row', height: FRAME_SIZE }}>
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
+              <View style={{ width: FRAME_SIZE, position: 'relative' }}>
+                <Animated.View
+                  style={[
+                    scanLineStyle,
+                    {
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      height: 2,
+                      backgroundColor: 'rgba(255,255,255,0.6)',
+                      zIndex: 10,
+                    },
+                  ]}
+                />
+                <ScanCorners color="white" />
+              </View>
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
+            </View>
+
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0,0,0,0.55)',
+                alignItems: 'center',
+                paddingTop: 28,
+                gap: 8,
+              }}>
+              <Text style={styles.hint}>Pointez vers le QR Code de Malnutrix Pro</Text>
+              <View style={styles.hintBadge}>
+                <Icon name="Smartphone" className="text-white/70" sizeClassName="text-xs" />
+                <Text style={styles.hintSub}>Téléphone du nutritionniste</Text>
+              </View>
+            </View>
+          </View>
+
+          <Pressable onPress={onClose} style={styles.closeButton}>
+            <Icon name="X" className="text-white" sizeClassName="text-base" />
+          </Pressable>
+
+          <Pressable
+            onPress={() => setTorchOn((v) => !v)}
+            style={[styles.torchButton, torchOn && styles.torchButtonActive]}>
+            <Icon
+              name={torchOn ? 'Flashlight' : 'FlashlightOff'}
+              className={torchOn ? 'text-yellow-300' : 'text-white'}
+              sizeClassName="text-base"
+            />
+          </Pressable>
+        </View>
+      ) : (
+        <View style={styles.noCamera}>
+          <View style={styles.noCameraIcon}>
+            <Icon name="CameraOff" className="text-muted" sizeClassName="text-4xl" />
+          </View>
+          <Text style={styles.noCameraTitle}>Caméra indisponible</Text>
+          <Text style={styles.noCameraSubtitle}>
+            Vérifiez les permissions dans les paramètres du téléphone
+          </Text>
+          <Pressable onPress={onClose} style={styles.closeFallback}>
+            <Text style={styles.closeFallbackText}>Fermer</Text>
+          </Pressable>
+        </View>
+      )}
+    </BottomSheet.Content>
+  );
+}
+
+export function QRScannerSheet({ isOpen, onScan, onClose }: QRScannerSheetProps) {
+  return (
     <BottomSheet
       isOpen={isOpen}
       onOpenChange={(value) => {
@@ -107,91 +205,7 @@ export function QRScannerSheet({ isOpen, onScan, onClose }: QRScannerSheetProps)
         <BottomSheet.Overlay>
           <BlurView />
         </BottomSheet.Overlay>
-        <BottomSheet.Content
-          snapPoints={['88%']}
-          enablePanDownToClose
-          handleComponent={null}
-          contentContainerClassName="h-full px-0 pt-0 pb-0">
-          {device && isOpen ? (
-            <View style={{ flex: 1, overflow: 'hidden', borderRadius: 24 }}>
-              <Camera
-                style={StyleSheet.absoluteFill}
-                device={device}
-                isActive={isOpen}
-                codeScanner={codeScanner}
-                format={format}
-                torch={torchOn ? 'on' : 'off'}
-              />
-
-              <View style={StyleSheet.absoluteFillObject}>
-                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
-
-                <View style={{ flexDirection: 'row', height: FRAME_SIZE }}>
-                  <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
-                  <View style={{ width: FRAME_SIZE, position: 'relative' }}>
-                    <Animated.View
-                      style={[
-                        scanLineStyle,
-                        {
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          height: 2,
-                          backgroundColor: 'rgba(255,255,255,0.6)',
-                          zIndex: 10,
-                        },
-                      ]}
-                    />
-                    <ScanCorners color="white" />
-                  </View>
-                  <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)' }} />
-                </View>
-
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(0,0,0,0.55)',
-                    alignItems: 'center',
-                    paddingTop: 28,
-                    gap: 8,
-                  }}>
-                  <Text style={styles.hint}>Pointez vers le QR Code de Malnutrix Pro</Text>
-                  <View style={styles.hintBadge}>
-                    <Icon name="Smartphone" className="text-white/70" sizeClassName="text-xs" />
-                    <Text style={styles.hintSub}>Téléphone du nutritionniste</Text>
-                  </View>
-                </View>
-              </View>
-
-              <Pressable onPress={onClose} style={styles.closeButton}>
-                <Icon name="X" className="text-white" sizeClassName="text-base" />
-              </Pressable>
-
-              <Pressable
-                onPress={() => setTorchOn((v) => !v)}
-                style={[styles.torchButton, torchOn && styles.torchButtonActive]}>
-                <Icon
-                  name={torchOn ? 'Flashlight' : 'FlashlightOff'}
-                  className={torchOn ? 'text-yellow-300' : 'text-white'}
-                  sizeClassName="text-base"
-                />
-              </Pressable>
-            </View>
-          ) : (
-            <View style={styles.noCamera}>
-              <View style={styles.noCameraIcon}>
-                <Icon name="CameraOff" className="text-muted" sizeClassName="text-4xl" />
-              </View>
-              <Text style={styles.noCameraTitle}>Caméra indisponible</Text>
-              <Text style={styles.noCameraSubtitle}>
-                Vérifiez les permissions dans les paramètres du téléphone
-              </Text>
-              <Pressable onPress={onClose} style={styles.closeFallback}>
-                <Text style={styles.closeFallbackText}>Fermer</Text>
-              </Pressable>
-            </View>
-          )}
-        </BottomSheet.Content>
+        <QRScannerSheetContent isOpen={isOpen} onScan={onScan} onClose={onClose} />
       </BottomSheet.Portal>
     </BottomSheet>
   );

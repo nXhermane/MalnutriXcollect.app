@@ -50,6 +50,8 @@ export function getMeasureLabel(code: string, category: MeasureCategory): string
       return registry$.biological[code].peek()?.data.name ?? code;
     case MeasureCategory.ANTHRO:
       return registry$.indicator[code].peek()?.data.name ?? anthroLabels[code] ?? code;
+    case MeasureCategory.CLINICAL:
+      return registry$.clinicalSign[code].peek()?.data.name ?? code;
   }
 }
 export function getTreatmentLabel(

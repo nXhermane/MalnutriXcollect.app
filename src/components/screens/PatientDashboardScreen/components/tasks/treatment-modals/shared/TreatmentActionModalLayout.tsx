@@ -38,9 +38,7 @@ function formatDateRange(from: string, to: string): string {
   return `${fmt(new Date(from))} – ${fmt(new Date(to))}`;
 }
 
-export function TreatmentActionModalLayout({
-  isOpen,
-  onClose,
+function TreatmentActionModalLayoutContent({
   task,
   title,
   description,
@@ -51,7 +49,20 @@ export function TreatmentActionModalLayout({
   completionTasksSection,
   isFullyCollected = false,
   emptyState,
-}: Props) {
+  onClose,
+}: {
+  task: LocalTask;
+  title: string;
+  description: string;
+  typeIcon: TreatmentIcon;
+  iconColorClass: string;
+  iconBgClass: string;
+  children: React.ReactNode;
+  completionTasksSection?: React.ReactNode;
+  isFullyCollected?: boolean;
+  emptyState?: { isMissing: boolean; title: string; description: string };
+  onClose: () => void;
+}) {
   const payload = task.payload as SyncTreatmentAction;
   const status = statusConfig[task.localStatus];
   const { completeTask } = useTaskActions();
@@ -67,16 +78,13 @@ export function TreatmentActionModalLayout({
   const expiresAt = new Date(payload.expiresAt);
   const isInWindow = now >= validFrom && now <= expiresAt;
   const isBeforeWindow = now < validFrom;
-  const isTerminal =
-    task.localStatus === 'completed' ||
-    task.localStatus === 'missed' ||
-    task.localStatus === 'skipped';
+  const isTerminal = task.localStatus === 'completed' || task.localStatus === 'skipped';
 
   const windowColor = isInWindow ? 'success' : isBeforeWindow ? 'accent' : 'default';
   const windowLabel = isInWindow ? 'En cours' : isBeforeWindow ? 'À venir' : 'Terminée';
   const windowIcon = isInWindow ? 'Circle' : isBeforeWindow ? 'Clock' : 'CircleCheck';
 
-  const showCompleteBtn = !isTerminal && isInWindow && !isBeforeWindow;
+  const showCompleteBtn = !isTerminal && !isBeforeWindow;
 
   const handleComplete = () => {
     setCompleting(true);
@@ -87,91 +95,120 @@ export function TreatmentActionModalLayout({
   };
 
   return (
+    <BottomSheet.Content
+      snapPoints={['95%']}
+      enableDynamicSizing={false}
+      enableOverDrag={false}
+      contentContainerClassName="py-0 px-0 pb-safe-offset-4 h-full">
+      <View className="flex-row items-center gap-3 px-3 py-3 border-b border-border">
+        <View
+          className={`h-10 w-10 items-center justify-center rounded-full shrink-0 ${iconBgClass}`}>
+          <Icon name={typeIcon} sizeClassName="text-sm" className={iconColorClass} />
+        </View>
+        <View className="flex-1 gap-1">
+          <BottomSheet.Title className="font-semibold text-base text-foreground" numberOfLines={1}>
+            {title}
+          </BottomSheet.Title>
+          <View className="flex-row items-center gap-2 flex-wrap">
+            <BottomSheet.Description className="text-muted text-xs font-normal">
+              {description}
+            </BottomSheet.Description>
+            <Chip size="sm" variant="soft" color={status.color as never}>
+              <Chip.Label>{status.label}</Chip.Label>
+            </Chip>
+          </View>
+        </View>
+        <BottomSheet.Close />
+      </View>
+
+      <BottomSheetScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="pb-4 gap-3 px-3 pt-3">
+        <View className="flex-row items-center gap-3 rounded-xl px-3 py-2.5 border border-border bg-surface-secondary">
+          <View className="h-8 w-8 items-center justify-center rounded-full bg-surface-tertiary">
+            <Icon name={windowIcon as never} sizeClassName="text-xs" className="text-muted" />
+          </View>
+          <View className="flex-1 gap-0.5">
+            <Text className="text-xs text-muted">Fenêtre de réalisation</Text>
+            <Text className="text-xs font-medium text-foreground">
+              {formatDateRange(payload.validFrom, payload.expiresAt)}
+            </Text>
+          </View>
+          <Chip size="sm" variant="soft" color={windowColor as never}>
+            <Chip.Label>{windowLabel}</Chip.Label>
+          </Chip>
+        </View>
+
+        {emptyState?.isMissing ? (
+          <EmptyState
+            iconName="Circle"
+            title={emptyState.title}
+            description={emptyState.description}
+          />
+        ) : (
+          <>
+            {children}
+            {completionTasksSection}
+          </>
+        )}
+      </BottomSheetScrollView>
+
+      {showCompleteBtn && (
+        <View className="w-full px-3 pt-3 border-t border-border">
+          <Button
+            variant="primary"
+            isDisabled={completing || !isFullyCollected}
+            className="w-full h-12"
+            onPress={handleComplete}>
+            {completing ? (
+              <Spinner className="text-white" />
+            ) : !isFullyCollected ? (
+              <Button.Label className="font-normal text-sm text-white">
+                Collecte requise
+              </Button.Label>
+            ) : (
+              <Button.Label className="font-normal text-sm text-white">Compléter</Button.Label>
+            )}
+          </Button>
+        </View>
+      )}
+    </BottomSheet.Content>
+  );
+}
+
+export function TreatmentActionModalLayout({
+  isOpen,
+  onClose,
+  task,
+  title,
+  description,
+  typeIcon,
+  iconColorClass,
+  iconBgClass,
+  children,
+  completionTasksSection,
+  isFullyCollected = false,
+  emptyState,
+}: Props) {
+  return (
     <BottomSheet isOpen={isOpen} onOpenChange={(v) => !v && onClose()}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay>
           <BlurView />
         </BottomSheet.Overlay>
-        <BottomSheet.Content
-          snapPoints={['95%']}
-          enableDynamicSizing={false}
-          enableOverDrag={false}
-          contentContainerClassName="py-0 px-0 pb-safe-offset-4 h-full">
-          <View className="flex-row items-center gap-3 px-3 py-3 border-b border-border">
-            <View
-              className={`h-10 w-10 items-center justify-center rounded-full shrink-0 ${iconBgClass}`}>
-              <Icon name={typeIcon} sizeClassName="text-sm" className={iconColorClass} />
-            </View>
-            <View className="flex-1 gap-1">
-              <BottomSheet.Title
-                className="font-semibold text-base text-foreground"
-                numberOfLines={1}>
-                {title}
-              </BottomSheet.Title>
-              <View className="flex-row items-center gap-2 flex-wrap">
-                <BottomSheet.Description className="text-muted text-xs font-normal">
-                  {description}
-                </BottomSheet.Description>
-                <Chip size="sm" variant="soft" color={status.color as never}>
-                  <Chip.Label>{status.label}</Chip.Label>
-                </Chip>
-              </View>
-            </View>
-            <BottomSheet.Close />
-          </View>
-
-          <BottomSheetScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerClassName="pb-4 gap-3 px-3 pt-3">
-            <View className="flex-row items-center gap-3 rounded-xl px-3 py-2.5 border border-border bg-surface-secondary">
-              <View className="h-8 w-8 items-center justify-center rounded-full bg-surface-tertiary">
-                <Icon name={windowIcon as never} sizeClassName="text-xs" className="text-muted" />
-              </View>
-              <View className="flex-1 gap-0.5">
-                <Text className="text-xs text-muted">Fenêtre de réalisation</Text>
-                <Text className="text-xs font-medium text-foreground">
-                  {formatDateRange(payload.validFrom, payload.expiresAt)}
-                </Text>
-              </View>
-              <Chip size="sm" variant="soft" color={windowColor as never}>
-                <Chip.Label>{windowLabel}</Chip.Label>
-              </Chip>
-            </View>
-
-            {emptyState?.isMissing ? (
-              <EmptyState
-                iconName="Circle"
-                title={emptyState.title}
-                description={emptyState.description}
-              />
-            ) : (
-              <>
-                {children}
-                {completionTasksSection}
-              </>
-            )}
-          </BottomSheetScrollView>
-
-          {showCompleteBtn && (
-            <View className="w-full px-3 pt-3 border-t border-border">
-              <Button
-                variant="primary"
-                isDisabled={completing || !isFullyCollected}
-                className="w-full h-12"
-                onPress={handleComplete}>
-                {completing ? (
-                  <Spinner className="text-white" />
-                ) : !isFullyCollected ? (
-                  <Button.Label className="font-normal text-sm text-white">
-                    Collecte requise
-                  </Button.Label>
-                ) : (
-                  <Button.Label className="font-normal text-sm text-white">Compléter</Button.Label>
-                )}
-              </Button>
-            </View>
-          )}
-        </BottomSheet.Content>
+        <TreatmentActionModalLayoutContent
+          task={task}
+          title={title}
+          description={description}
+          typeIcon={typeIcon}
+          iconColorClass={iconColorClass}
+          iconBgClass={iconBgClass}
+          completionTasksSection={completionTasksSection}
+          isFullyCollected={isFullyCollected}
+          emptyState={emptyState}
+          onClose={onClose}>
+          {children}
+        </TreatmentActionModalLayoutContent>
       </BottomSheet.Portal>
     </BottomSheet>
   );

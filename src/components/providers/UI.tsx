@@ -4,12 +4,12 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useValue } from '@legendapp/state/react';
 import { HeroUINativeProvider } from 'heroui-native';
 import React, { createContext, ReactNode, useCallback, useContext, useEffect } from 'react';
-import { Appearance, StyleSheet } from 'react-native';
+import { Appearance, StatusBar, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardAvoidingView, KeyboardProvider } from 'react-native-keyboard-controller';
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Uniwind } from 'uniwind';
-import { StatusBar } from 'expo-status-bar';
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -60,19 +60,24 @@ export const UIProvider: React.FC<UIContextProviderProps> = ({ children }) => {
 
   return (
     <React.Fragment>
-      <StatusBar style="auto" />
-
       <UIContext.Provider value={{ loaded: fontsLoaded, error: null }}>
         <KeyboardProvider>
           <GestureHandlerRootView style={styles.container}>
-            <HeroUINativeProvider
-              config={{
-                toast: {
-                  contentWrapper,
-                },
-              }}>
-              <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
-            </HeroUINativeProvider>
+            <SafeAreaProvider>
+              <StatusBar
+                translucent={true}
+                backgroundColor="transparent"
+                barStyle={isDark ? 'light-content' : 'dark-content'}
+              />
+              <HeroUINativeProvider
+                config={{
+                  toast: {
+                    contentWrapper,
+                  },
+                }}>
+                <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+              </HeroUINativeProvider>
+            </SafeAreaProvider>
           </GestureHandlerRootView>
         </KeyboardProvider>
       </UIContext.Provider>

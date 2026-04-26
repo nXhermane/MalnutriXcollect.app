@@ -1,4 +1,4 @@
-import { tasks$ } from '@/store/tasks/tasks.store';
+import { dailyStats$ } from '@/store/tasks/tasks.store';
 import { useValue } from '@legendapp/state/react';
 import { Surface } from 'heroui-native';
 import React, { useEffect } from 'react';
@@ -9,28 +9,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-
-function isTodayTask(receivedAt: string): boolean {
-  const taskDate = new Date(receivedAt);
-  const now = new Date();
-  return (
-    taskDate.getFullYear() === now.getFullYear() &&
-    taskDate.getMonth() === now.getMonth() &&
-    taskDate.getDate() === now.getDate()
-  );
-}
-
-function useDailyStats() {
-  return useValue(() => {
-    const all = Object.values(tasks$.get());
-    const todayTasks = all.filter((t) => isTodayTask(t.receivedAt));
-    const total = todayTasks.length;
-    const done = todayTasks.filter((t) => t.localStatus === 'completed').length;
-    const remaining = total - done;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-    return { total, done, remaining, pct };
-  });
-}
 
 function StatItem({
   value,
@@ -50,7 +28,7 @@ function StatItem({
 }
 
 export function DailyProgressCard() {
-  const { total, done, remaining, pct } = useDailyStats();
+  const { total, done, remaining, pct } = useValue(dailyStats$);
 
   const progressWidth = useSharedValue(0);
 

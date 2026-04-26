@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from '@/components/shared/BlurView';
 import { Icon } from '@/components/shared/icons';
 import { vibrate } from '@/lib/utils/haptics';
+import { logger } from '@/lib/utils/logger';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { Camera } from 'react-native-vision-camera';
 import { QRScannerSheet } from './components/QRScannerSheet';
+import { SyncDebugPanel } from './components/SyncDebugPanel';
 import { SyncIdleView } from './components/SyncIdleView';
 import { SyncProgressView } from './components/SyncProgressView';
 import { useSyncSession } from './hooks/useSyncSession';
-import { logger } from '@/lib/utils/logger';
 
 export function SyncScreen() {
   const [scannerOpen, setScannerOpen] = useState(false);
+  const autoOpenedRef = useRef(false);
   const router = useRouter();
-  const { top } = useSafeAreaInsets();
   const {
     isSessionActive,
     wifiError,
@@ -31,6 +31,15 @@ export function SyncScreen() {
     Camera.requestCameraPermission();
   }, []);
 
+  useEffect(() => {
+    if (isSessionActive || autoOpenedRef.current) return;
+    const timer = setTimeout(() => {
+      autoOpenedRef.current = true;
+      setScannerOpen(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [isSessionActive]);
+
   const handleScanResult = (raw: string) => {
     logger.info('Scan result: ' + raw);
     setScannerOpen(false);
@@ -38,8 +47,8 @@ export function SyncScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: top }}>
-      <View className="absolute z-30 w-full overflow-hidden" style={{ top }}>
+    <View className="flex-1 bg-background pb-safe-offset-0 pt-safe-offset-0">
+      <View className="absolute z-30 w-full overflow-hidden pt-safe-offset-0">
         <BlurView />
         <View className="flex-row items-center gap-3 px-4 pb-2 pt-2">
           <Pressable
@@ -60,7 +69,7 @@ export function SyncScreen() {
         </View>
       </View>
 
-      <View className="flex-1 mt-16">
+      <View className="flex-1 mt-v-16">
         {isSessionActive ? (
           <SyncProgressView
             currentPhase={currentPhase}
@@ -76,6 +85,8 @@ export function SyncScreen() {
           />
         )}
       </View>
+
+      {__DEV__ && <SyncDebugPanel />}
 
       <QRScannerSheet
         isOpen={scannerOpen}

@@ -26,7 +26,7 @@ import {
   TextArea,
   TextField,
 } from 'heroui-native';
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
@@ -71,7 +71,7 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
   );
 }
 
-export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChange }) => {
+function EditProfileSheetContent({ onClose }: { onClose: () => void }) {
   const profile = useValue(userProfile$);
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [isSaving, setIsSaving] = useState(false);
@@ -94,7 +94,7 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
   });
 
   useEffect(() => {
-    if (isOpen && profile) {
+    if (profile) {
       reset({
         display_name: profile.display_name ?? '',
         profession: profile.profession ?? 'nurse',
@@ -104,7 +104,7 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
       setSubmitError(null);
       setActiveTab('profile');
     }
-  }, [isOpen, profile, reset]);
+  }, [profile, reset]);
 
   const onSubmitProfile = async (data: FormData) => {
     const result = v.safeParse(editProfileSchema, data);
@@ -124,7 +124,7 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
         phone: dto.phone ?? null,
         bio: dto.bio ?? null,
       });
-      onOpenChange(false);
+      onClose();
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erreur lors de la mise à jour';
       setSubmitError(msg);
@@ -142,11 +142,11 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
   });
 
   useEffect(() => {
-    if (!isOpen || !profile) return;
+    if (!profile) return;
     const state = resolveInitialLocationState(profile);
     setLocationStep(state.step);
     setLocationSelection(state.selection);
-  }, [isOpen, profile]);
+  }, [profile]);
   const handleSelectDepartment = (dept: DepartmentRef) => {
     setLocationSelection({ department: dept, facility: null, service: null });
     setLocationStep('facility');
@@ -181,7 +181,7 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
         facility_id: locationSelection.facility?.id ?? null,
         service_id: locationSelection.service?.id ?? null,
       });
-      onOpenChange(false);
+      onClose();
       toast.show('Success', 'Localisation mise à jour', 'Votre rattachement a été enregistré.');
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erreur lors de la mise à jour';
@@ -204,225 +204,220 @@ export const EditProfileSheet: FC<EditProfileSheetProps> = ({ isOpen, onOpenChan
   };
 
   return (
+    <BottomSheet.Content
+      snapPoints={['85%']}
+      enableDynamicSizing={false}
+      enableOverDrag={false}
+      enableContentPanningGesture={false}
+      contentContainerClassName="py-0 px-0 pb-safe-offset-4 h-full">
+      <View className="flex-row items-center justify-between py-v-2 border-b border-border px-4 mb-v-2">
+        <BottomSheet.Title>Éditer mon profil</BottomSheet.Title>
+        <BottomSheet.Close />
+      </View>
+
+      <TabBar active={activeTab} onChange={setActiveTab} />
+
+      {activeTab === 'profile' && (
+        <KeyboardAwareScrollView
+          ScrollViewComponent={BottomSheetScrollView as never}
+          contentContainerClassName="px-2 py-v-3 gap-v-4"
+          showsVerticalScrollIndicator={false}>
+          <Surface variant="default" className="p-2 gap-y-4">
+            <TextField>
+              <Label>
+                <Label.Text className="text-foreground text-sm font-medium">
+                  {"Nom d'affichage"}
+                  <Label.Text className="text-danger"> *</Label.Text>
+                </Label.Text>
+              </Label>
+              <Controller
+                control={control}
+                name="display_name"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    placeholder="Ex: Marie Dupont"
+                    value={value}
+                    onChangeText={onChange}
+                    isDisabled={isSaving}
+                    isInvalid={!!errors.display_name}
+                    className="px-2"
+                  />
+                )}
+              />
+              {errors.display_name ? (
+                <Label>
+                  <Label.Text className="text-danger text-xs mt-1">
+                    {errors.display_name.message}
+                  </Label.Text>
+                </Label>
+              ) : null}
+            </TextField>
+
+            <SelectField
+              control={control as never}
+              field={{
+                type: 'select',
+                name: 'profession',
+                label: 'Profession',
+                options: PROFESSION_OPTIONS as never,
+                placeholder: 'Sélectionner une profession',
+                default: 'nurse',
+              }}
+              errors={errors}
+              readonly={isSaving}
+            />
+
+            <TextField>
+              <Label>
+                <Label.Text className="text-foreground text-xs font-medium">Téléphone</Label.Text>
+              </Label>
+              <Controller
+                control={control}
+                name="phone"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    placeholder="+229 01 XX XX XX XX"
+                    keyboardType="phone-pad"
+                    value={value}
+                    onChangeText={onChange}
+                    isDisabled={isSaving}
+                    className="px-2"
+                  />
+                )}
+              />
+            </TextField>
+
+            <TextField>
+              <Label>
+                <Label.Text className="text-foreground text-xs font-medium">Biographie</Label.Text>
+              </Label>
+              <Controller
+                control={control}
+                name="bio"
+                render={({ field: { onChange, value } }) => (
+                  <TextArea
+                    placeholder="Parlez de votre parcours..."
+                    value={value}
+                    onChangeText={onChange}
+                    isDisabled={isSaving}
+                    className="px-2"
+                  />
+                )}
+              />
+              {errors.bio ? (
+                <Label>
+                  <Label.Text className="text-danger text-xs mt-1">{errors.bio.message}</Label.Text>
+                </Label>
+              ) : null}
+            </TextField>
+          </Surface>
+        </KeyboardAwareScrollView>
+      )}
+
+      {activeTab === 'location' && (
+        <>
+          <View className="px-2 pb-v-2 border-b border-border gap-2 mb-1">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                {locationStep !== 'department' ? (
+                  <PressableFeedback
+                    onPress={handleLocationBack}
+                    className="size-8 items-center justify-center rounded-xl bg-surface-secondary active:bg-surface">
+                    <Icon
+                      name="ChevronLeft"
+                      className="text-foreground"
+                      sizeClassName="text-base"
+                    />
+                  </PressableFeedback>
+                ) : (
+                  <View className="size-8 items-center justify-center rounded-xl bg-accent/10">
+                    <Icon name="MapPin" className="text-accent" sizeClassName="text-base" />
+                  </View>
+                )}
+                <View>
+                  <Text className="text-foreground font-bold text-sm leading-tight">
+                    {LOCATION_STEP_TITLES[locationStep]}
+                  </Text>
+                  <Text className="text-muted text-xs" numberOfLines={1}>
+                    {locationSubtitles[locationStep]}
+                  </Text>
+                </View>
+              </View>
+              <StepDots current={locationStep} />
+            </View>
+            <LocationBreadcrumb selection={locationSelection} />
+          </View>
+
+          <BottomSheetScrollView
+            contentContainerStyle={{
+              paddingHorizontal: 12,
+              paddingTop: 8,
+              paddingBottom: 16,
+            }}
+            showsVerticalScrollIndicator={false}>
+            <LocationCascade
+              step={locationStep}
+              selection={locationSelection}
+              onSelectDepartment={handleSelectDepartment}
+              onSelectFacility={handleSelectFacility}
+              onSelectService={handleSelectService}
+              onSkipService={handleSaveLocation}
+            />
+          </BottomSheetScrollView>
+        </>
+      )}
+
+      <View className="px-4 pt-v-2">
+        {submitError ? (
+          <Label className="mb-2">
+            <Label.Text className="text-danger text-xs text-center">{submitError}</Label.Text>
+          </Label>
+        ) : null}
+
+        {activeTab === 'profile' && (
+          <Button className="h-v-11" onPress={handleSubmit(onSubmitProfile)} isDisabled={isSaving}>
+            {isSaving ? (
+              <Spinner size="sm" color="white" />
+            ) : (
+              <>
+                <Icon name="Save" className="text-white" sizeClassName="text-base" />
+                <Button.Label className="text-white">Enregistrer les modifications</Button.Label>
+              </>
+            )}
+          </Button>
+        )}
+
+        {activeTab === 'location' && locationSelection.department && (
+          <Button className="h-v-11" onPress={handleSaveLocation} isDisabled={isSaving}>
+            {isSaving ? (
+              <Spinner size="sm" color="white" />
+            ) : (
+              <>
+                <Icon name="Save" className="text-white" sizeClassName="text-base" />
+                <Button.Label className="text-white">
+                  {locationStep === 'service' && locationSelection.service
+                    ? 'Enregistrer ma localisation'
+                    : locationStep === 'service'
+                      ? 'Enregistrer sans service'
+                      : 'Enregistrer le département'}
+                </Button.Label>
+              </>
+            )}
+          </Button>
+        )}
+      </View>
+    </BottomSheet.Content>
+  );
+}
+
+export const EditProfileSheet = ({ isOpen, onOpenChange }: EditProfileSheetProps) => {
+  return (
     <BottomSheet isOpen={isOpen} onOpenChange={onOpenChange}>
       <BottomSheet.Portal>
         <BottomSheet.Overlay>
           <BlurView />
         </BottomSheet.Overlay>
-        <BottomSheet.Content
-          snapPoints={['85%']}
-          enableDynamicSizing={false}
-          enableOverDrag={false}
-          enableContentPanningGesture={false}
-          contentContainerClassName="py-0 px-0 pb-safe-offset-4 h-full">
-          <View className="flex-row items-center justify-between py-v-2 border-b border-border px-4 mb-v-2">
-            <BottomSheet.Title>Éditer mon profil</BottomSheet.Title>
-            <BottomSheet.Close />
-          </View>
-
-          <TabBar active={activeTab} onChange={setActiveTab} />
-
-          {activeTab === 'profile' && (
-            <KeyboardAwareScrollView
-              ScrollViewComponent={BottomSheetScrollView as never}
-              contentContainerClassName="px-2 py-v-3 gap-v-4"
-              showsVerticalScrollIndicator={false}>
-              <Surface variant="default" className="p-2 gap-y-4">
-                <TextField>
-                  <Label>
-                    <Label.Text className="text-foreground text-sm font-medium">
-                      {"Nom d'affichage"}
-                      <Label.Text className="text-danger"> *</Label.Text>
-                    </Label.Text>
-                  </Label>
-                  <Controller
-                    control={control}
-                    name="display_name"
-                    render={({ field: { onChange, value } }) => (
-                      <Input
-                        placeholder="Ex: Marie Dupont"
-                        value={value}
-                        onChangeText={onChange}
-                        isDisabled={isSaving}
-                        isInvalid={!!errors.display_name}
-                        className="px-2"
-                      />
-                    )}
-                  />
-                  {errors.display_name ? (
-                    <Label>
-                      <Label.Text className="text-danger text-xs mt-1">
-                        {errors.display_name.message}
-                      </Label.Text>
-                    </Label>
-                  ) : null}
-                </TextField>
-
-                <SelectField
-                  control={control as never}
-                  field={{
-                    type: 'select',
-                    name: 'profession',
-                    label: 'Profession',
-                    options: PROFESSION_OPTIONS as never,
-                    placeholder: 'Sélectionner une profession',
-                    default: 'nurse',
-                  }}
-                  errors={errors}
-                  readonly={isSaving}
-                />
-
-                <TextField>
-                  <Label>
-                    <Label.Text className="text-foreground text-xs font-medium">
-                      Téléphone
-                    </Label.Text>
-                  </Label>
-                  <Controller
-                    control={control}
-                    name="phone"
-                    render={({ field: { onChange, value } }) => (
-                      <Input
-                        placeholder="+229 01 XX XX XX XX"
-                        keyboardType="phone-pad"
-                        value={value}
-                        onChangeText={onChange}
-                        isDisabled={isSaving}
-                        className="px-2"
-                      />
-                    )}
-                  />
-                </TextField>
-
-                <TextField>
-                  <Label>
-                    <Label.Text className="text-foreground text-xs font-medium">
-                      Biographie
-                    </Label.Text>
-                  </Label>
-                  <Controller
-                    control={control}
-                    name="bio"
-                    render={({ field: { onChange, value } }) => (
-                      <TextArea
-                        placeholder="Parlez de votre parcours..."
-                        value={value}
-                        onChangeText={onChange}
-                        isDisabled={isSaving}
-                        className="px-2"
-                      />
-                    )}
-                  />
-                  {errors.bio ? (
-                    <Label>
-                      <Label.Text className="text-danger text-xs mt-1">
-                        {errors.bio.message}
-                      </Label.Text>
-                    </Label>
-                  ) : null}
-                </TextField>
-              </Surface>
-            </KeyboardAwareScrollView>
-          )}
-
-          {activeTab === 'location' && (
-            <>
-              <View className="px-2 pb-v-2 border-b border-border gap-2 mb-1">
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center gap-2">
-                    {locationStep !== 'department' ? (
-                      <PressableFeedback
-                        onPress={handleLocationBack}
-                        className="size-8 items-center justify-center rounded-xl bg-surface-secondary active:bg-surface">
-                        <Icon
-                          name="ChevronLeft"
-                          className="text-foreground"
-                          sizeClassName="text-base"
-                        />
-                      </PressableFeedback>
-                    ) : (
-                      <View className="size-8 items-center justify-center rounded-xl bg-accent/10">
-                        <Icon name="MapPin" className="text-accent" sizeClassName="text-base" />
-                      </View>
-                    )}
-                    <View>
-                      <Text className="text-foreground font-bold text-sm leading-tight">
-                        {LOCATION_STEP_TITLES[locationStep]}
-                      </Text>
-                      <Text className="text-muted text-xs" numberOfLines={1}>
-                        {locationSubtitles[locationStep]}
-                      </Text>
-                    </View>
-                  </View>
-                  <StepDots current={locationStep} />
-                </View>
-                <LocationBreadcrumb selection={locationSelection} />
-              </View>
-
-              <BottomSheetScrollView
-                contentContainerStyle={{
-                  paddingHorizontal: 12,
-                  paddingTop: 8,
-                  paddingBottom: 16,
-                }}
-                showsVerticalScrollIndicator={false}>
-                <LocationCascade
-                  step={locationStep}
-                  selection={locationSelection}
-                  onSelectDepartment={handleSelectDepartment}
-                  onSelectFacility={handleSelectFacility}
-                  onSelectService={handleSelectService}
-                  onSkipService={handleSaveLocation}
-                />
-              </BottomSheetScrollView>
-            </>
-          )}
-
-          <View className="px-4 pt-v-2">
-            {submitError ? (
-              <Label className="mb-2">
-                <Label.Text className="text-danger text-xs text-center">{submitError}</Label.Text>
-              </Label>
-            ) : null}
-
-            {activeTab === 'profile' && (
-              <Button
-                className="h-v-11"
-                onPress={handleSubmit(onSubmitProfile)}
-                isDisabled={isSaving}>
-                {isSaving ? (
-                  <Spinner size="sm" color="white" />
-                ) : (
-                  <>
-                    <Icon name="Save" className="text-white" sizeClassName="text-base" />
-                    <Button.Label className="text-white">
-                      Enregistrer les modifications
-                    </Button.Label>
-                  </>
-                )}
-              </Button>
-            )}
-
-            {activeTab === 'location' && locationSelection.department && (
-              <Button className="h-v-11" onPress={handleSaveLocation} isDisabled={isSaving}>
-                {isSaving ? (
-                  <Spinner size="sm" color="white" />
-                ) : (
-                  <>
-                    <Icon name="Save" className="text-white" sizeClassName="text-base" />
-                    <Button.Label className="text-white">
-                      {locationStep === 'service' && locationSelection.service
-                        ? 'Enregistrer ma localisation'
-                        : locationStep === 'service'
-                          ? 'Enregistrer sans service'
-                          : 'Enregistrer le département'}
-                    </Button.Label>
-                  </>
-                )}
-              </Button>
-            )}
-          </View>
-        </BottomSheet.Content>
+        <EditProfileSheetContent onClose={() => onOpenChange(false)} />
       </BottomSheet.Portal>
     </BottomSheet>
   );

@@ -6,15 +6,16 @@ import { useValue } from '@legendapp/state/react';
 import { useRouter } from 'expo-router';
 import { Button, cn, Surface } from 'heroui-native';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function HomeBottom() {
   const router = useRouter();
   const patientCount = useValue(() => Object.keys(patients$.get()).length);
-
+  const { bottom } = useSafeAreaInsets();
   return (
     <Surface
       variant="transparent"
-      className="absolute bottom-0 w-full overflow-hidden z-50 p-0 bottom-t-0">
+      className="absolute bottom-0 w-full overflow-hidden z-50 p-0 bottom-t-0 pb-safe-offset-0">
       <BlurView />
       <View className="px-4 py-4 flex-row gap-4">
         {patientCount > 0 && (

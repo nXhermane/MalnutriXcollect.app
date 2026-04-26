@@ -9,11 +9,11 @@ import {
   SCROLL_THRESHOLD,
 } from '@/constants/home';
 import { Patient, PatientStatus, Sex } from '@/schemas/patient.schema';
-import { patients$ } from '@/store/patients/patients.store';
-import { home$ } from '@/store/ui/home.store';
+import { filteredPatients$, home$ } from '@/store/ui/home.store';
 import { useValue } from '@legendapp/state/react';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useIsFocused } from 'expo-router';
 import {
   BottomSheet,
   cn,
@@ -24,7 +24,7 @@ import {
   SearchField,
   useThemeColor,
 } from 'heroui-native';
-import { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -46,7 +46,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PatientCard } from './PatientCard';
-import { useIsFocused } from 'expo-router';
+import { patients$ } from '@/store/patients/patients.store';
 
 const DOT_COUNT = 6;
 const DOT_DURATION = 600;
@@ -79,7 +79,8 @@ function AnimatedDot({ index, isActive }: { index: number; isActive: boolean }) 
   return <Animated.View style={style} className="w-1 h-1 rounded-full bg-muted" />;
 }
 
-function ListFooter({ count, isScreenFocused }: { count: number; isScreenFocused: boolean }) {
+function ListFooter({ count }: { count: number }) {
+  const isScreenFocused = useIsFocused();
   const label =
     count === 1 ? 'Un seul patient enregistré' : `Tous les ${count} patients sont affichés`;
 
@@ -122,30 +123,8 @@ export function PatientList({
     () => home$.filters.sex.get().trim() !== '' || home$.filters.status.get().trim() !== '',
   );
   const filters = useValue(home$.filters);
-  const patients = useValue(() => {
-    let list = Object.values(patients$.get());
-    const q = home$.searchQuery.get();
-    const f = home$.filters.get();
-    if (q.trim()) {
-      list = list.filter((p) => p.name.toLowerCase().includes(q.toLowerCase()));
-    }
-    if (f.sex) {
-      list = list.filter((p) => p.sex === f.sex);
-    }
-    if (f.status) {
-      list = list.filter((p) => (p.status ?? PatientStatus.NEW) === f.status);
-    }
-    if (f.sortBy === 'name') {
-      list = [...list].sort((a, b) => a.name.localeCompare(b.name));
-    } else {
-      list = [...list].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-    }
-    return list;
-  });
+  const patients = useValue(filteredPatients$);
   const [surfaceColor, bgColor] = useThemeColor(['surface', 'background']);
-  const isScreenFocused = useIsFocused();
   const { top } = useSafeAreaInsets();
 
   useEffect(() => {
@@ -374,7 +353,7 @@ export function PatientList({
           ListHeaderComponent={() => <Animated.View style={animatedListHeaderStyle} />}
           ListFooterComponent={() =>
             patients.length > 0 ? (
-              <ListFooter count={patients.length} isScreenFocused={isScreenFocused} />
+              <ListFooter count={patients.length} />
             ) : (
               <View className="h-v-20 w-full" />
             )

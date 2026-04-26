@@ -9,6 +9,7 @@ export const anthroLabels: Record<string, string> = {
   [AnthroSystemCodes.HEAD_CIRCUMFERENCE]: 'Périmètre crânien',
   [AnthroSystemCodes.TSF]: 'Pli cutané tricipital',
   [AnthroSystemCodes.SSF]: 'Pli cutané sous-scapulaire',
+  [AnthroSystemCodes.LENHEI]: 'Taille / Longeur',
 };
 
 export const clinicalLabels: Record<string, string> = {

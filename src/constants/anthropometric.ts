@@ -6,6 +6,7 @@ export enum AnthroSystemCodes {
   MUAC = 'muac',
   TSF = 'tsf',
   SSF = 'ssf',
+  LENHEI = 'lenhei',
 }
 
 export enum AnthroUnit {

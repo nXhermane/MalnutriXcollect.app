@@ -195,7 +195,7 @@ export function VisitFormScreen() {
       </KeyboardAwareScrollView>
 
       {!isReadOnly && (
-        <View className="absolute -bottom-1 w-full overflow-hidden rounded-t-3xl">
+        <View className="absolute -bottom-1 w-full overflow-hidden rounded-t-3xl pb-safe-offset-0">
           <BlurView />
           <View className="px-4 pt-4 pb-v-4">
             <Button

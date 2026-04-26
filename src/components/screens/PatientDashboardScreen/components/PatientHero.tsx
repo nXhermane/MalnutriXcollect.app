@@ -3,21 +3,11 @@ import { STATUS_CONFIG } from '@/constants';
 import { formatAgeInMonths } from '@/lib/utils/date';
 import { vibrate } from '@/lib/utils/haptics';
 import { Patient, Sex } from '@/schemas/patient.schema';
-import { tasks$ } from '@/store/tasks/tasks.store';
+import { patientDayStats$ } from '@/store/tasks/tasks.store';
 import { useValue } from '@legendapp/state/react';
 import { useRouter } from 'expo-router';
 import { Avatar, Surface, cn } from 'heroui-native';
 import { Pressable, Text, View } from 'react-native';
-
-function isTodayTask(receivedAt: string): boolean {
-  const d = new Date(receivedAt);
-  const now = new Date();
-  return (
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
-}
 
 interface PatientHeroProps {
   patient: Patient;
@@ -34,13 +24,8 @@ export function PatientHero({ patient }: PatientHeroProps) {
   const cfg = STATUS_CONFIG[patient.status ?? 'NEW'];
 
   const { todayDone, todayTotal } = useValue(() => {
-    const all = Object.values(tasks$.get()).filter(
-      (t) => t.patientId === patient.id && isTodayTask(t.receivedAt),
-    );
-    return {
-      todayTotal: all.length,
-      todayDone: all.filter((t) => t.localStatus === 'completed').length,
-    };
+    const stats = patientDayStats$[patient.id].get();
+    return { todayTotal: stats?.total ?? 0, todayDone: stats?.done ?? 0 };
   });
 
   const taskColor =

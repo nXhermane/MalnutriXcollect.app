@@ -1,9 +1,9 @@
 import { signOut } from '@/services/supabase/auth';
-import { user$ } from '@/store/user/user.store';
+import { locationPrompt$ } from '@/store/ui/home.store';
+import { clearUserProfile, user$ } from '@/store/user/user.store';
+import { batch } from '@legendapp/state';
 import { useCallback, useState } from 'react';
 import { useToast } from './useToast';
-import { locationPrompt$ } from '@/store/ui/home.store';
-import { batch } from '@legendapp/state';
 
 export interface UseLogoutReturn {
   isSheetOpen: boolean;
@@ -32,6 +32,7 @@ export function useLogout(): UseLogoutReturn {
       batch(() => {
         locationPrompt$.locationPromptShownThisSession.set(false);
         user$.set({ isLoggedIn: false, isLoading: false, user: null });
+        clearUserProfile();
       });
     } finally {
       setIsLoggingOut(false);

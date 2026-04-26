@@ -6,7 +6,7 @@ import { formatAgeInMonths } from '@/lib/utils/date';
 import { vibrate, vibrateError, vibrateSuccess } from '@/lib/utils/haptics';
 import { logger } from '@/lib/utils/logger';
 import { Patient, PatientStatus, Sex } from '@/schemas';
-import { tasks$ } from '@/store/tasks/tasks.store';
+import { tasksByPatient$ } from '@/store/tasks/tasks.store';
 import { Observable } from '@legendapp/state';
 import { useValue } from '@legendapp/state/react';
 import { Avatar, Button, PressableFeedback, Surface, cn } from 'heroui-native';
@@ -20,16 +20,6 @@ const TASK_TYPES = [
   { type: 'monitoring_task', label: 'Suivi', icon: 'Activity' },
   { type: 'data_collection_task', label: 'Collecte', icon: 'ClipboardList' },
 ] as const;
-
-function isTodayTask(receivedAt: string): boolean {
-  const d = new Date(receivedAt);
-  const now = new Date();
-  return (
-    d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
-}
 
 function TaskTypeRow({
   icon,
@@ -106,10 +96,7 @@ const PatientCardComponent = ({ patient$, onPress }: PatientCardProps) => {
   const patient = useValue(patient$);
   const { deletePatient } = usePatientActions();
 
-  const todayTasks = useValue(() => {
-    const all = Object.values(tasks$.get());
-    return all.filter((t) => t.patientId === patient.id && isTodayTask(t.receivedAt));
-  });
+  const todayTasks = useValue(() => tasksByPatient$[patient.id].get() ?? []);
 
   const status = patient.status ?? PatientStatus.NEW;
   const cfg = STATUS_CONFIG[status];
@@ -125,16 +112,21 @@ const PatientCardComponent = ({ patient$, onPress }: PatientCardProps) => {
   const progressPct = totalTasks > 0 ? doneTasks / totalTasks : 0;
   const hasTasks = totalTasks > 0;
 
-  const taskStats = TASK_TYPES.map(({ type, label, icon }) => {
-    const ofType = todayTasks.filter((t) => t.taskType === type);
-    return {
-      type,
-      label,
-      icon,
-      done: ofType.filter((t) => t.localStatus === 'completed').length,
-      total: ofType.length,
-    };
-  });
+  const taskStats = todayTasks.reduce(
+    (acc, t) => {
+      const entry = acc[t.taskType];
+      if (entry) {
+        entry.total += 1;
+        if (t.localStatus === 'completed') entry.done += 1;
+      }
+      return acc;
+    },
+    {
+      treatment_action: { done: 0, total: 0, label: 'Trait.', icon: 'Pill' },
+      monitoring_task: { done: 0, total: 0, label: 'Suivi', icon: 'Activity' },
+      data_collection_task: { done: 0, total: 0, label: 'Collecte', icon: 'ClipboardList' },
+    } as Record<string, { done: number; total: number; label: string; icon: string }>,
+  );
 
   const handleDelete = React.useCallback(async () => {
     try {
@@ -214,9 +206,9 @@ const PatientCardComponent = ({ patient$, onPress }: PatientCardProps) => {
                     </Text>
                   </Avatar.Fallback>
                 </Avatar>
-                {cfg.pulse && (
+                {/* {cfg.pulse && (
                   <View className="absolute -inset-1 rounded-[18px] border border-red-500/40" />
-                )}
+                )} */}
               </View>
 
               <View className="flex-1 min-w-0 gap-1.5">
@@ -294,15 +286,18 @@ const PatientCardComponent = ({ patient$, onPress }: PatientCardProps) => {
                 </View>
 
                 <View className="flex-row gap-1.5">
-                  {taskStats.map((s) => (
-                    <TaskTypeRow
-                      key={s.type}
-                      icon={s.icon}
-                      label={s.label}
-                      done={s.done}
-                      total={s.total}
-                    />
-                  ))}
+                  {TASK_TYPES.map(({ type }) => {
+                    const s = taskStats[type];
+                    return (
+                      <TaskTypeRow
+                        key={type}
+                        icon={s.icon}
+                        label={s.label}
+                        done={s.done}
+                        total={s.total}
+                      />
+                    );
+                  })}
                 </View>
               </View>
             ) : (

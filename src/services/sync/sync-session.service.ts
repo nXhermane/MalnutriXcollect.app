@@ -1,6 +1,7 @@
 import { createLogger } from '@/lib/utils/logger';
 import tcpClient from '@/services/tcp-client/tcp-client';
-import { sync_session_state$, initialSessionState } from '@/store/sync/sync-session.store';
+import { logSyncMessage } from '@/store/sync/sync-debug.store';
+import { initialSessionState, sync_session_state$ } from '@/store/sync/sync-session.store';
 import { user$, userProfile$ } from '@/store/user/user.store';
 import { handlePatientExportCompleted } from './handlers/ack-new-patients.handler';
 import { handleMeasuresCompleted } from './handlers/ack-patient-measures.handler';
@@ -17,7 +18,7 @@ import { handlePatientImport } from './handlers/send-pro-patients.handler';
 import { handleUpdatedPatients } from './handlers/updated-patients.handler';
 import { HandlerRegistry } from './protocol/message-handler';
 import { MessageType } from './protocol/message-types';
-import { SendFn, ProtocolMessage } from './protocol/protocol-message';
+import { ProtocolMessage, SendFn } from './protocol/protocol-message';
 
 const logger = createLogger('SyncSessionService');
 
@@ -26,13 +27,12 @@ class SyncSessionService {
 
   private readonly send: SendFn = (message) => {
     logger.debug('Sending message: ', message);
+    logSyncMessage('sent', message.type, message.content);
     tcpClient.send(message);
   };
 
   start(host: string, port: number): void {
     this.registry = new HandlerRegistry();
-    // register handlers
-    this.registry.register(MessageType.CLIENT_REQUEST_SYNC, handleSyncStartRequest);
     this.registry.register(MessageType.SERVER_ACK_SYNC_REQUEST, handleAckSyncRequest);
     this.registry.register(MessageType.SERVER_SEND_UPDATED_PATIENTS, handleUpdatedPatients);
     this.registry.register(MessageType.SERVER_ACK_NEW_PATIENTS, handlePatientExportCompleted);
@@ -52,13 +52,11 @@ class SyncSessionService {
           sync_session_state$.isConnected.set(true);
           sync_session_state$.currentPhase.set('handshake');
           sync_session_state$.currentPhaseMessage.set('Négociation de connexion...');
-          this.registry.dispatch(
+
+          handleSyncStartRequest(
             {
-              type: MessageType.CLIENT_REQUEST_SYNC,
-              content: {
-                client_id: user$.user.id.peek() ?? '',
-                name: userProfile$.display_name.peek() ?? 'Collect',
-              },
+              client_id: user$.user.id.peek() ?? '',
+              name: userProfile$.display_name.peek() ?? 'Collect',
             },
             this.send,
           );
@@ -79,11 +77,16 @@ class SyncSessionService {
   }
 
   disconnect(): void {
-    this.send({
-      type: MessageType.CLIENT_DISCONNECTED,
-      content: null,
-    });
-    tcpClient.disconnect();
+    try {
+      this.send({
+        type: MessageType.CLIENT_DISCONNECTED,
+        content: null,
+      });
+      tcpClient.disconnect();
+    } catch (e) {
+      logger.error('failing to disconnected');
+    }
+
     sync_session_state$.set(initialSessionState);
   }
 }

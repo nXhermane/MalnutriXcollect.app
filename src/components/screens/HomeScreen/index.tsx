@@ -2,9 +2,9 @@ import { useLocationPrompt } from '@/hooks/useLocationPrompt';
 import { vibrate } from '@/lib/utils/haptics';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { View } from 'react-native';
 import { useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated';
 import { HomeBottom, HomeHeader, LocationPromptSheet, PatientList } from './components';
+import { View } from 'react-native';
 
 export function HomeScreen() {
   const scrollY = useSharedValue(0);

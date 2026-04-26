@@ -5,11 +5,10 @@ import { AnthropometricMeasure } from '@/schemas/anthropometric-measure.schema';
 import { BiologicalMeasure } from '@/schemas/biological-measure.schema';
 import { ClinicalFieldMeasure } from '@/schemas/clinical-field-measure.schema';
 import { measures$ } from '@/store/measures/measures.store';
-import { observable } from '@legendapp/state';
-import { useValue } from '@legendapp/state/react';
+import { useObservable, useValue } from '@legendapp/state/react';
 import { FlashList } from '@shopify/flash-list';
 import { cn, Tabs } from 'heroui-native';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { AnthropometricMeasureCard } from './measures/AnthropometricMeasureCard';
 import { BiologicalMeasureCard } from './measures/BiologicalMeasureCard';
@@ -17,7 +16,40 @@ import { ClinicalFieldMeasureCard } from './measures/ClinicalFieldMeasureCard';
 
 type MeasureTabName = 'anthro' | 'clinical' | 'biological';
 
-const active_measure_tab$ = observable<MeasureTabName>('anthro');
+function sortByNewest(a: { createdAt: string }, b: { createdAt: string }): number {
+  return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+}
+
+function renderAnthro(item: AnthropometricMeasure, patientId: string) {
+  return (
+    <AnthropometricMeasureCard
+      surfaceVariant="default"
+      measure={item}
+      patientId={patientId}
+      isLocked={item.isLocked}
+    />
+  );
+}
+function renderClinical(item: ClinicalFieldMeasure, patientId: string) {
+  return (
+    <ClinicalFieldMeasureCard
+      surfaceVariant="default"
+      measure={item}
+      patientId={patientId}
+      isLocked={item.isLocked}
+    />
+  );
+}
+function renderBiological(item: BiologicalMeasure, patientId: string) {
+  return (
+    <BiologicalMeasureCard
+      surfaceVariant="default"
+      measure={item}
+      patientId={patientId}
+      isLocked={item.isLocked}
+    />
+  );
+}
 
 interface Props {
   patientId: string;
@@ -63,25 +95,36 @@ function MeasureList<T extends { id: string; isLocked?: boolean }>({
 
 export function MeasuresTab({ patientId }: Props) {
   const patientMeasures = useValue(() => measures$[patientId].get());
-  const activeTab = useValue(active_measure_tab$);
 
-  const sortByNewest = (a: { createdAt: string }, b: { createdAt: string }) =>
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  const activeTab$ = useObservable<MeasureTabName>('anthro');
+  const activeTab = useValue(activeTab$);
 
-  const anthros = [...(patientMeasures?.[MeasureCategory.ANTHRO] ?? [])].sort(
-    sortByNewest,
-  ) as AnthropometricMeasure[];
-  const clinicals = [...(patientMeasures?.[MeasureCategory.FIELD] ?? [])].sort(
-    sortByNewest,
-  ) as ClinicalFieldMeasure[];
-  const biologicals = [...(patientMeasures?.[MeasureCategory.BIOLOGICAL] ?? [])].sort(
-    sortByNewest,
-  ) as BiologicalMeasure[];
+  const anthros = useMemo(
+    () =>
+      [...(patientMeasures?.[MeasureCategory.ANTHRO] ?? [])].sort(
+        sortByNewest,
+      ) as AnthropometricMeasure[],
+    [patientMeasures],
+  );
+  const clinicals = useMemo(
+    () =>
+      [...(patientMeasures?.[MeasureCategory.FIELD] ?? [])].sort(
+        sortByNewest,
+      ) as ClinicalFieldMeasure[],
+    [patientMeasures],
+  );
+  const biologicals = useMemo(
+    () =>
+      [...(patientMeasures?.[MeasureCategory.BIOLOGICAL] ?? [])].sort(
+        sortByNewest,
+      ) as BiologicalMeasure[],
+    [patientMeasures],
+  );
 
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(v) => active_measure_tab$.set(v as MeasureTabName)}
+      onValueChange={(v) => activeTab$.set(v as MeasureTabName)}
       className="flex-1">
       <Tabs.List className="mx-2 mt-2">
         <Tabs.Indicator />
@@ -154,14 +197,7 @@ export function MeasuresTab({ patientId }: Props) {
         <MeasureList
           data={anthros}
           patientId={patientId}
-          renderItem={(item, pid) => (
-            <AnthropometricMeasureCard
-              surfaceVariant="default"
-              measure={item}
-              patientId={pid}
-              isLocked={item.isLocked}
-            />
-          )}
+          renderItem={renderAnthro}
           emptyTitle="Aucune mesure anthropométrique"
           emptyDescription="Les mesures anthropométriques apparaîtront ici."
         />
@@ -171,14 +207,7 @@ export function MeasuresTab({ patientId }: Props) {
         <MeasureList
           data={clinicals}
           patientId={patientId}
-          renderItem={(item, pid) => (
-            <ClinicalFieldMeasureCard
-              surfaceVariant="default"
-              measure={item}
-              patientId={pid}
-              isLocked={item.isLocked}
-            />
-          )}
+          renderItem={renderClinical}
           emptyTitle="Aucune mesure clinique"
           emptyDescription="Les mesures de champs cliniques apparaîtront ici."
         />
@@ -188,14 +217,7 @@ export function MeasuresTab({ patientId }: Props) {
         <MeasureList
           data={biologicals}
           patientId={patientId}
-          renderItem={(item, pid) => (
-            <BiologicalMeasureCard
-              surfaceVariant="default"
-              measure={item}
-              patientId={pid}
-              isLocked={item.isLocked}
-            />
-          )}
+          renderItem={renderBiological}
           emptyTitle="Aucune mesure biologique"
           emptyDescription="Les mesures biologiques apparaîtront ici."
         />

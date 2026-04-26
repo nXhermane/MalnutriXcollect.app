@@ -1,5 +1,5 @@
 import { supabase } from '@/services/supabase';
-import { observable } from '@legendapp/state';
+import { observable, syncState } from '@legendapp/state';
 import { user$ } from '../user/user.store';
 import { ObservablePersistMMKV } from '../config';
 import { Database } from '@/services/supabase/database.types';
@@ -76,6 +76,12 @@ export const services$ = observable(
   }),
 );
 
+export function syncRefData() {
+  const depState = syncState(departments$);
+  const facState = syncState(facilities$);
+  const serState = syncState(services$);
+  return Promise.all([depState.sync(), facState.sync(), serState.sync()]);
+}
 export function getFacilitiesByDepartment(departmentId: string) {
   return facilities$.get().filter((facility) => facility.department_id === departmentId);
 }

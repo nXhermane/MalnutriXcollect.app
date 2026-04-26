@@ -5,7 +5,7 @@ import {
   connectToDevice,
   disconnect as disconnectWifi,
 } from '@/services/wifi-manager/wifi-manager';
-import { sync_session_state$ } from '@/store/sync/sync-session.store';
+import { initialSessionState, sync_session_state$ } from '@/store/sync/sync-session.store';
 import { useValue } from '@legendapp/state/react';
 import { useCallback, useRef, useState } from 'react';
 
@@ -15,6 +15,7 @@ type WifiStep = 'idle' | 'connecting_wifi' | 'wifi_ready' | 'error';
 
 export function useSyncSession() {
   const sessionState = useValue(sync_session_state$);
+  const isConnected = useValue(sync_session_state$.isConnected.get());
   const [wifiStep, setWifiStep] = useState<WifiStep>('idle');
   const [wifiError, setWifiError] = useState<string | null>(null);
 
@@ -58,20 +59,42 @@ export function useSyncSession() {
   }, []);
 
   const handleDisconnect = useCallback(async () => {
-    syncSessionService.disconnect();
+    const ops: Promise<void>[] = [
+      new Promise<void>((resolve) => {
+        try {
+          syncSessionService.disconnect();
+        } catch (e) {
+          logger.debug('[useSyncSession] syncSessionService.disconnect error (ignoré):', e);
+        }
+        resolve();
+      }),
+    ];
 
     if (ssidRef.current) {
       logger.info(`[useSyncSession] Déconnexion du réseau WiFi : ${ssidRef.current}`);
-      await disconnectWifi(ssidRef.current);
-      ssidRef.current = null;
+      ops.push(
+        disconnectWifi(ssidRef.current).catch((e) => {
+          logger.debug('[useSyncSession] WiFi disconnect error (ignoré):', e);
+        }),
+      );
     }
 
+    try {
+      await Promise.race([
+        Promise.all(ops),
+        new Promise<void>((resolve) => setTimeout(resolve, 3000)),
+      ]);
+    } catch (e) {
+      logger.debug('[useSyncSession] Disconnect race error (ignoré):', e);
+    }
+    ssidRef.current = null;
     scannedRef.current = false;
+    sync_session_state$.set(initialSessionState);
     setWifiStep('idle');
     setWifiError(null);
   }, []);
 
-  const { isConnected, confirmedPatientIds, lastSyncTimestamp, currentPhase, currentPhaseMessage } =
+  const { confirmedPatientIds, lastSyncTimestamp, currentPhase, currentPhaseMessage } =
     sessionState;
 
   const isSessionActive = wifiStep !== 'idle' || isConnected;

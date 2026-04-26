@@ -19,11 +19,12 @@ export async function connectToDevice(ssid: string, password: string) {
   }
 }
 
-export async function disconnect(ssid: string) {
+export async function disconnect(ssid: string): Promise<void> {
   try {
     await Wifi.disconnectFromSSID(ssid);
+    logger.info(`[WifiManager] Disconnected from ${ssid}`);
   } catch (e) {
-    logger.error('Already disconnect form wifi', e);
+    logger.debug('[WifiManager] Disconnect attempt (already disconnected or not found):', e);
   }
 }
 

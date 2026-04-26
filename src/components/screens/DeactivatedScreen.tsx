@@ -17,7 +17,7 @@ export function DeactivatedScreen() {
   }, []);
 
   return (
-    <View className="flex-1 overflow-hidden bg-background">
+    <View className="flex-1 overflow-hidden bg-background p-safe-offset-0">
       <MeshGradientBackground />
 
       <View className="flex-[0.6] items-center justify-center gap-y-4 px-8">
